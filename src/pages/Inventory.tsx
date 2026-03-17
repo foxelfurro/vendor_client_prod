@@ -34,15 +34,17 @@ const Inventory = () => {
   if (loading) return <div className="p-10 text-center text-slate-500">Contando las piezas...</div>;
 
   return (
-    <div className="p-8 bg-slate-50 min-h-screen">
+    // Se ajustó el padding para móviles (p-4) y pantallas más grandes (md:p-8)
+    <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-2 text-slate-900">Mi Inventario</h1>
       <p className="text-slate-500 mb-8">Administra tus joyas y revisa tu stock disponible.</p>
 
-      <Card>
-        <CardHeader>
+      {/* Agregamos overflow-hidden o ajustamos el padding del card en móvil si es necesario */}
+      <Card className="overflow-hidden">
+        <CardHeader className="p-4 md:p-6">
           <CardTitle>Productos en Stock</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 md:p-6">
           {inventario.length === 0 ? (
             <div className="text-center py-10 text-slate-500">
               Aún no tienes joyas en tu inventario. ¡Ve al Catálogo a agregar algunas! 💎
@@ -51,6 +53,8 @@ const Inventory = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  {/* Nueva cabecera para la Imagen */}
+                  <TableHead className="w-[60px] md:w-[80px]">Imagen</TableHead>
                   <TableHead>Joya</TableHead>
                   <TableHead>SKU</TableHead>
                   <TableHead className="text-right">Precio de Venta</TableHead>
@@ -61,6 +65,15 @@ const Inventory = () => {
               <TableBody>
                 {inventario.map((item) => (
                   <TableRow key={item.id}>
+                    {/* Nueva celda con la miniatura de la imagen */}
+                    <TableCell>
+                      <img
+                        // Asegúrate de cambiar 'imagen_url' por el nombre real de la propiedad en tu API
+                        src={item.imagen_url || "https://via.placeholder.com/150"} 
+                        alt={item.nombre}
+                        className="h-10 w-10 md:h-12 md:w-12 object-cover rounded-md border bg-slate-100"
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{item.nombre}</TableCell>
                     <TableCell className="text-slate-500 text-xs">{item.sku}</TableCell>
                     <TableCell className="text-right">${item.precio_personalizado}</TableCell>
