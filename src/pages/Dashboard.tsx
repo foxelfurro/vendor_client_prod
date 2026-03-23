@@ -10,7 +10,6 @@ import {
   TrendingUp, 
   Layers, 
   Coins, 
-  Banknote,
   ShoppingCart,
   BadgeDollarSign
 } from "lucide-react";

@@ -6,7 +6,6 @@ import {
   Package, 
   LogOut, 
   Gem, 
-  BadgeDollarSign,
   Shield,
   Menu,
   X
