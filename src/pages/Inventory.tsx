@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"; // <-- Importamos Input para buscar y editar
-import { QrCode, X, Search, Save } from "lucide-react"; // <-- Agregamos Search y Save
+import { QrCode, X, Search } from "lucide-react"; //Save } from "lucide-react"; // <-- Agregamos Search y Save
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const extraerCodigoDeURL = (url: string) => {
