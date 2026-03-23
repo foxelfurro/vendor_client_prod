@@ -28,8 +28,7 @@ const Layout = () => {
     const items = [
       { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
       { name: 'Catálogo Maestro', path: '/catalogo', icon: Library },
-      { name: 'Mi Inventario', path: '/inventario', icon: Package },
-      { name: 'Caja', path: '/caja', icon: BadgeDollarSign },
+      { name: 'Mi Inventario', path: '/inventario', icon: Package }
     ];
     
     if (isAdmin) {
