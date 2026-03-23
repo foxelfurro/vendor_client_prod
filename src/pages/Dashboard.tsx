@@ -110,6 +110,7 @@ const Dashboard = () => {
     }
   };
 
+  if (loading) return <div className="p-10 text-slate-500">Abriendo la caja...</div>;
   if (!stats) return <div className="p-10 text-center">Cargando datos de la joyería...</div>;
 
   return (
