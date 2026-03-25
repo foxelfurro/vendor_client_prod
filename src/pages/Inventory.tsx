@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { QrCode, X, Search, Package, Loader2 } from "lucide-react"; 
+import { QrCode, X, Search, Package, Loader2 } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ITEMS_PER_PAGE = 12;
@@ -13,7 +13,7 @@ const Inventory = () => {
   const [inventario, setInventario] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
-  
+
   const [skuFilter, setSkuFilter] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
@@ -31,35 +31,54 @@ const Inventory = () => {
     }
   };
 
+  const handleUpdateStock = async (inventarioId: number, nuevoStock: number) => {
+    try {
+      setUpdatingId(inventarioId);
+
+      await api.put(`/vendor/inventory/${inventarioId}`, {
+        stock: nuevoStock,
+      });
+
+      setInventario((prev) =>
+        prev.map((item) =>
+          item.inventario_id === inventarioId
+            ? { ...item, stock: nuevoStock }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error("Error al actualizar stock:", error);
+      alert("No se pudo actualizar el stock.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   useEffect(() => {
     fetchInventory();
   }, []);
 
-  // --- LÓGICA DEL ESCÁNER AUTOMÁTICO ---
   useEffect(() => {
     if (!showScanner) return;
 
     const scanner = new Html5QrcodeScanner(
-      "inventory-reader", 
-      { fps: 10, qrbox: { width: 250, height: 250 } }, 
+      "inventory-reader",
+      { fps: 10, qrbox: { width: 250, height: 250 } },
       false
     );
 
     scanner.render(
       async (decodedText) => {
-        // 1. Limpiamos la URL y separamos las partes
         const cleanUrl = decodedText.trim().replace(/\/$/, "");
-        const partes = cleanUrl.split('/');
-        
-        // 2. Tomamos los dos últimos números (ej. 16154546 y 326101)
-        const posibleSku1 = partes[partes.length - 1]; 
-        const posibleSku2 = partes[partes.length - 2]; 
+        const partes = cleanUrl.split("/");
+
+        const posibleSku1 = partes[partes.length - 1];
+        const posibleSku2 = partes[partes.length - 2];
 
         try {
-          const { data: catalogo } = await api.get('/admin/catalog');
-          
-          // 3. Buscamos coincidencia con cualquiera de los dos números
-          const joyaEncontrada = catalogo.find((p: any) => 
+          const { data: catalogo } = await api.get("/admin/catalog");
+
+          const joyaEncontrada = catalogo.find((p: any) =>
             p.sku.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
             p.sku.trim().toUpperCase() === posibleSku2?.toUpperCase()
           );
@@ -67,60 +86,52 @@ const Inventory = () => {
           if (joyaEncontrada) {
             await scanner.clear();
             setShowScanner(false);
-            
-            // 4. Preguntamos datos y agregamos
-            const stockInput = window.prompt(`¡Joya leída: ${joyaEncontrada.nombre}!\n¿Cuántas piezas físicas vas a agregar a tu stock?`, "1");
+
+            const stockInput = window.prompt(
+              `¡Joya leída: ${joyaEncontrada.nombre}!\n¿Cuántas piezas físicas vas a agregar a tu stock?`,
+              "1"
+            );
             if (!stockInput) return;
 
             const precioSugerido = joyaEncontrada.precio_sugerido || 0;
-            const precioInput = window.prompt("¿A qué precio la vas a vender?", precioSugerido.toString());
+            const precioInput = window.prompt(
+              "¿A qué precio la vas a vender?",
+              precioSugerido.toString()
+            );
             if (!precioInput) return;
 
-            await api.post('/vendor/inventory', {
+            await api.post("/vendor/inventory", {
               producto_maestro_id: joyaEncontrada.id,
               stock: parseInt(stockInput),
-              precio_personalizado: parseFloat(precioInput)
+              precio_personalizado: parseFloat(precioInput),
             });
 
             alert("✅ ¡Joya guardada en tu inventario con éxito!");
-            fetchInventory(); // Recargamos para que aparezca
-
+            fetchInventory();
           } else {
             await scanner.clear();
             setShowScanner(false);
-            alert(`No se encontró ninguna joya con el código ${posibleSku1} o ${posibleSku2} en la base de datos maestra.`);
+            alert(
+              `No se encontró ninguna joya con el código ${posibleSku1} o ${posibleSku2} en la base de datos maestra.`
+            );
           }
         } catch (error) {
           console.error("Error al consultar el catálogo o guardar:", error);
           alert("Hubo un error de conexión al procesar el código QR.");
         }
       },
-      () => { /* Ignoramos errores de enfoque */ }
+      () => {
+        /* Ignoramos errores de enfoque de la cámara */
+      }
     );
 
     return () => {
-      scanner.clear().catch(err => console.error(err));
+      scanner.clear().catch(() => {});
     };
   }, [showScanner]);
 
-  const handleUpdateStock = async (inventario_id: number, nuevoStock: number) => {
-    try {
-      setUpdatingId(inventario_id);
-      await api.put(`/vendor/inventory/${inventario_id}`, { stock: nuevoStock });
-      
-      setInventario(inventario.map(item => 
-        item.inventario_id === inventario_id ? { ...item, stock: nuevoStock } : item
-      ));
-    } catch (error) {
-      console.error("Error al actualizar el stock:", error);
-      alert("Hubo un error al actualizar el stock.");
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const inventarioFiltrado = inventario.filter((item) => 
-    item.sku.toLowerCase().includes(skuFilter.toLowerCase()) || 
+  const inventarioFiltrado = inventario.filter((item) =>
+    item.sku.toLowerCase().includes(skuFilter.toLowerCase()) ||
     item.nombre.toLowerCase().includes(skuFilter.toLowerCase())
   );
 
@@ -130,12 +141,18 @@ const Inventory = () => {
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
+      const target = entries[0];
+      if (target.isIntersecting) {
         setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
       }
-    }, { root: null, rootMargin: "100px", threshold: 0.1 });
+    }, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0.1
+    });
 
     if (loaderRef.current) observer.observe(loaderRef.current);
+
     return () => {
       if (loaderRef.current) observer.unobserve(loaderRef.current);
     };
@@ -152,8 +169,8 @@ const Inventory = () => {
           <h1 className="text-3xl font-bold text-slate-900">Mi Inventario</h1>
           <p className="text-slate-500">Administra tus joyas y revisa tu stock disponible.</p>
         </div>
-        
-        <Button 
+
+        <Button
           onClick={() => setShowScanner(!showScanner)}
           variant={showScanner ? "destructive" : "default"}
           className="shadow-md w-full sm:w-auto"
@@ -168,7 +185,7 @@ const Inventory = () => {
           <CardContent className="pt-6">
             <div id="inventory-reader" className="mx-auto max-w-sm overflow-hidden rounded-lg"></div>
             <p className="text-center text-sm text-slate-500 mt-4">
-              Escanea el QR de la etiqueta para importarla a tu stock.
+              Escanea el QR de la joya para importarla.
             </p>
           </CardContent>
         </Card>
@@ -193,8 +210,8 @@ const Inventory = () => {
 
       {inventarioFiltrado.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-slate-200 text-slate-500 shadow-sm">
-          {inventario.length === 0 
-            ? "Aún no tienes joyas. ¡Usa el escáner para agregar piezas! 💎" 
+          {inventario.length === 0
+            ? "Aún no tienes joyas. ¡Usa el escáner para agregar piezas! 💎"
             : "No se encontraron joyas con esa búsqueda."}
         </div>
       ) : (
@@ -203,12 +220,13 @@ const Inventory = () => {
             {joyasMostradas.map((item) => (
               <Card key={item.inventario_id} className="flex flex-col overflow-hidden hover:shadow-md transition-all border-slate-200">
                 <div className="aspect-square w-full bg-slate-100 relative overflow-hidden border-b border-slate-100">
-                  <img 
-                    src={item.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"} 
+                  <img
+                    src={item.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"}
                     alt={item.nombre}
                     className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
                   />
                 </div>
+
                 <CardHeader className="pb-3 bg-white">
                   <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-lg font-bold text-slate-800 leading-tight">
@@ -224,11 +242,13 @@ const Inventory = () => {
                   </div>
                   <p className="text-xs text-slate-400 font-mono mt-1">SKU: {item.sku}</p>
                 </CardHeader>
+
                 <CardContent className="pt-2 flex-1 flex flex-col justify-between bg-slate-50/50">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-sm font-medium text-slate-500">Precio Venta</span>
                     <span className="text-xl font-bold text-indigo-900">${item.precio_personalizado}</span>
                   </div>
+
                   <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                     <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2 text-center">
                       Stock Físico
@@ -259,6 +279,7 @@ const Inventory = () => {
               </Card>
             ))}
           </div>
+
           {visibleCount < inventarioFiltrado.length && (
             <div ref={loaderRef} className="py-10 flex justify-center items-center text-slate-400">
               <Loader2 className="w-8 h-8 animate-spin" />
