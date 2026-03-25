@@ -58,6 +58,7 @@ const Inventory = () => {
     fetchInventory();
   }, []);
 
+// --- LÓGICA DEL ESCÁNER AUTOMÁTICO (REEMPLAZA TODO ESTE USEEFFECT) ---
   useEffect(() => {
     if (!showScanner) return;
 
@@ -76,47 +77,72 @@ const Inventory = () => {
         const posibleSku2 = partes[partes.length - 2];
 
         try {
-          const { data: catalogo } = await api.get("/vendor/explore");
-
-          const joyaEncontrada = catalogo.find((p: any) =>
-            p.sku.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
-            p.sku.trim().toUpperCase() === posibleSku2?.toUpperCase()
+          // 1. PRIMERO BUSCAMOS SI YA LA TIENES EN TU INVENTARIO LOCAL
+          const joyaEnMiInventario = inventario.find((p: any) =>
+            p.sku?.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
+            p.sku?.trim().toUpperCase() === posibleSku2?.toUpperCase()
           );
 
-          if (joyaEncontrada) {
+          if (joyaEnMiInventario) {
+            await scanner.clear();
+            setShowScanner(false);
+
+            // Si ya la tienes, te preguntamos si quieres sumar más stock
+            const sumarStock = window.prompt(
+              `¡Ya tienes ${joyaEnMiInventario.nombre} en tu inventario!\nTienes ${joyaEnMiInventario.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`, 
+              "1"
+            );
+
+            if (sumarStock) {
+              const nuevoStockTotal = joyaEnMiInventario.stock + parseInt(sumarStock);
+              await handleUpdateStock(joyaEnMiInventario.inventario_id, nuevoStockTotal);
+              // alert(`¡Stock actualizado a ${nuevoStockTotal} piezas!`); // Opcional
+            }
+            return; // Terminamos aquí
+          }
+
+          // 2. SI NO LA TIENES, LA BUSCAMOS EN EL CATÁLOGO PARA IMPORTARLA
+          const { data: catalogo } = await api.get("/vendor/explore");
+
+          const joyaNueva = catalogo.find((p: any) =>
+            p.sku?.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
+            p.sku?.trim().toUpperCase() === posibleSku2?.toUpperCase()
+          );
+
+          if (joyaNueva) {
             await scanner.clear();
             setShowScanner(false);
 
             const stockInput = window.prompt(
-              `¡Joya leída: ${joyaEncontrada.nombre}!\n¿Cuántas piezas físicas vas a agregar a tu stock?`,
+              `¡Joya nueva detectada: ${joyaNueva.nombre}!\n¿Cuántas piezas físicas vas a registrar?`, 
               "1"
             );
             if (!stockInput) return;
 
-            const precioSugerido = joyaEncontrada.precio_sugerido || 0;
+            const precioSugerido = joyaNueva.precio_sugerido || 0;
             const precioInput = window.prompt(
-              "¿A qué precio la vas a vender?",
+              "¿A qué precio la vas a vender?", 
               precioSugerido.toString()
             );
             if (!precioInput) return;
 
             await api.post("/vendor/inventory", {
-              producto_maestro_id: joyaEncontrada.id,
+              producto_maestro_id: joyaNueva.id,
               stock: parseInt(stockInput),
               precio_personalizado: parseFloat(precioInput),
             });
 
             alert("✅ ¡Joya guardada en tu inventario con éxito!");
             fetchInventory();
+
           } else {
+            // 3. SI DE PLANO NO EXISTE EN NINGÚN LADO
             await scanner.clear();
             setShowScanner(false);
-            alert(
-              `No se encontró ninguna joya con el código ${posibleSku1} o ${posibleSku2} en la base de datos maestra.`
-            );
+            alert(`El código ${posibleSku1} no existe en la base de datos maestra. El administrador debe darla de alta primero.`);
           }
         } catch (error) {
-          console.error("Error al consultar el catálogo o guardar:", error);
+          console.error("Error al procesar el código QR:", error);
           alert("Hubo un error de conexión al procesar el código QR.");
         }
       },
@@ -128,7 +154,7 @@ const Inventory = () => {
     return () => {
       scanner.clear().catch(() => {});
     };
-  }, [showScanner]);
+  }, [showScanner, inventario]); // <-- Nota importante: agregué 'inventario' aquí para que siempre tenga el stock más reciente
 
   const inventarioFiltrado = inventario.filter((item) =>
     item.sku.toLowerCase().includes(skuFilter.toLowerCase()) ||
