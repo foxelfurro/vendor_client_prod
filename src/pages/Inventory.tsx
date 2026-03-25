@@ -76,7 +76,7 @@ const Inventory = () => {
         const posibleSku2 = partes[partes.length - 2];
 
         try {
-          const { data: catalogo } = await api.get("/admin/catalog");
+          const { data: catalogo } = await api.get("/vendor/explore");
 
           const joyaEncontrada = catalogo.find((p: any) =>
             p.sku.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
