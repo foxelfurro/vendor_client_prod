@@ -7,13 +7,7 @@ import { Input } from "@/components/ui/input";
 import { QrCode, X, Search, Package, Loader2 } from "lucide-react"; 
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
-const extraerCodigoDeURL = (url: string) => {
-  const cleanUrl = url.trim().replace(/\/$/, "");
-  const partes = cleanUrl.split('/');
-  return partes[partes.length - 1];
-};
-
-const ITEMS_PER_PAGE = 12; // Cuántas joyas cargar por cada "página" o scroll
+const ITEMS_PER_PAGE = 12;
 
 const Inventory = () => {
   const [inventario, setInventario] = useState<any[]>([]);
@@ -23,7 +17,6 @@ const Inventory = () => {
   const [skuFilter, setSkuFilter] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  // --- NUEVO ESTADO PARA INFINITE SCROLL ---
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +35,7 @@ const Inventory = () => {
     fetchInventory();
   }, []);
 
-  // Escáner QR
+  // --- LÓGICA DEL ESCÁNER AUTOMÁTICO ---
   useEffect(() => {
     if (!showScanner) return;
 
@@ -54,27 +47,55 @@ const Inventory = () => {
 
     scanner.render(
       async (decodedText) => {
-        const skuEscaneado = extraerCodigoDeURL(decodedText);
+        // 1. Limpiamos la URL y separamos las partes
+        const cleanUrl = decodedText.trim().replace(/\/$/, "");
+        const partes = cleanUrl.split('/');
+        
+        // 2. Tomamos los dos últimos números (ej. 16154546 y 326101)
+        const posibleSku1 = partes[partes.length - 1]; 
+        const posibleSku2 = partes[partes.length - 2]; 
+
         try {
           const { data: catalogo } = await api.get('/admin/catalog');
+          
+          // 3. Buscamos coincidencia con cualquiera de los dos números
           const joyaEncontrada = catalogo.find((p: any) => 
-            p.sku.trim().toUpperCase() === skuEscaneado.toUpperCase()
+            p.sku.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
+            p.sku.trim().toUpperCase() === posibleSku2?.toUpperCase()
           );
 
           if (joyaEncontrada) {
             await scanner.clear();
             setShowScanner(false);
-            alert(`Joya encontrada: ${joyaEncontrada.nombre}. Procede a registrarla en tu stock.`);
+            
+            // 4. Preguntamos datos y agregamos
+            const stockInput = window.prompt(`¡Joya leída: ${joyaEncontrada.nombre}!\n¿Cuántas piezas físicas vas a agregar a tu stock?`, "1");
+            if (!stockInput) return;
+
+            const precioSugerido = joyaEncontrada.precio_sugerido || 0;
+            const precioInput = window.prompt("¿A qué precio la vas a vender?", precioSugerido.toString());
+            if (!precioInput) return;
+
+            await api.post('/vendor/inventory', {
+              producto_maestro_id: joyaEncontrada.id,
+              stock: parseInt(stockInput),
+              precio_personalizado: parseFloat(precioInput)
+            });
+
+            alert("✅ ¡Joya guardada en tu inventario con éxito!");
+            fetchInventory(); // Recargamos para que aparezca
+
           } else {
             await scanner.clear();
             setShowScanner(false);
-            alert(`El código [${skuEscaneado}] no existe en el catálogo maestro.`);
+            alert(`No se encontró ninguna joya con el código ${posibleSku1} o ${posibleSku2} en la base de datos maestra.`);
           }
         } catch (error) {
-          console.error("Error al consultar catálogo maestro:", error);
+          console.error("Error al consultar el catálogo o guardar:", error);
+          alert("Hubo un error de conexión al procesar el código QR.");
         }
       },
-      () => {}
+      () => { /* Ignoramos errores de enfoque */ }
     );
 
     return () => {
@@ -98,47 +119,34 @@ const Inventory = () => {
     }
   };
 
-  // Filtrado de joyas
   const inventarioFiltrado = inventario.filter((item) => 
     item.sku.toLowerCase().includes(skuFilter.toLowerCase()) || 
     item.nombre.toLowerCase().includes(skuFilter.toLowerCase())
   );
 
-  // --- LÓGICA DE INFINITE SCROLL ---
-  // 1. Reiniciar la cuenta visible si el usuario escribe en el buscador
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [skuFilter]);
 
-  // 2. Observador para detectar cuándo el usuario llega al fondo de la pantalla
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      const target = entries[0];
-      // Si el div "loader" entra en la pantalla, aumentamos la cantidad de tarjetas visibles
-      if (target.isIntersecting) {
+      if (entries[0].isIntersecting) {
         setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
       }
-    }, {
-      root: null,
-      rootMargin: "100px", // Empezar a cargar 100px antes de llegar al fondo exacto
-      threshold: 0.1
-    });
+    }, { root: null, rootMargin: "100px", threshold: 0.1 });
 
     if (loaderRef.current) observer.observe(loaderRef.current);
-
     return () => {
       if (loaderRef.current) observer.unobserve(loaderRef.current);
     };
-  }, [inventarioFiltrado.length]); // Re-ejecutar si la lista cambia
+  }, [inventarioFiltrado.length]);
 
-  // 3. Cortamos la lista para mostrar solo la cantidad permitida
   const joyasMostradas = inventarioFiltrado.slice(0, visibleCount);
 
   if (loading) return <div className="p-10 text-center text-slate-500">Contando las piezas...</div>;
 
   return (
     <div className="p-4 sm:p-8 bg-slate-50 min-h-screen">
-      {/* Cabecera */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Mi Inventario</h1>
@@ -155,19 +163,17 @@ const Inventory = () => {
         </Button>
       </div>
 
-      {/* Escáner */}
       {showScanner && (
         <Card className="mb-8 border-2 border-dashed border-slate-300">
           <CardContent className="pt-6">
             <div id="inventory-reader" className="mx-auto max-w-sm overflow-hidden rounded-lg"></div>
             <p className="text-center text-sm text-slate-500 mt-4">
-              Escanea el QR de la joya para importarla.
+              Escanea el QR de la etiqueta para importarla a tu stock.
             </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Barra de Búsqueda */}
       <div className="mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <h2 className="font-semibold text-slate-700 flex items-center gap-2">
           <Package className="w-5 h-5 text-indigo-500" />
@@ -185,7 +191,6 @@ const Inventory = () => {
         </div>
       </div>
 
-      {/* Grid de Tarjetas */}
       {inventarioFiltrado.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-slate-200 text-slate-500 shadow-sm">
           {inventario.length === 0 
@@ -197,8 +202,6 @@ const Inventory = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {joyasMostradas.map((item) => (
               <Card key={item.inventario_id} className="flex flex-col overflow-hidden hover:shadow-md transition-all border-slate-200">
-                
-                {/* Contenedor de la imagen */}
                 <div className="aspect-square w-full bg-slate-100 relative overflow-hidden border-b border-slate-100">
                   <img 
                     src={item.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"} 
@@ -206,7 +209,6 @@ const Inventory = () => {
                     className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
                   />
                 </div>
-
                 <CardHeader className="pb-3 bg-white">
                   <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-lg font-bold text-slate-800 leading-tight">
@@ -222,14 +224,11 @@ const Inventory = () => {
                   </div>
                   <p className="text-xs text-slate-400 font-mono mt-1">SKU: {item.sku}</p>
                 </CardHeader>
-
                 <CardContent className="pt-2 flex-1 flex flex-col justify-between bg-slate-50/50">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-sm font-medium text-slate-500">Precio Venta</span>
                     <span className="text-xl font-bold text-indigo-900">${item.precio_personalizado}</span>
                   </div>
-
-                  {/* Control de Stock */}
                   <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                     <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2 text-center">
                       Stock Físico
@@ -260,8 +259,6 @@ const Inventory = () => {
               </Card>
             ))}
           </div>
-
-          {/* ESTE ES EL DIV INVISIBLE QUE DISPARA EL INFINITE SCROLL */}
           {visibleCount < inventarioFiltrado.length && (
             <div ref={loaderRef} className="py-10 flex justify-center items-center text-slate-400">
               <Loader2 className="w-8 h-8 animate-spin" />
@@ -273,6 +270,5 @@ const Inventory = () => {
     </div>
   );
 };
-
 
 export default Inventory;
