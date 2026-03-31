@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PackagePlus, Search, Library, Loader2 } from "lucide-react";
@@ -11,10 +12,17 @@ const Catalog = () => {
   const [productos, setProductos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Nuevos estados para Búsqueda e Infinite Scroll
+  // Estados para Búsqueda e Infinite Scroll
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
+
+  // Estados para el Modal (Dialog) de agregar producto
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
+  const [formStock, setFormStock] = useState<string>("1");
+  const [formPrecio, setFormPrecio] = useState<string>("");
+  const [guardando, setGuardando] = useState(false);
 
   // Cargar los productos que el vendedor AÚN NO tiene en su inventario
   const fetchCatalog = async () => {
@@ -32,25 +40,35 @@ const Catalog = () => {
     fetchCatalog();
   }, []);
 
-  // Función original para vincular el producto a su inventario
-  const handleAgregarInventario = async (productoId: string, precioSugerido: number) => {
-    const stockInput = window.prompt("¿Cuántas piezas tienes físicamente?");
-    if (!stockInput) return;
+  // --- LÓGICA DEL MODAL ---
+  // Abre el modal y prepara los datos por defecto
+  const abrirModal = (producto: any) => {
+    setProductoSeleccionado(producto);
+    setFormStock("1"); // Por defecto sugerimos 1 pieza
+    setFormPrecio(producto.precio_sugerido.toString()); // Sugerimos el precio base
+    setIsModalOpen(true);
+  };
 
-    const precioInput = window.prompt("¿A qué precio lo vas a vender?", precioSugerido.toString());
-    if (!precioInput) return;
+  // Procesa el formulario del modal
+  const handleConfirmarAgregar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productoSeleccionado || !formStock || !formPrecio) return;
 
+    setGuardando(true);
     try {
       await api.post('/vendor/inventory', {
-        producto_maestro_id: productoId,
-        stock: parseInt(stockInput),
-        precio_personalizado: parseFloat(precioInput)
+        producto_maestro_id: productoSeleccionado.id,
+        stock: parseInt(formStock),
+        precio_personalizado: parseFloat(formPrecio)
       });
       
       alert("¡Producto agregado a tu inventario con éxito! 💎");
-      fetchCatalog(); // Volvemos a cargar para que desaparezca
+      setIsModalOpen(false); // Cerramos el modal
+      fetchCatalog(); // Volvemos a cargar para que desaparezca del catálogo
     } catch (error: any) {
       alert(error.response?.data?.error || "Hubo un error al agregar el producto");
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -61,12 +79,10 @@ const Catalog = () => {
   );
 
   // --- LÓGICA DE INFINITE SCROLL ---
-  // 1. Reiniciar la cuenta si el usuario busca algo
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [searchTerm]);
 
-  // 2. Observador para cargar más al llegar al fondo
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
@@ -85,31 +101,30 @@ const Catalog = () => {
     };
   }, [productosFiltrados.length]);
 
-  // 3. Cortamos la lista para mostrar solo las tarjetas permitidas
   const productosMostrados = productosFiltrados.slice(0, visibleCount);
 
-  if (loading) return <div className="p-10 text-center text-slate-500 flex flex-col items-center justify-center min-h-[50vh]"><Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-500" />Abriendo la bóveda...</div>;
+  if (loading) return <div className="p-10 text-center text-slate-500 flex flex-col items-center justify-center min-h-[50vh] w-full"><Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-500" />Abriendo la bóveda...</div>;
 
   return (
     <div className="p-4 sm:p-8 bg-slate-50 min-h-screen">
       {/* Cabecera */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-slate-900">Catálogo Maestro</h1>
-        <p className="text-slate-500">Explora las joyas de la marca y agrégalas a tu vitrina personal.</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-900">Catálogo Maestro</h1>
+        <p className="text-sm sm:text-base text-slate-500">Explora las joyas de la marca y agrégalas a tu vitrina personal.</p>
       </div>
 
-      {/* Barra de Búsqueda (NUEVO) */}
-      <div className="mb-8 bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+      {/* Barra de Búsqueda */}
+      <div className="mb-8 bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-4 md:items-center justify-between">
         <h2 className="font-semibold text-slate-700 flex items-center gap-2">
-          <Library className="w-5 h-5 text-indigo-500" />
-          Joyas para Importar ({productosFiltrados.length})
+          <Library className="w-5 h-5 text-indigo-500 flex-shrink-0" />
+          <span className="truncate">Joyas para Importar ({productosFiltrados.length})</span>
         </h2>
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+        <div className="relative w-full md:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             type="text"
             placeholder="Buscar joya por nombre o SKU..."
-            className="pl-9 bg-slate-50 border-slate-200"
+            className="pl-9 bg-slate-50 border-slate-200 w-full"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -118,7 +133,7 @@ const Catalog = () => {
 
       {/* Grid de Tarjetas */}
       {productosFiltrados.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-slate-200 text-slate-500 shadow-sm">
+        <div className="text-center py-16 px-4 bg-white rounded-xl border border-slate-200 text-slate-500 shadow-sm w-full">
           {productos.length === 0 
             ? "Ya tienes todos los productos de la marca en tu inventario. 😎"
             : "No se encontraron joyas con esa búsqueda."}
@@ -127,43 +142,45 @@ const Catalog = () => {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {productosMostrados.map((prod) => (
-              <Card key={prod.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-all border-slate-200">
-                
-                {/* Imagen de la Joya */}
-                <div className="aspect-square bg-slate-100 flex items-center justify-center overflow-hidden group">
+              <Card key={prod.id} className="h-full overflow-hidden flex flex-col hover:shadow-lg transition-all border-slate-200">
+                <div className="aspect-square bg-slate-100 flex items-center justify-center overflow-hidden group relative">
                   {prod.ruta_imagen ? (
                     <img 
                       src={prod.ruta_imagen} 
                       alt={prod.nombre} 
-                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" 
+                      className="absolute inset-0 object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" 
                     />
                   ) : (
-                    <span className="text-slate-400 text-sm flex flex-col items-center">
+                    <span className="text-slate-400 text-sm flex flex-col items-center z-10">
                       <PackagePlus className="w-8 h-8 mb-2 opacity-50" />
                       Sin imagen
                     </span>
                   )}
                 </div>
                 
-                <CardHeader className="pb-2 bg-white">
-                  <div className="text-xs text-slate-400 font-mono mb-1">SKU: {prod.sku}</div>
-                  <CardTitle className="text-lg leading-tight text-slate-800">{prod.nombre}</CardTitle>
+                <CardHeader className="pb-2 bg-white flex-none">
+                  <div className="text-xs text-slate-400 font-mono mb-1 truncate">SKU: {prod.sku}</div>
+                  <CardTitle className="text-lg leading-tight text-slate-800 line-clamp-2 min-h-[2.75rem]">
+                    {prod.nombre}
+                  </CardTitle>
                 </CardHeader>
                 
-                <CardContent className="flex-grow pt-2 bg-white">
-                  <p className="text-2xl font-bold text-slate-900">
-                    ${prod.precio_sugerido}
-                  </p>
-                  <p className="text-xs text-slate-500 font-medium">Precio sugerido</p>
+                <CardContent className="flex-grow pt-2 bg-white flex flex-col justify-end">
+                  <div>
+                    <p className="text-2xl font-bold text-slate-900">
+                      ${prod.precio_sugerido}
+                    </p>
+                    <p className="text-xs text-slate-500 font-medium">Precio sugerido</p>
+                  </div>
                 </CardContent>
                 
-                <CardFooter className="bg-slate-50/50 pt-4 border-t border-slate-100">
+                <CardFooter className="bg-slate-50/50 pt-4 border-t border-slate-100 flex-none">
                   <Button 
-                    onClick={() => handleAgregarInventario(prod.id, prod.precio_sugerido)} 
+                    onClick={() => abrirModal(prod)} // <-- Reemplazamos la función directa por abrir el modal
                     className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all hover:translate-y-[-2px]"
                   >
-                    <PackagePlus className="w-4 h-4 mr-2" />
-                    Agregar a mi stock
+                    <PackagePlus className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Agregar a mi stock</span>
                   </Button>
                 </CardFooter>
               </Card>
@@ -172,16 +189,93 @@ const Catalog = () => {
 
           {/* Animación de carga para el Infinite Scroll */}
           {visibleCount < productosFiltrados.length && (
-            <div ref={loaderRef} className="py-12 flex justify-center items-center text-slate-400">
+            <div ref={loaderRef} className="py-12 flex justify-center items-center text-slate-400 w-full">
               <Loader2 className="w-8 h-8 animate-spin" />
               <span className="ml-3 font-medium">Cargando más colección...</span>
             </div>
           )}
         </>
       )}
+
+      {/* --- MODAL DE AGREGAR PRODUCTO --- */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Añadir a mi Inventario</DialogTitle>
+            <DialogDescription>
+              Configura el stock inicial y el precio de venta para <strong className="text-slate-800">{productoSeleccionado?.nombre}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleConfirmarAgregar} className="space-y-6 pt-4">
+            <div className="space-y-2">
+              <label htmlFor="stock" className="text-sm font-semibold text-slate-700">
+                ¿Cuántas piezas físicas tienes?
+              </label>
+              <Input
+                id="stock"
+                type="number"
+                min="1"
+                required
+                value={formStock}
+                onChange={(e) => setFormStock(e.target.value)}
+                placeholder="Ej. 5"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="precio" className="text-sm font-semibold text-slate-700">
+                Tu precio de venta personalizado ($)
+              </label>
+              <Input
+                id="precio"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                value={formPrecio}
+                onChange={(e) => setFormPrecio(e.target.value)}
+                placeholder="Ej. 1500"
+                className="w-full"
+              />
+              <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                La marca sugiere venderlo a <span className="font-bold text-slate-700">${productoSeleccionado?.precio_sugerido}</span>
+              </p>
+            </div>
+
+            <DialogFooter className="pt-2 gap-2 sm:gap-0">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsModalOpen(false)}
+                disabled={guardando}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                disabled={guardando}
+              >
+                {guardando ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <PackagePlus className="w-4 h-4 mr-2" />
+                    Confirmar
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-
-export default Catalog;
+export default Catalog;g;
