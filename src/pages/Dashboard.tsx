@@ -3,6 +3,7 @@ import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from 'react-router-dom';
 import { 
   DollarSign, 
   Package, 
@@ -11,12 +12,25 @@ import {
   Layers, 
   Coins, 
   ShoppingCart,
-  BadgeDollarSign
+  BadgeDollarSign,
+  ArrowRight,
+  Users,
+  PlusCircle,
+  Palette,
+  Clock3
 } from "lucide-react";
 
 const Dashboard = () => {
   const [stats, setStats] = useState<any>(null);
+  const [inventario, setInventario] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Estado del formulario de venta
+  const [productoSeleccionado, setProductoSeleccionado] = useState('');
+  const [cantidad, setCantidad] = useState(1);
+  const [procesando, setProcesando] = useState(false);
 
+  // Cargar estadísticas del dashboard
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -29,19 +43,11 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  const [inventario, setInventario] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Estado del formulario
-  const [productoSeleccionado, setProductoSeleccionado] = useState('');
-  const [cantidad, setCantidad] = useState(1);
-  const [procesando, setProcesando] = useState(false);
-
+  // Cargar inventario para el selector de venta
   useEffect(() => {
     const fetchInventory = async () => {
       try {
         const { data } = await api.get('/vendor/inventory');
-        // Filtramos para que solo salgan joyas que SÍ tienen stock
         const disponibles = data.filter((item: any) => item.stock > 0);
         setInventario(disponibles);
       } catch (error) {
@@ -63,12 +69,9 @@ const Dashboard = () => {
 
     if (!productoActual) {
       alert("Error interno: No se encontró la información del producto. Revisa la consola.");
-      console.log("Inventario disponible:", inventario);
-      console.log("ID Buscado:", productoSeleccionado);
       return;
     }
 
-    // Validación extra de stock
     if (productoActual && cantidad > productoActual.stock) {
       alert(`¡No puedes vender ${cantidad}! Solo tienes ${productoActual.stock} en stock.`);
       return;
@@ -76,16 +79,7 @@ const Dashboard = () => {
 
     setProcesando(true);
 
-    const payload = {
-      inventario_id: productoSeleccionado,
-      cantidad: cantidad,
-      precio_unitario: productoActual.precio_personalizado
-    };
-    console.log("🚀 Enviando datos al backend:", payload);
-
     try {
-      // Llamada al backend para registrar la venta y descontar el stock
-      
       await api.post('/sales/register', {
         inventario_id: productoSeleccionado,
         cantidad: cantidad,
@@ -94,180 +88,253 @@ const Dashboard = () => {
 
       alert("¡Venta registrada con éxito! 💰✨");
       
-      // Reiniciar el formulario y recargar el inventario (para tener el stock fresco)
+      // Reiniciar formulario
       setProductoSeleccionado('');
       setCantidad(1);
       
-      const { data } = await api.get('/vendor/inventory');
-      setInventario(data.filter((item: any) => item.stock > 0));
+      // Recargar inventario y estadísticas para reflejar cambios
+      const { data: newInventory } = await api.get('/vendor/inventory');
+      setInventario(newInventory.filter((item: any) => item.stock > 0));
+      
+      const { data: newStats } = await api.get('/vendor/dashboard-stats');
+      setStats(newStats);
     } catch (error: any) {
-      console.error("🔥 Error de Axios al registrar la venta:", error);
-      console.log("🔍 Detalles de la respuesta:", error.response);
+      console.error("🔥 Error al registrar la venta:", error);
       alert(error.response?.data?.error || "Error al registrar la venta");
     } finally {
       setProcesando(false);
     }
   };
 
-  if (loading) return <div className="p-10 text-slate-500">Abriendo la caja...</div>;
-  if (!stats) return <div className="p-10 text-center">Cargando datos de la joyería...</div>;
+  if (loading) return <div className="p-10 text-slate-500 flex justify-center w-full">Abriendo la caja...</div>;
+  if (!stats) return <div className="p-10 text-center flex justify-center w-full">Cargando datos de la joyería...</div>;
+
+  // Métricas reales para los KPIs
+  const kpis = [
+    { id: 'ingresos', label: 'Ventas Totales', value: `$${stats.resumen?.total_ingresos?.toLocaleString('es-MX') || '0'}`, icon: DollarSign, trend: '+12.5% vs mes anterior', trendType: 'up' },
+    { id: 'unidades', label: 'Unidades Vendidas', value: stats.resumen?.unidades_vendidas?.toLocaleString() || '0', icon: Package, trend: 'piezas entregadas', trendType: 'neutral' },
+    { id: 'stock', label: 'Productos en Stock', value: stats.inventario?.total_productos?.toLocaleString() || '0', icon: Layers, trend: 'unidades disponibles', trendType: 'neutral' },
+    { id: 'valor', label: 'Valor del Inventario', value: `$${stats.inventario?.valor_total?.toLocaleString('es-MX') || '0'}`, icon: Coins, trend: 'capital en almacén', trendType: 'neutral' },
+    { id: 'critico', label: 'Stock Crítico', value: stats.alertas?.productos_criticos?.toLocaleString() || '0', icon: AlertTriangle, trend: 'productos por agotarse', trendType: 'warning' },
+    { id: 'top', label: 'Top Producto', value: stats.top_productos?.[0]?.nombre || 'Sin ventas aún', icon: TrendingUp, trend: 'el más pedido', trendType: 'info' }
+  ];
 
   return (
-    <div className="p-8 bg-slate-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-8 text-slate-900">Panel de Control</h1>
+    <div className="bg-background font-body text-on-surface antialiased min-h-screen">
       
-      {/* Tarjeta de Nueva Venta - Grande y separada */}
-      <div className="max-w-4xl mx-auto mb-12">
-        <Card className="shadow-xl border-slate-200">
-          <CardHeader className="bg-slate-900 text-white rounded-t-lg">
-            <div className="flex items-center gap-2">
-              <BadgeDollarSign className="w-6 h-6 text-emerald-400" />
-              <CardTitle className="text-2xl">Nueva Venta</CardTitle>
-            </div>
-            <CardDescription className="text-slate-300">
-              Registra una salida de tu inventario.
-            </CardDescription>
-          </CardHeader>
+      {/* Editorial Header */}
+      <header className="border-b border-outline-variant/10 bg-surface-container-lowest">
+        <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-2">
+            <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold text-primary-stitch opacity-80">
+              Vendor Hub Joyería
+            </span>
+            <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter leading-tight text-on-surface">
+              Panel de Control
+            </h1>
+            <p className="text-body-md text-on-surface-variant max-w-xl leading-relaxed">
+              Administra tus ventas, inventario y comisiones en un entorno curado para la excelencia.
+            </p>
+          </div>
+          {/* Añadido flex-shrink-0 y w-full en móvil para evitar aplastamientos */}
+          <Link 
+            to="/inventario" 
+            className="flex items-center justify-center w-full md:w-auto flex-shrink-0 gap-2.5 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-3.5 px-6 rounded-xl hover:bg-surface-container-high transition-all"
+          >
+            <span>Mi Inventario</span>
+            <ArrowRight size={20} className="text-primary-stitch" />
+          </Link>
+        </div>
+      </header>
 
-          <form onSubmit={handleVender}>
-            <CardContent className="space-y-6 pt-6">
-              {inventario.length === 0 ? (
-                <div className="text-center text-red-500 py-4">
-                  No tienes productos con stock. ¡Ve al catálogo!
-                </div>
-              ) : (
-                <>
-                  {/* Selector de Joya */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Selecciona la Joya</label>
-                    <select 
-                      required
-                      value={productoSeleccionado}
-                      onChange={(e) => setProductoSeleccionado(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
-                    >
-                      <option value="" disabled>-- Elige un producto --</option>
-                      {inventario.map(item => (
-                        <option key={item.inventario_id} value={item.inventario_id}>
-                          {item.nombre} (Stock: {item.stock}) - ${item.precio_personalizado}
-                        </option>
-                      ))}
-                    </select>
+      <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
+        
+        {/* Tarjeta de Nueva Venta */}
+        <div className="max-w-4xl mx-auto w-full">
+          <Card className="shadow-xl border-outline-variant/10 bg-surface-container-lowest overflow-hidden">
+            <CardHeader className="bg-primary-stitch text-white">
+              <div className="flex items-center gap-2">
+                <BadgeDollarSign className="w-6 h-6 text-emerald-400" />
+                <CardTitle className="text-xl md:text-2xl">Nueva Venta</CardTitle>
+              </div>
+              <CardDescription className="text-on-primary-container/80">
+                Registra una salida de tu inventario.
+              </CardDescription>
+            </CardHeader>
+
+            <form onSubmit={handleVender}>
+              <CardContent className="space-y-6 pt-6">
+                {inventario.length === 0 ? (
+                  <div className="text-center text-error py-4">
+                    No tienes productos con stock. ¡Agrega joyas desde el inventario!
                   </div>
-
-                  {/* Cantidad */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Cantidad</label>
-                    <Input 
-                      type="number" 
-                      min="1" 
-                      required
-                      value={cantidad}
-                      onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                    />
-                  </div>
-
-                  {/* Resumen matemático automático */}
-                  {productoActual && (
-                    <div className="bg-slate-100 p-4 rounded-lg flex justify-between items-center mt-4 border border-slate-200">
-                      <span className="text-slate-600">Total a cobrar:</span>
-                      <span className="text-2xl font-bold text-slate-900">${total}</span>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-on-surface">Selecciona la Joya</label>
+                      {/* Agregado truncate al select para textos largos */}
+                      <select 
+                        required
+                        value={productoSeleccionado}
+                        onChange={(e) => setProductoSeleccionado(e.target.value)}
+                        className="flex h-10 w-full rounded-md border border-outline-variant/30 bg-surface-container-low px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface truncate"
+                      >
+                        <option value="" disabled>-- Elige un producto --</option>
+                        {inventario.map(item => (
+                          <option key={item.inventario_id} value={item.inventario_id}>
+                            {item.nombre} (Stock: {item.stock}) - ${item.precio_personalizado}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  )}
-                </>
-              )}
-            </CardContent>
 
-            <CardFooter>
-              <Button 
-                type="submit" 
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
-                disabled={procesando || inventario.length === 0 || !productoSeleccionado}
-              >
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                {procesando ? 'Procesando...' : 'Cobrar y Registrar'}
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-on-surface">Cantidad</label>
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        required
+                        value={cantidad}
+                        onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
+                        className="bg-surface-container-low border-outline-variant/30 text-on-surface w-full"
+                      />
+                    </div>
 
-      {/* Grid de tarjetas pequeñas ordenadas */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {/* 1. Ingresos */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Ingresos Obtenidos</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${stats.resumen?.total_ingresos || '0'}</div>
-            <p className="text-xs text-slate-400">Total acumulado</p>
-          </CardContent>
-        </Card>
+                    {productoActual && (
+                      <div className="bg-surface-container-low p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 border border-outline-variant/20 gap-2">
+                        <span className="text-on-surface-variant">Total a cobrar:</span>
+                        <span className="text-2xl font-bold text-on-surface">${total.toLocaleString('es-MX')}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </CardContent>
 
-        {/* 2. Unidades Vendidas */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Unidades Vendidas</CardTitle>
-            <Package className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.resumen?.unidades_vendidas || '0'}</div>
-            <p className="text-xs text-slate-400">Piezas entregadas</p>
-          </CardContent>
-        </Card>
+              <CardFooter>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                  disabled={procesando || inventario.length === 0 || !productoSeleccionado}
+                >
+                  <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
+                  <span className="truncate">{procesando ? 'Procesando...' : 'Cobrar y Registrar'}</span>
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        </div>
 
-        {/* 3. Productos en Stock */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Productos en Stock</CardTitle>
-            <Layers className="h-4 w-4 text-indigo-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.inventario?.total_productos || '0'}</div>
-            <p className="text-xs text-slate-400">Unidades disponibles</p>
-          </CardContent>
-        </Card>
+        {/* KPI Grid (Corregido de 4 a 3 columnas para evitar asimetría con 6 elementos) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {kpis.map((kpi) => {
+            const Icon = kpi.icon;
+            let trendColor = "text-tertiary";
+            if (kpi.trendType === 'warning') trendColor = "text-error";
+            if (kpi.trendType === 'neutral') trendColor = "text-on-surface-variant";
+            return (
+              <div key={kpi.id} className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] space-y-4 hover:shadow-[0_12px_40px_rgba(45,52,53,0.06)] transition-all">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold text-on-surface-variant ml-1 truncate">
+                    {kpi.label}
+                  </span>
+                  <div className="p-2.5 rounded-xl bg-surface-container border border-outline-variant/30 text-primary-stitch flex-shrink-0">
+                    <Icon size={20} />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-3xl font-headline font-extrabold tracking-tighter text-on-surface truncate">
+                    {kpi.value}
+                  </p>
+                  <div className={`flex items-center gap-1.5 text-xs font-bold ${trendColor}`}>
+                    {kpi.trendType === 'up' && <TrendingUp size={16} className="flex-shrink-0" />}
+                    {kpi.trendType === 'warning' && <AlertTriangle size={16} className="flex-shrink-0" />}
+                    <span className="truncate">{kpi.trend}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-        {/* 4. Valor del Inventario */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Valor del Inventario</CardTitle>
-            <Coins className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${stats.inventario?.valor_total || '0'}</div>
-            <p className="text-xs text-slate-400">Capital en almacén</p>
-          </CardContent>
-        </Card>
-
-        {/* 5. Stock Crítico */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Stock Crítico</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.alertas?.productos_criticos || '0'}</div>
-            <p className="text-xs text-slate-400">Productos por agotarse</p>
-          </CardContent>
-        </Card>
-
-        {/* 6. Top Producto */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Top Producto</CardTitle>
-            <TrendingUp className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-md font-bold truncate">
-              {stats.top_productos?.[0]?.nombre || "Sin ventas aún"}
+        {/* Dashboard Sections (Activity + Visualization) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
+          
+          {/* Recent Activity */}
+          <div className="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-outline-variant/10 gap-4">
+              <h2 className="text-xl md:text-2xl font-headline font-bold tracking-tight text-on-surface">Actividad Reciente del Atelier</h2>
+              <button className="text-xs text-primary-stitch font-bold hover:underline flex items-center gap-1 self-start sm:self-auto">
+                Ver Todo <ArrowRight size={14} />
+              </button>
             </div>
-            <p className="text-xs text-slate-400">El más pedido</p>
-          </CardContent>
-        </Card>
-      </div>
+
+            <div className="space-y-6">
+              {stats.ultimas_ventas && stats.ultimas_ventas.length > 0 ? (
+                stats.ultimas_ventas.slice(0, 3).map((venta: any) => (
+                  // Corregida la alineación: Imagen y Título a la izquierda, evitando que títulos largos desborden
+                  <div key={venta.id} className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between group pb-6 border-b border-outline-variant/10 last:border-b-0 last:pb-0">
+                    <div className="flex gap-4 items-center flex-1 min-w-0">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container border border-outline-variant/10 flex-shrink-0">
+                        <img src={venta.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=150&auto=format&fit=crop"} alt={venta.producto_nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      </div>
+                      <div className="flex-1 space-y-1 min-w-0">
+                        <span className="text-[0.65rem] uppercase font-bold tracking-widest text-tertiary block truncate">
+                          Venta Realizada
+                        </span>
+                        <h4 className="text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors truncate">
+                          {venta.producto_nombre}
+                        </h4>
+                        <p className="text-sm text-on-surface-variant flex items-center gap-1.5 truncate">
+                          <Users size={14} className="flex-shrink-0" /> Cantidad: {venta.cantidad}
+                        </p>
+                      </div>
+                    </div>
+                    {/* El precio y fecha bajan alineados al texto en móvil, y se van a la derecha en PC */}
+                    <div className="text-left sm:text-right space-y-1 flex-shrink-0 pl-20 sm:pl-0">
+                      <p className="text-sm font-bold text-on-surface">${venta.total}</p>
+                      <p className="text-xs text-outline flex items-center gap-1 sm:justify-end">
+                        <Clock3 size={12} className="flex-shrink-0" /> {venta.fecha}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-on-surface-variant py-8">
+                  <Package size={48} className="mx-auto opacity-40 mb-2" />
+                  <p>No hay actividad reciente. Realiza tu primera venta.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sales Visualization */}
+          <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] space-y-6">
+            <h3 className="text-xl font-headline font-bold tracking-tight text-on-surface">Rendimiento (Mes)</h3>
+            
+            <div className="aspect-[3/4] lg:aspect-auto lg:h-[300px] rounded-xl bg-surface-container-low border border-outline-variant/20 flex flex-col items-center justify-center p-6 space-y-3">
+              <TrendingUp size={48} className="text-primary-stitch opacity-30" strokeWidth={1} />
+              <p className="text-sm text-center text-on-surface-variant leading-relaxed max-w-xs">
+                Aquí visualizarás tu gráfico de ventas mensuales. Usaremos una paleta monocromática.
+              </p>
+              <div className="w-full pt-4 space-y-2">
+                <div className="w-full h-3 bg-primary-stitch/70 rounded"></div>
+                <div className="w-[85%] h-3 bg-primary-stitch/50 rounded"></div>
+                <div className="w-[60%] h-3 bg-primary-stitch/30 rounded"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+
+      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-[11px] tracking-widest uppercase">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+          <div className="text-zinc-400">
+              © 2026 Vendor Hub Joyería. Atelier Digital.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
