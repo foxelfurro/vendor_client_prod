@@ -366,16 +366,6 @@ const Inventory = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Hover Actions (Ocultas en móvil porque no hay hover real, y se redujo el padding) */}
-                  <div className="px-3 sm:px-6 pb-3 sm:pb-6 flex gap-2 sm:gap-3 opacity-0 group-hover:opacity-100 transition-opacity absolute inset-x-0 bottom-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest to-transparent pt-8 pointer-events-none sm:pointer-events-auto sm:relative sm:pt-0 sm:bg-none">
-                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-sm hover:bg-surface-container-high transition-all pointer-events-auto">
-                      Editar
-                    </button>
-                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-sm hover:bg-surface-container-high transition-all pointer-events-auto">
-                      Detalles
-                    </button>
-                  </div>
                 </div>
               ))}
             </div>
