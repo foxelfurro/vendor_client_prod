@@ -15,8 +15,6 @@ import {
   BadgeDollarSign,
   ArrowRight,
   Users,
-  PlusCircle,
-  Palette,
   Clock3
 } from "lucide-react";
 
