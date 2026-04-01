@@ -149,33 +149,41 @@ const Dashboard = () => {
         
         {/* Tarjeta de Nueva Venta */}
         <div className="max-w-4xl mx-auto w-full">
-          <Card className="shadow-xl border-outline-variant/10 bg-surface-container-lowest overflow-hidden">
-            <CardHeader className="bg-primary-stitch text-white">
-              <div className="flex items-center gap-2">
-                <BadgeDollarSign className="w-6 h-6 text-emerald-400" />
-                <CardTitle className="text-xl md:text-2xl">Nueva Venta</CardTitle>
+          <Card className="shadow-[0_16px_48px_rgba(45,52,53,0.06)] border-outline-variant/10 bg-surface-container-lowest overflow-hidden rounded-2xl">
+            {/* Se elimina el fondo sólido (bg-primary-stitch) para unificar con el diseño 'Atelier' y se ajusta la alineación */}
+            <CardHeader className="border-b border-outline-variant/10 pb-6 px-6 sm:px-8">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-surface-container border border-outline-variant/30 text-emerald-500 shadow-sm flex-shrink-0">
+                  <BadgeDollarSign size={28} strokeWidth={1.5} />
+                </div>
+                <div className="space-y-1">
+                  <CardTitle className="text-xl md:text-2xl font-headline font-bold text-on-surface tracking-tight">
+                    Nueva Venta
+                  </CardTitle>
+                  <CardDescription className="text-on-surface-variant text-sm">
+                    Registra una salida de tu inventario.
+                  </CardDescription>
+                </div>
               </div>
-              <CardDescription className="text-on-primary-container/80">
-                Registra una salida de tu inventario.
-              </CardDescription>
             </CardHeader>
 
             <form onSubmit={handleVender}>
-              <CardContent className="space-y-6 pt-6">
+              <CardContent className="space-y-6 pt-8 px-6 sm:px-8">
                 {inventario.length === 0 ? (
-                  <div className="text-center text-error py-4">
+                  <div className="text-center text-error py-6 font-medium bg-error/10 rounded-xl border border-error/20">
                     No tienes productos con stock. ¡Agrega joyas desde el inventario!
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-on-surface">Selecciona la Joya</label>
-                      {/* Agregado truncate al select para textos largos */}
+                    <div className="space-y-3">
+                      <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
+                        Selecciona la Joya
+                      </label>
                       <select 
                         required
                         value={productoSeleccionado}
                         onChange={(e) => setProductoSeleccionado(e.target.value)}
-                        className="flex h-10 w-full rounded-md border border-outline-variant/30 bg-surface-container-low px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface truncate"
+                        className="flex h-12 w-full rounded-xl border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface truncate transition-all shadow-sm hover:border-outline-variant/50"
                       >
                         <option value="" disabled>-- Elige un producto --</option>
                         {inventario.map(item => (
@@ -186,36 +194,40 @@ const Dashboard = () => {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-on-surface">Cantidad</label>
+                    <div className="space-y-3">
+                      <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
+                        Cantidad
+                      </label>
                       <Input 
                         type="number" 
                         min="1" 
                         required
                         value={cantidad}
                         onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                        className="bg-surface-container-low border-outline-variant/30 text-on-surface w-full"
+                        className="h-12 rounded-xl bg-surface-container-low border-outline-variant/30 text-on-surface w-full shadow-sm focus-visible:ring-primary-stitch transition-all hover:border-outline-variant/50"
                       />
                     </div>
 
                     {productoActual && (
-                      <div className="bg-surface-container-low p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 border border-outline-variant/20 gap-2">
-                        <span className="text-on-surface-variant">Total a cobrar:</span>
-                        <span className="text-2xl font-bold text-on-surface">${total.toLocaleString('es-MX')}</span>
+                      <div className="bg-surface-container-low p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center mt-8 border border-outline-variant/20 shadow-inner gap-2">
+                        <span className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">Total a cobrar</span>
+                        <span className="text-3xl font-headline font-extrabold text-on-surface">
+                          ${total.toLocaleString('es-MX')}
+                        </span>
                       </div>
                     )}
                   </>
                 )}
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="px-6 sm:px-8 pb-8 pt-2">
                 <Button 
                   type="submit" 
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                  className="w-full h-14 rounded-xl bg-on-surface hover:bg-on-surface/90 text-surface-container-lowest font-bold text-base shadow-lg transition-all"
                   disabled={procesando || inventario.length === 0 || !productoSeleccionado}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
-                  <span className="truncate">{procesando ? 'Procesando...' : 'Cobrar y Registrar'}</span>
+                  <span className="truncate tracking-wide">{procesando ? 'Procesando...' : 'Cobrar y Registrar'}</span>
                 </Button>
               </CardFooter>
             </form>

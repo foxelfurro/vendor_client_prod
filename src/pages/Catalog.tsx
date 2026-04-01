@@ -140,7 +140,7 @@ const Catalog = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {productosMostrados.map((prod) => (
               <Card key={prod.id} className="h-full overflow-hidden flex flex-col hover:shadow-lg transition-all border-slate-200">
                 <div className="aspect-square bg-slate-100 flex items-center justify-center overflow-hidden group relative">
@@ -151,36 +151,37 @@ const Catalog = () => {
                       className="absolute inset-0 object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" 
                     />
                   ) : (
-                    <span className="text-slate-400 text-sm flex flex-col items-center z-10">
-                      <PackagePlus className="w-8 h-8 mb-2 opacity-50" />
+                    <span className="text-slate-400 text-xs sm:text-sm flex flex-col items-center z-10">
+                      <PackagePlus className="w-6 h-6 sm:w-8 sm:h-8 mb-2 opacity-50" />
                       Sin imagen
                     </span>
                   )}
                 </div>
                 
-                <CardHeader className="pb-2 bg-white flex-none">
-                  <div className="text-xs text-slate-400 font-mono mb-1 truncate">SKU: {prod.sku}</div>
-                  <CardTitle className="text-lg leading-tight text-slate-800 line-clamp-2 min-h-[2.75rem]">
+                {/* Redujimos el padding y tamaño de fuente en móvil (p-3, text-sm) */}
+                <CardHeader className="pb-2 p-3 sm:p-6 bg-white flex-none">
+                  <div className="text-[10px] sm:text-xs text-slate-400 font-mono mb-1 truncate">SKU: {prod.sku}</div>
+                  <CardTitle className="text-sm sm:text-lg leading-tight text-slate-800 line-clamp-2 min-h-[2.5rem] sm:min-h-[2.75rem]">
                     {prod.nombre}
                   </CardTitle>
                 </CardHeader>
                 
-                <CardContent className="flex-grow pt-2 bg-white flex flex-col justify-end">
+                <CardContent className="flex-grow pt-0 p-3 sm:p-6 bg-white flex flex-col justify-end">
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg sm:text-2xl font-bold text-slate-900">
                       ${prod.precio_sugerido}
                     </p>
-                    <p className="text-xs text-slate-500 font-medium">Precio sugerido</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500 font-medium">Precio sugerido</p>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="bg-slate-50/50 pt-4 border-t border-slate-100 flex-none">
+                <CardFooter className="bg-slate-50/50 p-3 sm:p-6 pt-3 sm:pt-4 border-t border-slate-100 flex-none">
                   <Button 
-                    onClick={() => abrirModal(prod)} // <-- Reemplazamos la función directa por abrir el modal
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all hover:translate-y-[-2px]"
+                    onClick={() => abrirModal(prod)} 
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all hover:translate-y-[-2px] h-9 sm:h-10 text-xs sm:text-sm px-2 sm:px-4"
                   >
-                    <PackagePlus className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">Agregar a mi stock</span>
+                    <PackagePlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                    <span className="truncate">Agregar</span>
                   </Button>
                 </CardFooter>
               </Card>

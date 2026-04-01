@@ -22,7 +22,7 @@ const Layout = () => {
   const userRole = user?.rol;
   const isAdmin = String(userRole) === '1' || userRole === 'admin';
 
-  // 2. Definición de rutas memorizada (Optimización de rendimiento)
+  // 2. Definición de rutas memorizada
   const navItems = useMemo(() => {
     const items = [
       { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -42,12 +42,10 @@ const Layout = () => {
     if (window.innerWidth < 768) setIsSidebarOpen(false);
   };
 
-  // 4. Manejo de scroll y redimensionamiento (UX/Bugfix)
+  // 4. Manejo de scroll y redimensionamiento
   useEffect(() => {
-    // Bloqueo de scroll
     document.body.style.overflow = isSidebarOpen ? 'hidden' : 'unset';
 
-    // Cerrar sidebar si la pantalla se agranda más de 768px (ej. girar tablet)
     const handleResize = () => {
       if (window.innerWidth >= 768 && isSidebarOpen) {
         setIsSidebarOpen(false);
@@ -76,26 +74,38 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 relative font-sans">
+    <div className="flex h-screen bg-background font-body text-on-surface antialiased overflow-hidden">
       
-      {/* Sidebar */}
+      {/* --- SIDEBAR LATERAL --- */}
       <aside
         className={cn(
-          "fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-950 text-slate-400",
-          "flex flex-col shadow-2xl transition-transform duration-300 ease-in-out",
+          "fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface-container-lowest border-r border-outline-variant/10 flex flex-col transition-transform duration-300 ease-in-out shadow-[16px_0_48px_rgba(45,52,53,0.03)] md:shadow-none",
           "md:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
         aria-label="Barra lateral"
       >
-        {/* Logo */}
-        <div className="p-6 flex items-center gap-3 text-white border-b border-slate-800/50">
-          <Gem className="w-8 h-8 text-emerald-400" />
-          <span className="text-xl font-bold tracking-wider">JoyeríaHub</span>
+        {/* Header del Sidebar (Logo) */}
+        <div className="h-20 flex items-center justify-between px-8 border-b border-outline-variant/10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-surface-container border border-outline-variant/30 text-primary-stitch">
+              <Gem size={20} strokeWidth={2} />
+            </div>
+            <span className="text-sm font-headline font-extrabold tracking-[0.15em] uppercase text-on-surface">
+              Vendor Hub
+            </span>
+          </div>
+          {/* Botón de cerrar solo visible en móvil y DENTRO del sidebar para evitar empalmes */}
+          <button 
+            className="md:hidden p-2 -mr-2 text-on-surface-variant hover:text-on-surface transition-colors"
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Navegación */}
-        <nav className="flex-1 px-4 py-6 space-y-2" aria-label="Navegación principal">
+        <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto" aria-label="Navegación principal">
           {navItems.map(({ name, path, icon: Icon }) => (
             <NavLink
               key={path}
@@ -103,73 +113,84 @@ const Layout = () => {
               onClick={handleLinkClick}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
+                  "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group",
                   isActive
-                    ? "bg-slate-800 text-white shadow-md"
-                    : "hover:bg-slate-800/50 hover:text-white"
+                    ? "bg-surface-container-high text-on-surface font-bold shadow-sm border border-outline-variant/20"
+                    : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium border border-transparent"
                 )
               }
             >
-              <Icon className="w-5 h-5" aria-hidden="true" />
-              <span className="font-medium">{name}</span>
+              <Icon 
+                size={20} 
+                className={cn("flex-shrink-0 transition-colors", "group-hover:text-primary-stitch")} 
+                aria-hidden="true" 
+              />
+              <span className="tracking-wide">{name}</span>
             </NavLink>
           ))}
         </nav>
 
         {/* Usuario y logout */}
-        <div className="p-4 border-t border-slate-800">
-          <div className="px-4 py-2 mb-2">
-            <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">
-              {isAdmin ? 'Administrador' : 'Vendedor'}
+        <div className="p-6 border-t border-outline-variant/10 bg-surface-container-lowest/50">
+          <div className="px-2 mb-4">
+            <p className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-primary-stitch opacity-80">
+              {isAdmin ? 'Atelier Admin' : 'Vendedor Autorizado'}
             </p>
-            <p className="text-sm text-slate-300 truncate">
-              {user?.nombre || 'Usuario'}
+            <p className="text-sm font-bold text-on-surface truncate mt-1">
+              {user?.nombre || 'Usuario Registrado'}
             </p>
           </div>
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-3 px-4 py-3.5 w-full rounded-xl hover:bg-error/10 text-on-surface-variant hover:text-error transition-all group disabled:opacity-50 border border-transparent hover:border-error/20 font-bold text-sm tracking-wide"
             aria-label="Cerrar sesión"
           >
-            <LogOut className="w-5 h-5" aria-hidden="true" />
-            <span className="font-medium">
-              {isLoggingOut ? 'Cerrando...' : 'Cerrar Sesión'}
+            <LogOut size={18} aria-hidden="true" className="group-hover:text-error transition-colors flex-shrink-0" />
+            <span className="truncate">
+              {isLoggingOut ? 'Saliendo...' : 'Cerrar Sesión'}
             </span>
           </button>
         </div>
       </aside>
 
-      {/* Overlay oscuro */}
+      {/* Overlay oscuro para móvil */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-on-surface/20 z-40 md:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* Contenido principal */}
-      <main className="flex-1 overflow-y-auto relative">
+      {/* --- CONTENIDO PRINCIPAL --- */}
+      <div className="flex-1 flex flex-col relative w-full min-w-0">
         
-        {/* Botón hamburguesa */}
-        <button
-          className={cn(
-            "md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg text-white shadow-lg transition-colors",
-            isSidebarOpen ? "bg-slate-900 hover:bg-slate-800" : "bg-slate-800 hover:bg-slate-700"
-          )}
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          aria-label={isSidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
-          aria-expanded={isSidebarOpen} // Mejora de accesibilidad
-        >
-          {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* TopBar Móvil Exclusiva (Soluciona el bug del botón flotante) */}
+        <header className="md:hidden h-20 border-b border-outline-variant/10 bg-surface-container-lowest flex items-center justify-between px-6 z-30 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-primary-stitch">
+              <Gem size={18} strokeWidth={2} />
+            </div>
+            <span className="text-xs font-headline font-extrabold tracking-[0.15em] uppercase text-on-surface">
+              Vendor Hub
+            </span>
+          </div>
+          <button
+            className="p-2 -mr-2 text-on-surface hover:text-primary-stitch transition-colors"
+            onClick={() => setIsSidebarOpen(true)}
+            aria-label="Abrir menú"
+          >
+            <Menu size={24} />
+          </button>
+        </header>
 
-        {/* Outlet */}
-        <div className="pt-20 md:pt-0 p-4 md:p-8 h-full">
+        {/* Outlet (Donde renderizan Dashboard, Caja, etc.) */}
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
-        </div>
-      </main>
+        </main>
+
+      </div>
     </div>
   );
 };
