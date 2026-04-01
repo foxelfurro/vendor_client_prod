@@ -292,88 +292,87 @@ const Inventory = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8">
               {joyasMostradas.map((item) => (
-                <div key={item.inventario_id} className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] hover:shadow-[0_16px_48px_rgba(45,52,53,0.08)] transition-all duration-300 transform hover:-translate-y-1">
+                <div key={item.inventario_id} className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] hover:shadow-[0_16px_48px_rgba(45,52,53,0.08)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col">
                   
-                  {/* Product Image - usando ruta_imagen y placeholder */}
-                  <div className="aspect-[4/3] overflow-hidden bg-surface-container">
+                  {/* Product Image */}
+                  <div className="aspect-[4/3] overflow-hidden bg-surface-container flex-shrink-0">
                     <img 
                       src={item.ruta_imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"} 
                       alt={item.nombre} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://placehold.co/500x375?text=Joyas";
-                      }}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                     />
                   </div>
 
-                  {/* Product Details */}
-                  <div className="p-6 space-y-4">
+                  {/* Product Details adaptado a pantallas pequeñas */}
+                  <div className="p-3 sm:p-6 space-y-3 sm:space-y-4 flex flex-col flex-grow">
                     <div className="space-y-1">
-                      <span className="text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant opacity-70">
+                      <span className="text-[0.55rem] sm:text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant opacity-70 truncate block">
                         {item.categoria || "Joya"}
                       </span>
-                      <h3 className="text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors">
+                      <h3 className="text-sm sm:text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors line-clamp-2">
                         {item.nombre}
                       </h3>
-                      <p className="text-sm text-outline font-mono tracking-tight bg-surface-container-low inline-block px-2 py-0.5 rounded">
+                      <p className="text-[10px] sm:text-sm text-outline font-mono tracking-tight bg-surface-container-low inline-block px-1.5 sm:px-2 py-0.5 rounded max-w-full truncate">
                         SKU: {item.sku}
                       </p>
                     </div>
 
-                    <div className="flex items-end justify-between gap-4 pt-2 border-t border-outline-variant/10">
-                      <p className="text-2xl font-extrabold tracking-tighter text-on-surface">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1 sm:gap-4 pt-2 border-t border-outline-variant/10 flex-grow">
+                      <p className="text-lg sm:text-2xl font-extrabold tracking-tighter text-on-surface">
                         ${item.precio_personalizado?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                       </p>
-                      <div className="flex flex-col items-end">
-                        <p className={`text-sm font-bold flex items-center gap-1.5 ${item.stock > 0 ? 'text-tertiary' : 'text-error'}`}>
-                          <Package size={16} />
-                          {item.stock > 0 ? `${item.stock} en stock` : 'Agotado'}
+                      <div className="flex flex-col items-start sm:items-end">
+                        <p className={`text-[10px] sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 ${item.stock > 0 ? 'text-tertiary' : 'text-error'}`}>
+                          <Package size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="truncate">{item.stock > 0 ? `${item.stock} stock` : 'Agotado'}</span>
                         </p>
                         {item.stock > 0 && (
-                          <span className="text-[10px] text-on-surface-variant/60 mt-1">
-                            {item.stock > 5 ? "✔ Suficiente" : "⚠ Bajo stock"}
+                          <span className="text-[9px] sm:text-[10px] text-on-surface-variant/60 mt-0.5 sm:mt-1">
+                            {item.stock > 5 ? "✔ Suficiente" : "⚠ Bajo"}
                           </span>
                         )}
                       </div>
                     </div>
 
                     {/* Stock Editor */}
-                    <div className="mt-2 bg-surface-container-low p-3 rounded-xl border border-outline-variant/20">
-                      <label className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-2 text-center">
-                        Actualizar stock
-                      </label>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          min="0"
-                          className="text-center text-lg font-bold h-12 bg-surface-container-lowest"
-                          defaultValue={item.stock}
-                          onBlur={(e) => {
-                            const val = parseInt(e.target.value);
-                            if (!isNaN(val) && val !== item.stock && val >= 0) {
-                              handleUpdateStock(item.inventario_id, val);
-                            }
-                          }}
-                        />
+                    <div className="mt-auto pt-2">
+                      <div className="bg-surface-container-low p-2 sm:p-3 rounded-xl border border-outline-variant/20">
+                        <label className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1.5 sm:mb-2 text-center">
+                          Stock
+                        </label>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            min="0"
+                            className="text-center text-sm sm:text-lg font-bold h-9 sm:h-12 bg-surface-container-lowest px-1 sm:px-3"
+                            defaultValue={item.stock}
+                            onBlur={(e) => {
+                              const val = parseInt(e.target.value);
+                              if (!isNaN(val) && val !== item.stock && val >= 0) {
+                                handleUpdateStock(item.inventario_id, val);
+                              }
+                            }}
+                          />
+                        </div>
+                        <p className="text-[9px] sm:text-[10px] text-on-surface-variant/60 mt-1 sm:mt-2 text-center h-3">
+                          {updatingId === item.inventario_id ? (
+                            <span className="text-primary-stitch font-medium animate-pulse">Guardando...</span>
+                          ) : (
+                            <span className="hidden sm:inline">Toca fuera para guardar</span>
+                          )}
+                        </p>
                       </div>
-                      <p className="text-[10px] text-on-surface-variant/60 mt-2 text-center h-3">
-                        {updatingId === item.inventario_id ? (
-                          <span className="text-primary-stitch font-medium animate-pulse">Guardando...</span>
-                        ) : (
-                          "Toca fuera para guardar"
-                        )}
-                      </p>
                     </div>
                   </div>
 
-                  {/* Hover Actions (UI placeholder) */}
-                  <div className="px-6 pb-6 pt-2 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-2 rounded-lg text-sm hover:bg-surface-container-high transition-all">
+                  {/* Hover Actions (Ocultas en móvil porque no hay hover real, y se redujo el padding) */}
+                  <div className="px-3 sm:px-6 pb-3 sm:pb-6 flex gap-2 sm:gap-3 opacity-0 group-hover:opacity-100 transition-opacity absolute inset-x-0 bottom-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest to-transparent pt-8 pointer-events-none sm:pointer-events-auto sm:relative sm:pt-0 sm:bg-none">
+                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-sm hover:bg-surface-container-high transition-all pointer-events-auto">
                       Editar
                     </button>
-                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-2 rounded-lg text-sm hover:bg-surface-container-high transition-all">
+                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-sm hover:bg-surface-container-high transition-all pointer-events-auto">
                       Detalles
                     </button>
                   </div>
