@@ -1,10 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import api from '@/lib/api';
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { QrCode, X, Search, Package, Loader2 } from "lucide-react";
+import { QrCode, X, Search, Package, Loader2, PlusCircle, Filter } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ITEMS_PER_PAGE = 12;
@@ -14,7 +11,7 @@ const Inventory = () => {
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
 
-  const [skuFilter, setSkuFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
@@ -58,7 +55,7 @@ const Inventory = () => {
     fetchInventory();
   }, []);
 
-// --- LÓGICA DEL ESCÁNER AUTOMÁTICO (REEMPLAZA TODO ESTE USEEFFECT) ---
+  // --- LÓGICA DEL ESCÁNER AUTOMÁTICO (mantenida intacta) ---
   useEffect(() => {
     if (!showScanner) return;
 
@@ -87,18 +84,16 @@ const Inventory = () => {
             await scanner.clear();
             setShowScanner(false);
 
-            // Si ya la tienes, te preguntamos si quieres sumar más stock
             const sumarStock = window.prompt(
-              `¡Ya tienes ${joyaEnMiInventario.nombre} en tu inventario!\nTienes ${joyaEnMiInventario.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`, 
+              `¡Ya tienes ${joyaEnMiInventario.nombre} en tu inventario!\nTienes ${joyaEnMiInventario.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`,
               "1"
             );
 
             if (sumarStock) {
               const nuevoStockTotal = joyaEnMiInventario.stock + parseInt(sumarStock);
               await handleUpdateStock(joyaEnMiInventario.inventario_id, nuevoStockTotal);
-              // alert(`¡Stock actualizado a ${nuevoStockTotal} piezas!`); // Opcional
             }
-            return; // Terminamos aquí
+            return;
           }
 
           // 2. SI NO LA TIENES, LA BUSCAMOS EN EL CATÁLOGO PARA IMPORTARLA
@@ -114,14 +109,14 @@ const Inventory = () => {
             setShowScanner(false);
 
             const stockInput = window.prompt(
-              `¡Joya nueva detectada: ${joyaNueva.nombre}!\n¿Cuántas piezas físicas vas a registrar?`, 
+              `¡Joya nueva detectada: ${joyaNueva.nombre}!\n¿Cuántas piezas físicas vas a registrar?`,
               "1"
             );
             if (!stockInput) return;
 
             const precioSugerido = joyaNueva.precio_sugerido || 0;
             const precioInput = window.prompt(
-              "¿A qué precio la vas a vender?", 
+              "¿A qué precio la vas a vender?",
               precioSugerido.toString()
             );
             if (!precioInput) return;
@@ -136,7 +131,6 @@ const Inventory = () => {
             fetchInventory();
 
           } else {
-            // 3. SI DE PLANO NO EXISTE EN NINGÚN LADO
             await scanner.clear();
             setShowScanner(false);
             alert(`El código ${posibleSku1} no existe en la base de datos maestra. El administrador debe darla de alta primero.`);
@@ -147,23 +141,23 @@ const Inventory = () => {
         }
       },
       () => {
-        /* Ignoramos errores de enfoque de la cámara */
+        /* Ignoramos errores de enfoque */
       }
     );
 
     return () => {
       scanner.clear().catch(() => {});
     };
-  }, [showScanner, inventario]); // <-- Nota importante: agregué 'inventario' aquí para que siempre tenga el stock más reciente
+  }, [showScanner, inventario]);
 
   const inventarioFiltrado = inventario.filter((item) =>
-    item.sku.toLowerCase().includes(skuFilter.toLowerCase()) ||
-    item.nombre.toLowerCase().includes(skuFilter.toLowerCase())
+    item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [skuFilter]);
+  }, [searchTerm]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -189,131 +183,205 @@ const Inventory = () => {
   if (loading) return <div className="p-10 text-center text-slate-500">Contando las piezas...</div>;
 
   return (
-    <div className="p-4 sm:p-8 bg-slate-50 min-h-screen">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Mi Inventario</h1>
-          <p className="text-slate-500">Administra tus joyas y revisa tu stock disponible.</p>
-        </div>
-
-        <Button
-          onClick={() => setShowScanner(!showScanner)}
-          variant={showScanner ? "destructive" : "default"}
-          className="shadow-md w-full sm:w-auto"
-        >
-          {showScanner ? <X className="mr-2 h-4 w-4" /> : <QrCode className="mr-2 h-4 w-4" />}
-          {showScanner ? "Cerrar Cámara" : "Escanear QR"}
-        </Button>
-      </div>
-
-      {showScanner && (
-        <Card className="mb-8 border-2 border-dashed border-slate-300">
-          <CardContent className="pt-6">
-            <div id="inventory-reader" className="mx-auto max-w-sm overflow-hidden rounded-lg"></div>
-            <p className="text-center text-sm text-slate-500 mt-4">
-              Escanea el QR de la joya para importarla.
+    <div className="bg-background font-body text-on-surface antialiased min-h-screen">
+      
+      {/* Editorial Header */}
+      <header className="border-b border-outline-variant/10 bg-surface-container-lowest">
+        <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-2">
+            <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold text-primary-stitch opacity-80">
+              Curated Collection
+            </span>
+            <h1 className="text-5xl font-headline font-extrabold tracking-tighter leading-tight text-on-surface">
+              Mi Inventario
+            </h1>
+            <p className="text-body-md text-on-surface-variant max-w-lg leading-relaxed">
+              Administra tus joyas, revisa stock disponible y actualiza tus piezas.
             </p>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <h2 className="font-semibold text-slate-700 flex items-center gap-2">
-          <Package className="w-5 h-5 text-indigo-500" />
-          Joyas en Stock ({inventarioFiltrado.length})
-        </h2>
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-          <Input
-            type="text"
-            placeholder="Buscar por SKU o Nombre..."
-            className="pl-9 bg-slate-50 border-slate-200"
-            value={skuFilter}
-            onChange={(e) => setSkuFilter(e.target.value)}
-          />
+          </div>
+          <button className="flex items-center gap-2.5 bg-primary-stitch hover:bg-primary-dim text-on-primary font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-primary-stitch/10 transition-all active:scale-95 whitespace-nowrap">
+            <PlusCircle size={20} />
+            <span>Añadir Nueva Joya</span>
+          </button>
         </div>
-      </div>
+      </header>
 
-      {inventarioFiltrado.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-slate-200 text-slate-500 shadow-sm">
-          {inventario.length === 0
-            ? "Aún no tienes joyas. ¡Usa el escáner para agregar piezas! 💎"
-            : "No se encontraron joyas con esa búsqueda."}
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {joyasMostradas.map((item) => (
-              <Card key={item.inventario_id} className="flex flex-col overflow-hidden hover:shadow-md transition-all border-slate-200">
-                <div className="aspect-square w-full bg-slate-100 relative overflow-hidden border-b border-slate-100">
-                  <img
-                    src={item.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"}
-                    alt={item.nombre}
-                    className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-
-                <CardHeader className="pb-3 bg-white">
-                  <div className="flex justify-between items-start gap-2">
-                    <CardTitle className="text-lg font-bold text-slate-800 leading-tight">
-                      {item.nombre}
-                    </CardTitle>
-                    {item.stock > 5 ? (
-                      <Badge className="bg-emerald-100 text-emerald-800 shrink-0">Suficiente</Badge>
-                    ) : item.stock > 0 ? (
-                      <Badge variant="outline" className="text-amber-600 border-amber-600 shrink-0">Por agotarse</Badge>
-                    ) : (
-                      <Badge variant="destructive" className="shrink-0">Agotado</Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-400 font-mono mt-1">SKU: {item.sku}</p>
-                </CardHeader>
-
-                <CardContent className="pt-2 flex-1 flex flex-col justify-between bg-slate-50/50">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm font-medium text-slate-500">Precio Venta</span>
-                    <span className="text-xl font-bold text-indigo-900">${item.precio_personalizado}</span>
-                  </div>
-
-                  <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                    <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2 text-center">
-                      Stock Físico
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="number"
-                        min="0"
-                        className="text-center text-lg font-bold h-12"
-                        defaultValue={item.stock}
-                        onBlur={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (!isNaN(val) && val !== item.stock && val >= 0) {
-                            handleUpdateStock(item.inventario_id, val);
-                          }
-                        }}
-                      />
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-2 text-center h-3">
-                      {updatingId === item.inventario_id ? (
-                        <span className="text-indigo-500 font-medium animate-pulse">Guardando...</span>
-                      ) : (
-                        "Toca fuera para guardar"
-                      )}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
+        
+        {/* Controls Bar */}
+        <div className="grid md:grid-cols-[1fr,auto,auto] gap-4 items-center bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)]">
+          
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+            <Input 
+              type="search" 
+              placeholder="Buscar por nombre o SKU..." 
+              className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-on-surface placeholder:text-outline-variant/60 focus:ring-1 focus:ring-primary-stitch focus:border-primary-stitch outline-none transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
-          {visibleCount < inventarioFiltrado.length && (
-            <div ref={loaderRef} className="py-10 flex justify-center items-center text-slate-400">
-              <Loader2 className="w-8 h-8 animate-spin" />
-              <span className="ml-2">Cargando más joyas...</span>
+          {/* QR Code Button */}
+          <button 
+            onClick={() => setShowScanner(!showScanner)}
+            className={`flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold transition-all ${
+              showScanner 
+                ? 'bg-error text-on-error hover:bg-error-dim' 
+                : 'bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high'
+            }`}
+          >
+            {showScanner ? <X size={20} /> : <QrCode size={20} />}
+            <span>{showScanner ? 'Cerrar Escáner' : 'Escanear QR'}</span>
+          </button>
+
+          {/* Filters Button (UI placeholder) */}
+          <button className="flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high transition-all">
+            <Filter size={20} />
+            <span>Filtros Avanzados</span>
+          </button>
+        </div>
+
+        {/* QR Scanner Container */}
+        {showScanner && (
+          <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 shadow-[0_32px_64px_-16px_rgba(45,52,53,0.06)]">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-headline font-bold tracking-tight text-on-surface">Escáner de SKU</h3>
+              <button onClick={() => setShowScanner(false)} className="text-outline-variant hover:text-error transition-colors">
+                <X size={24} />
+              </button>
             </div>
-          )}
-        </>
-      )}
+            <div id="inventory-reader" className="w-full max-w-lg mx-auto overflow-hidden rounded-xl border-2 border-dashed border-outline-variant/30 bg-surface-container-low"></div>
+            <p className="text-xs text-on-surface-variant text-center mt-4 tracking-wide">Apunta con la cámara al código QR de la etiqueta de la joya.</p>
+          </div>
+        )}
+
+        {/* Inventory Grid */}
+        {inventarioFiltrado.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-24 text-on-surface-variant space-y-6 bg-surface-container-low rounded-2xl border-2 border-dashed border-outline-variant/30">
+            <Package size={64} className="opacity-40" strokeWidth={1} />
+            <div className="text-center space-y-1">
+              <h3 className="text-xl font-headline font-bold text-on-surface">No se encontraron joyas</h3>
+              <p className="text-body-md max-w-sm">
+                {inventario.length === 0
+                  ? "Aún no tienes joyas. ¡Usa el escáner para agregar piezas!"
+                  : "Tu búsqueda no coincide con ninguna pieza de tu inventario."}
+              </p>
+            </div>
+            {searchTerm && (
+              <button onClick={() => setSearchTerm('')} className="text-primary-stitch font-bold hover:underline">
+                Limpiar búsqueda
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {joyasMostradas.map((item) => (
+                <div key={item.inventario_id} className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] hover:shadow-[0_16px_48px_rgba(45,52,53,0.08)] transition-all duration-300 transform hover:-translate-y-1">
+                  
+                  {/* Product Image */}
+                  <div className="aspect-[4/3] overflow-hidden bg-surface-container">
+                    <img 
+                      src={item.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"} 
+                      alt={item.nombre} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="p-6 space-y-4">
+                    <div className="space-y-1">
+                      <span className="text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant opacity-70">
+                        {item.categoria || "Joya"}
+                      </span>
+                      <h3 className="text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors">
+                        {item.nombre}
+                      </h3>
+                      <p className="text-sm text-outline font-mono tracking-tight bg-surface-container-low inline-block px-2 py-0.5 rounded">
+                        SKU: {item.sku}
+                      </p>
+                    </div>
+
+                    <div className="flex items-end justify-between gap-4 pt-2 border-t border-outline-variant/10">
+                      <p className="text-2xl font-extrabold tracking-tighter text-on-surface">
+                        ${item.precio_personalizado?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      </p>
+                      <div className="flex flex-col items-end">
+                        <p className={`text-sm font-bold flex items-center gap-1.5 ${item.stock > 0 ? 'text-tertiary' : 'text-error'}`}>
+                          <Package size={16} />
+                          {item.stock > 0 ? `${item.stock} en stock` : 'Agotado'}
+                        </p>
+                        {item.stock > 0 && (
+                          <span className="text-[10px] text-on-surface-variant/60 mt-1">
+                            {item.stock > 5 ? "✔ Suficiente" : "⚠ Bajo stock"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Stock Editor */}
+                    <div className="mt-2 bg-surface-container-low p-3 rounded-xl border border-outline-variant/20">
+                      <label className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-2 text-center">
+                        Actualizar stock
+                      </label>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          min="0"
+                          className="text-center text-lg font-bold h-12 bg-surface-container-lowest"
+                          defaultValue={item.stock}
+                          onBlur={(e) => {
+                            const val = parseInt(e.target.value);
+                            if (!isNaN(val) && val !== item.stock && val >= 0) {
+                              handleUpdateStock(item.inventario_id, val);
+                            }
+                          }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-on-surface-variant/60 mt-2 text-center h-3">
+                        {updatingId === item.inventario_id ? (
+                          <span className="text-primary-stitch font-medium animate-pulse">Guardando...</span>
+                        ) : (
+                          "Toca fuera para guardar"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Hover Actions (UI placeholder) */}
+                  <div className="px-6 pb-6 pt-2 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-2 rounded-lg text-sm hover:bg-surface-container-high transition-all">
+                      Editar
+                    </button>
+                    <button className="flex-1 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-2 rounded-lg text-sm hover:bg-surface-container-high transition-all">
+                      Detalles
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {visibleCount < inventarioFiltrado.length && (
+              <div ref={loaderRef} className="py-10 flex justify-center items-center text-on-surface-variant">
+                <Loader2 className="w-8 h-8 animate-spin text-primary-stitch" />
+                <span className="ml-2">Cargando más joyas...</span>
+              </div>
+            )}
+          </>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full py-12 px-8 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-[11px] tracking-widest uppercase">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-zinc-400">
+            © 2026 Vendor Hub Joyería. Panel de Inventario.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
