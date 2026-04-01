@@ -6,8 +6,22 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ITEMS_PER_PAGE = 12;
 
+// --- INTERFAZ PARA EL INVENTARIO ---
+interface InventoryItem {
+  inventario_id: number;
+  producto_maestro_id: string;
+  sku: string;
+  nombre: string;
+  stock: number;
+  precio_personalizado: number;
+  precio_sugerido: number;
+  ruta_imagen: string;
+  categoria?: string; // opcional por si acaso no viene
+}
+// -----------------------------------
+
 const Inventory = () => {
-  const [inventario, setInventario] = useState<any[]>([]);
+  const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
 
@@ -282,12 +296,15 @@ const Inventory = () => {
               {joyasMostradas.map((item) => (
                 <div key={item.inventario_id} className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] hover:shadow-[0_16px_48px_rgba(45,52,53,0.08)] transition-all duration-300 transform hover:-translate-y-1">
                   
-                  {/* Product Image */}
+                  {/* Product Image - usando ruta_imagen y placeholder */}
                   <div className="aspect-[4/3] overflow-hidden bg-surface-container">
                     <img 
-                      src={item.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"} 
+                      src={item.ruta_imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"} 
                       alt={item.nombre} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://placehold.co/500x375?text=Joyas";
+                      }}
                     />
                   </div>
 

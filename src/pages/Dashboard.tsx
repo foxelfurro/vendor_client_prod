@@ -17,18 +17,53 @@ import {
   Users,
   Clock3
 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+// Tipos básicos
+interface InventoryItem {
+  inventario_id: number;
+  sku: string;
+  nombre: string;
+  stock: number;
+  precio_personalizado: number;
+  ruta_imagen?: string;
+}
+
+interface DashboardStats {
+  resumen: {
+    total_ingresos: number;
+    unidades_vendidas: number;
+    transacciones_totales: number;
+  };
+  alertas: {
+    productos_criticos: number;
+  };
+  top_productos: Array<{ nombre: string; total_vendido: number }>;
+  inventario: {
+    total_productos: number;
+    valor_total: number;
+  };
+  ultimas_ventas: Array<{
+    id: number;
+    cantidad: number;
+    total: number;
+    fecha: string;
+    producto_nombre: string;
+    imagen: string | null;
+  }>;
+  grafica_mensual: Array<{ mes: string; total: number }>;
+  grafica_reciente: Array<{ etiqueta: string; total: number }>;
+}
 
 const Dashboard = () => {
-  const [stats, setStats] = useState<any>(null);
-  const [inventario, setInventario] = useState<any[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Estado del formulario de venta
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [procesando, setProcesando] = useState(false);
 
-  // Cargar estadísticas del dashboard
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -41,12 +76,11 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  // Cargar inventario para el selector de venta
   useEffect(() => {
     const fetchInventory = async () => {
       try {
         const { data } = await api.get('/vendor/inventory');
-        const disponibles = data.filter((item: any) => item.stock > 0);
+        const disponibles = data.filter((item: InventoryItem) => item.stock > 0);
         setInventario(disponibles);
       } catch (error) {
         console.error("Error al cargar inventario para la caja", error);
@@ -57,7 +91,6 @@ const Dashboard = () => {
     fetchInventory();
   }, []);
 
-  // Buscar el producto completo para saber su precio y calcular el total
   const productoActual = inventario.find(p => String(p.inventario_id) === String(productoSeleccionado));
   const total = productoActual ? productoActual.precio_personalizado * cantidad : 0;
 
@@ -66,11 +99,11 @@ const Dashboard = () => {
     if (!productoSeleccionado || cantidad < 1) return;
 
     if (!productoActual) {
-      alert("Error interno: No se encontró la información del producto. Revisa la consola.");
+      alert("Error interno: No se encontró la información del producto.");
       return;
     }
 
-    if (productoActual && cantidad > productoActual.stock) {
+    if (cantidad > productoActual.stock) {
       alert(`¡No puedes vender ${cantidad}! Solo tienes ${productoActual.stock} en stock.`);
       return;
     }
@@ -86,13 +119,11 @@ const Dashboard = () => {
 
       alert("¡Venta registrada con éxito! 💰✨");
       
-      // Reiniciar formulario
       setProductoSeleccionado('');
       setCantidad(1);
       
-      // Recargar inventario y estadísticas para reflejar cambios
       const { data: newInventory } = await api.get('/vendor/inventory');
-      setInventario(newInventory.filter((item: any) => item.stock > 0));
+      setInventario(newInventory.filter((item: InventoryItem) => item.stock > 0));
       
       const { data: newStats } = await api.get('/vendor/dashboard-stats');
       setStats(newStats);
@@ -107,20 +138,19 @@ const Dashboard = () => {
   if (loading) return <div className="p-10 text-slate-500 flex justify-center w-full">Abriendo la caja...</div>;
   if (!stats) return <div className="p-10 text-center flex justify-center w-full">Cargando datos de la joyería...</div>;
 
-  // Métricas reales para los KPIs
   const kpis = [
-    { id: 'ingresos', label: 'Ventas Totales', value: `$${stats.resumen?.total_ingresos?.toLocaleString('es-MX') || '0'}`, icon: DollarSign, trend: '+12.5% vs mes anterior', trendType: 'up' },
-    { id: 'unidades', label: 'Unidades Vendidas', value: stats.resumen?.unidades_vendidas?.toLocaleString() || '0', icon: Package, trend: 'piezas entregadas', trendType: 'neutral' },
-    { id: 'stock', label: 'Productos en Stock', value: stats.inventario?.total_productos?.toLocaleString() || '0', icon: Layers, trend: 'unidades disponibles', trendType: 'neutral' },
-    { id: 'valor', label: 'Valor del Inventario', value: `$${stats.inventario?.valor_total?.toLocaleString('es-MX') || '0'}`, icon: Coins, trend: 'capital en almacén', trendType: 'neutral' },
-    { id: 'critico', label: 'Stock Crítico', value: stats.alertas?.productos_criticos?.toLocaleString() || '0', icon: AlertTriangle, trend: 'productos por agotarse', trendType: 'warning' },
-    { id: 'top', label: 'Top Producto', value: stats.top_productos?.[0]?.nombre || 'Sin ventas aún', icon: TrendingUp, trend: 'el más pedido', trendType: 'info' }
+    { id: 'ingresos', label: 'Ventas Totales', value: `$${stats.resumen.total_ingresos.toLocaleString('es-MX')}`, icon: DollarSign, trend: '+12.5% vs mes anterior', trendType: 'up' },
+    { id: 'unidades', label: 'Unidades Vendidas', value: stats.resumen.unidades_vendidas.toLocaleString(), icon: Package, trend: 'piezas entregadas', trendType: 'neutral' },
+    { id: 'stock', label: 'Productos en Stock', value: stats.inventario.total_productos.toLocaleString(), icon: Layers, trend: 'unidades disponibles', trendType: 'neutral' },
+    { id: 'valor', label: 'Valor del Inventario', value: `$${stats.inventario.valor_total.toLocaleString('es-MX')}`, icon: Coins, trend: 'capital en almacén', trendType: 'neutral' },
+    { id: 'critico', label: 'Stock Crítico', value: stats.alertas.productos_criticos.toLocaleString(), icon: AlertTriangle, trend: 'productos por agotarse', trendType: 'warning' },
+    { id: 'top', label: 'Top Producto', value: stats.top_productos[0]?.nombre || 'Sin ventas aún', icon: TrendingUp, trend: 'el más pedido', trendType: 'info' }
   ];
 
   return (
     <div className="bg-background font-body text-on-surface antialiased min-h-screen">
       
-      {/* Editorial Header */}
+      {/* Header (se mantiene igual) */}
       <header className="border-b border-outline-variant/10 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
@@ -134,7 +164,6 @@ const Dashboard = () => {
               Administra tus ventas, inventario y comisiones en un entorno curado para la excelencia.
             </p>
           </div>
-          {/* Añadido flex-shrink-0 y w-full en móvil para evitar aplastamientos */}
           <Link 
             to="/inventario" 
             className="flex items-center justify-center w-full md:w-auto flex-shrink-0 gap-2.5 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-3.5 px-6 rounded-xl hover:bg-surface-container-high transition-all"
@@ -147,10 +176,9 @@ const Dashboard = () => {
 
       <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
         
-        {/* Tarjeta de Nueva Venta */}
+        {/* Tarjeta de Nueva Venta (sin cambios) */}
         <div className="max-w-4xl mx-auto w-full">
           <Card className="shadow-[0_16px_48px_rgba(45,52,53,0.06)] border-outline-variant/10 bg-surface-container-lowest overflow-hidden rounded-2xl">
-            {/* Se elimina el fondo sólido (bg-primary-stitch) para unificar con el diseño 'Atelier' y se ajusta la alineación */}
             <CardHeader className="border-b border-outline-variant/10 pb-6 px-6 sm:px-8">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-xl bg-surface-container border border-outline-variant/30 text-emerald-500 shadow-sm flex-shrink-0">
@@ -198,13 +226,13 @@ const Dashboard = () => {
                       <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
                         Cantidad
                       </label>
-                      <Input 
+                      <input 
                         type="number" 
                         min="1" 
                         required
                         value={cantidad}
                         onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                        className="h-12 rounded-xl bg-surface-container-low border-outline-variant/30 text-on-surface w-full shadow-sm focus-visible:ring-primary-stitch transition-all hover:border-outline-variant/50"
+                        className="flex h-12 w-full rounded-xl border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface transition-all shadow-sm hover:border-outline-variant/50"
                       />
                     </div>
 
@@ -234,7 +262,7 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* KPI Grid (Corregido de 4 a 3 columnas para evitar asimetría con 6 elementos) */}
+        {/* KPI Grid (sin cambios) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
@@ -266,10 +294,10 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* Dashboard Sections (Activity + Visualization) */}
+        {/* Actividad Reciente + Gráfico */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
           
-          {/* Recent Activity */}
+          {/* Actividad Reciente */}
           <div className="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-outline-variant/10 gap-4">
               <h2 className="text-xl md:text-2xl font-headline font-bold tracking-tight text-on-surface">Actividad Reciente del Atelier</h2>
@@ -280,12 +308,15 @@ const Dashboard = () => {
 
             <div className="space-y-6">
               {stats.ultimas_ventas && stats.ultimas_ventas.length > 0 ? (
-                stats.ultimas_ventas.slice(0, 3).map((venta: any) => (
-                  // Corregida la alineación: Imagen y Título a la izquierda, evitando que títulos largos desborden
+                stats.ultimas_ventas.map((venta) => (
                   <div key={venta.id} className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between group pb-6 border-b border-outline-variant/10 last:border-b-0 last:pb-0">
                     <div className="flex gap-4 items-center flex-1 min-w-0">
                       <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container border border-outline-variant/10 flex-shrink-0">
-                        <img src={venta.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=150&auto=format&fit=crop"} alt={venta.producto_nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img 
+                          src={venta.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=150&auto=format&fit=crop"} 
+                          alt={venta.producto_nombre} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        />
                       </div>
                       <div className="flex-1 space-y-1 min-w-0">
                         <span className="text-[0.65rem] uppercase font-bold tracking-widest text-tertiary block truncate">
@@ -299,7 +330,6 @@ const Dashboard = () => {
                         </p>
                       </div>
                     </div>
-                    {/* El precio y fecha bajan alineados al texto en móvil, y se van a la derecha en PC */}
                     <div className="text-left sm:text-right space-y-1 flex-shrink-0 pl-20 sm:pl-0">
                       <p className="text-sm font-bold text-on-surface">${venta.total}</p>
                       <p className="text-xs text-outline flex items-center gap-1 sm:justify-end">
@@ -317,31 +347,44 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Sales Visualization */}
+          {/* Gráfico de Rendimiento Mensual */}
           <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] space-y-6">
             <h3 className="text-xl font-headline font-bold tracking-tight text-on-surface">Rendimiento (Mes)</h3>
             
-            <div className="aspect-[3/4] lg:aspect-auto lg:h-[300px] rounded-xl bg-surface-container-low border border-outline-variant/20 flex flex-col items-center justify-center p-6 space-y-3">
-              <TrendingUp size={48} className="text-primary-stitch opacity-30" strokeWidth={1} />
-              <p className="text-sm text-center text-on-surface-variant leading-relaxed max-w-xs">
-                Aquí visualizarás tu gráfico de ventas mensuales. Usaremos una paleta monocromática.
-              </p>
-              <div className="w-full pt-4 space-y-2">
-                <div className="w-full h-3 bg-primary-stitch/70 rounded"></div>
-                <div className="w-[85%] h-3 bg-primary-stitch/50 rounded"></div>
-                <div className="w-[60%] h-3 bg-primary-stitch/30 rounded"></div>
-              </div>
+            <div className="h-[300px] w-full">
+              {stats.grafica_mensual && stats.grafica_mensual.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.grafica_mensual} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="mes" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                    <Tooltip 
+                      formatter={(value: any, name: any) => {
+                        if (typeof value === 'number') {
+                          return [`$${value.toLocaleString('es-MX')}`, 'Ventas'];
+                        }
+                        return [value, name];
+                      }}
+                      contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                    />
+                    <Bar dataKey="total" fill="#2d3436" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-on-surface-variant space-y-3">
+                  <TrendingUp size={48} className="opacity-30" />
+                  <p className="text-sm text-center">Aún no hay ventas registradas este año.</p>
+                </div>
+              )}
             </div>
           </div>
-
         </div>
-
       </main>
 
       <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-[11px] tracking-widest uppercase">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <div className="text-zinc-400">
-              © 2026 Vendor Hub Joyería. Atelier Digital.
+            © 2026 Vendor Hub Joyería. Atelier Digital.
           </div>
         </div>
       </footer>
