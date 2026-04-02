@@ -8,6 +8,7 @@ import Inventory from './pages/Inventory';
 import Caja from './pages/Caja';
 import AdminDashboard from './pages/AdminDashboard';
 import Checkout from './pages/Checkout';
+import SupportPage from './pages/Support';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -43,7 +44,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           
           <Route path="/login" element={<Login />} />
-          
+          <Route path="/support" element={<SupportPage />} />
           {/* El Checkout DEBE ser público para que los nuevos puedan pagar y registrarse */}
           <Route path="/checkout" element={<Checkout />} />
 
