@@ -72,7 +72,7 @@ const Login = () => {
           {/* Right Side: Login Form */}
           <div className="p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest">
             <div className="mb-10">
-              <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Sign In</h1>
+              <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Inicia Sesión</h1>
               <p className="text-on-surface-variant text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
             </div>
 
@@ -88,7 +88,7 @@ const Login = () => {
                     className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface placeholder:text-outline-variant/60 focus:ring-0 focus:border-primary transition-all duration-300 outline-none" 
                     id="email" 
                     name="email" 
-                    placeholder="artisan@vendorhub.com" 
+                    placeholder="sociolumin@gmail.com" 
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -107,7 +107,7 @@ const Login = () => {
                     Contraseña
                   </label>
                   <a className="text-[0.65rem] uppercase font-bold tracking-widest text-primary/60 hover:text-primary transition-colors underline-offset-4 hover:underline" href="#">
-                    Se te olvido tu contraseña?
+                  ¿Olvidaste tu contraseña?
                   </a>
                 </div>
                 <div className="relative group">
