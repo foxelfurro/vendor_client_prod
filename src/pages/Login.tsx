@@ -32,7 +32,7 @@ const Login = () => {
             </span>
           </div>
           <div className="hidden md:flex gap-8">
-            <a className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase" href="#">Support</a>
+            <a className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase" href="#">Soporte</a>
           </div>
         </div>
       </nav>
@@ -164,9 +164,8 @@ const Login = () => {
       {/* Footer */}
       <footer className="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto text-zinc-600 dark:text-zinc-400 font-manrope text-[11px] tracking-widest uppercase border-t border-outline-variant/10">
         <div className="flex items-center gap-6">
-          <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Privacy Policy</a>
-          <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Terms of Service</a>
-          <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Support</a>
+          <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Politicas de Privacidad</a>
+          <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Terminos de servicio</a>
         </div>
         <div className="text-zinc-400 dark:text-zinc-600">
             © 2026 Vendor Hub Joyería. All rights reserved.
