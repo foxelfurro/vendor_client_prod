@@ -100,15 +100,19 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Password Input */}
+{/* Password Input */}
               <div className="space-y-2">
                 <div className="flex justify-between items-end ml-1">
                   <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant" htmlFor="password">
                     Contraseña
                   </label>
-                  <a className="text-[0.65rem] uppercase font-bold tracking-widest text-primary/60 hover:text-primary transition-colors underline-offset-4 hover:underline" href="#">
-                  ¿Olvidaste tu contraseña?
-                  </a>
+                  <button 
+                    type="button" 
+                    onClick={() => navigate('/forgot-password')} 
+                    className="text-[0.65rem] uppercase font-bold tracking-widest text-primary/60 hover:text-primary transition-colors underline-offset-4 hover:underline"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
                 </div>
                 <div className="relative group">
                   <input 
