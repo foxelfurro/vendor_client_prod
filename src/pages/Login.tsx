@@ -66,7 +66,7 @@ const Login = () => {
           <div className="p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest">
             <div className="mb-10">
               <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Sign In</h1>
-              <p className="text-on-surface-variant text-sm tracking-wide">Enter your credentials to manage your hub.</p>
+              <p className="text-on-surface-variant text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
             </div>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
@@ -74,7 +74,7 @@ const Login = () => {
               {/* Email Input */}
               <div className="space-y-2">
                 <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1" htmlFor="email">
-                  Vendor Email
+                  Email 
                 </label>
                 <div className="relative group">
                   <input 
@@ -97,10 +97,10 @@ const Login = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-end ml-1">
                   <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant" htmlFor="password">
-                    Security Key
+                    Contraseña
                   </label>
                   <a className="text-[0.65rem] uppercase font-bold tracking-widest text-primary/60 hover:text-primary transition-colors underline-offset-4 hover:underline" href="#">
-                    Forgot?
+                    Se te olvido tu contraseña?
                   </a>
                 </div>
                 <div className="relative group">
@@ -120,25 +120,13 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Remember Me (UI Only) */}
-              <div className="flex items-center gap-3 py-1">
-                <input 
-                  className="w-4 h-4 rounded-sm border-outline-variant/30 text-primary focus:ring-primary/20 bg-surface-container-low cursor-pointer" 
-                  id="remember" 
-                  type="checkbox"
-                />
-                <label className="text-xs text-on-surface-variant tracking-wide cursor-pointer" htmlFor="remember">
-                  Stay signed in for 30 days
-                </label>
-              </div>
-
               {/* CTA Button */}
               <div className="pt-4">
                 <button 
                   className="w-full bg-primary hover:bg-primary-dim text-on-primary font-bold py-4 rounded-xl shadow-lg shadow-primary/10 transition-all duration-300 active:scale-[0.98] flex justify-center items-center gap-2 group" 
                   type="submit"
                 >
-                  <span>Sign In to Hub</span>
+                  <span>Accede a tu negocio</span>
                   <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
                 </button>
               </div>
@@ -147,13 +135,13 @@ const Login = () => {
             {/* 👇 ESTA ES LA PARTE QUE CAMBIAMOS 👇 */}
             <div className="mt-12 pt-8 border-t border-outline-variant/10 text-center">
               <p className="text-on-surface-variant text-sm flex items-center justify-center gap-1">
-                New to the Joyería network? 
+                Nuevo en Lumin? 
                 <button 
                   type="button"
                   onClick={() => navigate('/checkout')}
                   className="text-primary font-bold hover:underline underline-offset-4 transition-all"
                 >
-                  Become a Vendor
+                 Hazte socio 
                 </button>
               </p>
             </div>
