@@ -28,7 +28,7 @@ const Login = () => {
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-zinc-700 dark:text-zinc-300" data-icon="diamond">diamond</span>
             <span className="text-xl tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">
-              <span className="font-black">Qlatte</span> <span className="font-normal opacity-80">| Lumin</span>
+              <span className="font-black">Qlatte</span> <span className="font-normal opacity-80">|   Lumin</span>
             </span>
           </div>
           <div className="hidden md:flex gap-8">
