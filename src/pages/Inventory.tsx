@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import api from '@/lib/api';
 import { Input } from "@/components/ui/input";
-import { QrCode, X, Search, Package, Loader2, PlusCircle, Filter } from "lucide-react";
+import { QrCode, X, Search, Package, Loader2, Filter } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ITEMS_PER_PAGE = 12;
@@ -213,10 +213,6 @@ const Inventory = () => {
               Administra tus joyas, revisa stock disponible y actualiza tus piezas.
             </p>
           </div>
-          <button className="flex items-center gap-2.5 bg-primary-stitch hover:bg-primary-dim text-on-primary font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-primary-stitch/10 transition-all active:scale-95 whitespace-nowrap">
-            <PlusCircle size={20} />
-            <span>Añadir Nueva Joya</span>
-          </button>
         </div>
       </header>
 
