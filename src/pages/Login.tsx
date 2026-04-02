@@ -44,7 +44,7 @@ const Login = () => {
             <img 
               className="absolute inset-0 w-full h-full object-cover opacity-90 mix-blend-multiply" 
               alt="Macro photography of luxury diamond jewelry with soft lighting on a white silk background with elegant shadows" 
-              src="https://images.unsplash.com/photo-1599643478514-4a884f18db05?q=80&w=1800&auto=format&fit=crop" /* Imagen de prueba reemplazada, ajusta la URL si es necesario */
+              src="https://images.unsplash.com/photo-1599643478514-4a884f18db05?q=80&w=1800&auto=format&fit=crop" 
             />
             <div className="absolute inset-0 bg-gradient-to-tr from-surface-container via-transparent to-transparent opacity-60"></div>
             <div className="relative h-full flex flex-col justify-end p-12 text-on-surface">
@@ -140,12 +140,21 @@ const Login = () => {
               </div>
             </form>
 
+            {/* 👇 ESTA ES LA PARTE QUE CAMBIAMOS 👇 */}
             <div className="mt-12 pt-8 border-t border-outline-variant/10 text-center">
-              <p className="text-on-surface-variant text-sm">
+              <p className="text-on-surface-variant text-sm flex items-center justify-center gap-1">
                 New to the Joyería network? 
-                <a className="text-primary font-bold ml-1 hover:underline underline-offset-4 transition-all" href="#">Become a Vendor</a>
+                <button 
+                  type="button"
+                  onClick={() => navigate('/checkout')}
+                  className="text-primary font-bold hover:underline underline-offset-4 transition-all"
+                >
+                  Become a Vendor
+                </button>
               </p>
             </div>
+            {/* 👆 FIN DEL CAMBIO 👆 */}
+
           </div>
         </div>
       </main>
