@@ -1,5 +1,3 @@
-
-
 const SupportPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -8,7 +6,7 @@ const SupportPage = () => {
           Centro de Soporte
         </h2>
         <p className="text-gray-600 mb-8 text-center">
-          ¿Tienes dudas o sugerencias para JoyeriaHub? Cuéntanos.
+          ¿Tienes dudas o sugerencias para Lumina? Cuéntanos.
         </p>
 
         {/* REEMPLAZA EL ACTION CON TU URL DE FORMSPREE */}
