@@ -9,6 +9,8 @@ import Caja from './pages/Caja';
 import AdminDashboard from './pages/AdminDashboard';
 import Checkout from './pages/Checkout';
 import SupportPage from './pages/Support';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -39,6 +41,9 @@ function App() {
       <Router>
         <Routes>
           {/* --- 1. RUTAS PÚBLICAS (Accesibles para todos) --- */}
+
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* 👇 Si alguien entra a la raíz, lo mandamos directo al Login 👇 */}
           <Route path="/" element={<Navigate to="/login" replace />} />
