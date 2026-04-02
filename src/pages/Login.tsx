@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -30,7 +31,13 @@ const Login = () => {
             <span className="text-xl font-bold tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">Vendor Hub Joyería</span>
           </div>
           <div className="hidden md:flex gap-8">
-            <a className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase" href="#">Support</a>
+            {/* Cambiamos <a> por <Link> y el atributo href por to */}
+            <Link 
+              to="/support" 
+              className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
+            >
+              Support
+            </Link>
           </div>
         </div>
       </nav>
