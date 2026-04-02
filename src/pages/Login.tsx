@@ -55,7 +55,7 @@ const Login = () => {
             <img 
               className="absolute inset-0 w-full h-full object-cover opacity-90 mix-blend-multiply" 
               alt="Macro photography of luxury diamond jewelry with soft lighting on a white silk background with elegant shadows" 
-              src="https://images.unsplash.com/photo-1599643478514-4a884f18db05?q=80&w=1800&auto=format&fit=crop" 
+              src="https://cdn.shopify.com/s/files/1/0664/9053/1977/files/1200_x_1200_capacitaciones-virtuales.jpg?v=1759275117&width=1200&height=1200&crop=center" 
             />
             <div className="absolute inset-0 bg-gradient-to-tr from-surface-container via-transparent to-transparent opacity-60"></div>
             <div className="relative h-full flex flex-col justify-end p-12 text-on-surface">
