@@ -65,7 +65,7 @@ const Login = () => {
           {/* Right Side: Login Form */}
           <div className="p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest">
             <div className="mb-10">
-              <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Sign In</h1>
+              <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Inicia Sesión</h1>
               <p className="text-on-surface-variant text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
             </div>
 
