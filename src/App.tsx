@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Welcome from './pages/Welcome'; // <-- Importamos la nueva página
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Catalog from './pages/Catalog';
@@ -39,7 +38,10 @@ function App() {
       <Router>
         <Routes>
           {/* --- 1. RUTAS PÚBLICAS (Accesibles para todos) --- */}
-          <Route path="/" element={<Welcome />} />
+          
+          {/* 👇 Si alguien entra a la raíz, lo mandamos directo al Login 👇 */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          
           <Route path="/login" element={<Login />} />
           
           {/* El Checkout DEBE ser público para que los nuevos puedan pagar y registrarse */}
@@ -69,8 +71,8 @@ function App() {
             />
           </Route>
 
-          {/* CATCH-ALL */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* CATCH-ALL: Si escriben una URL que no existe, van al Login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
