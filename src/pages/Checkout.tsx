@@ -27,8 +27,8 @@ const Checkout = () => {
 
   useEffect(() => {
     // REEMPLAZA CON TU LLAVE PÚBLICA DE PRUEBAS
-    Conekta.setPublicKey('key_rFXLUER5xR1aVEXss68TE0o');
-    Conekta.setLanguage("es");
+    (window as any).Conekta.setPublicKey('key_BSthmV8HcvCCy847Ri5YYma');
+    (window as any).Conekta.setLanguage("es");
   }, []);
 
   const handleGenerarToken = (e: React.FormEvent) => {
@@ -78,7 +78,7 @@ const Checkout = () => {
       setProcesando(false);
     };
 
-    Conekta.Token.create(tokenParams, successResponseHandler, errorResponseHandler);
+    (window as any).Conekta.Token.create(tokenParams, successResponseHandler, errorResponseHandler);
   };
 
   return (
