@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import Welcome from './pages/Welcome'; // <-- Importamos la nueva página
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Catalog from './pages/Catalog';
 import Inventory from './pages/Inventory';
 import Caja from './pages/Caja';
 import AdminDashboard from './pages/AdminDashboard';
+import Checkout from './pages/Checkout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -36,26 +38,29 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+          {/* --- 1. RUTAS PÚBLICAS (Accesibles para todos) --- */}
+          <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
+          
+          {/* El Checkout DEBE ser público para que los nuevos puedan pagar y registrarse */}
+          <Route path="/checkout" element={<Checkout />} />
 
+          {/* --- 2. RUTAS PROTEGIDAS (Solo para usuarios logueados) --- */}
           <Route
-            path="/"
             element={
               <ProtectedRoute>
                 <Layout />
               </ProtectedRoute>
             }
           >
-            {/* NUEVO: Esta es la ruta por defecto que soluciona la pantalla en blanco */}
-            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/catalogo" element={<Catalog />} />
+            <Route path="/inventario" element={<Inventory />} />
+            <Route path="/caja" element={<Caja />} /> 
             
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="catalogo" element={<Catalog />} />
-            <Route path="inventario" element={<Inventory />} />
-            <Route path="caja" element={<Caja />} /> 
-            
+            {/* Ruta de Admin */}
             <Route 
-              path="admin" 
+              path="/admin" 
               element={
                 <AdminRoute>
                   <AdminDashboard />
@@ -64,11 +69,11 @@ function App() {
             />
           </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* CATCH-ALL */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
   );
 }
-
 export default App;
