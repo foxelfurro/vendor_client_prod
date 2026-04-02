@@ -28,7 +28,9 @@ const Login = () => {
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-zinc-700 dark:text-zinc-300" data-icon="diamond">diamond</span>
             <span className="text-xl tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">
-              <span className="font-black">Qlatte</span> <span className="font-normal opacity-80">|                 Lumin</span>
+              <span className="font-black">Qlatte</span> <span className="font-normal opacity-60 mx-2">|</span>
+              <span className="font-normal opacity-80">Lumin</span>
+              
             </span>
           </div>
           <div className="hidden md:flex gap-8">
@@ -168,7 +170,7 @@ const Login = () => {
           <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Terminos de servicio</a>
         </div>
         <div className="text-zinc-400 dark:text-zinc-600">
-            © 2026 Vendor Hub Joyería. All rights reserved.
+            © 2026 Qlatte Lumin todos los derechos reservados.
         </div>
       </footer>
     </div>
