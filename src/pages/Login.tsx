@@ -37,7 +37,7 @@ const Login = () => {
           <div className="hidden md:flex gap-8">
             {/* Cambiamos <a> por <Link> y el atributo href por to */}
             <Link 
-              to="/support" 
+              to="/Support" 
               className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
             >
               Soporte
