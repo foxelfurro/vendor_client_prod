@@ -40,7 +40,7 @@ const Login = () => {
               to="/support" 
               className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
             >
-              Support
+              Soporte
             </Link>
           </div>
         </div>
