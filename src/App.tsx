@@ -11,6 +11,8 @@ import Checkout from './pages/Checkout';
 import SupportPage from './pages/Support';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import PrivacyPolicy from './pages/policy';
+import TermsOfService from './pages/terms';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -44,7 +46,8 @@ function App() {
 
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           {/* 👇 Si alguien entra a la raíz, lo mandamos directo al Login 👇 */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           
