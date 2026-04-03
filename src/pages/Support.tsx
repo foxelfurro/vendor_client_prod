@@ -1,67 +1,94 @@
+
 const SupportPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Centro de Soporte
-        </h2>
-        <p className="text-gray-600 mb-8 text-center">
-          ¿Tienes dudas o sugerencias para Lumina? Cuéntanos.
-        </p>
+    <div className="min-h-screen bg-white dark:bg-zinc-950 font-manrope selection:bg-zinc-200 dark:selection:bg-zinc-800 transition-colors duration-300">
+      <main className="max-w-xl mx-auto py-20 px-8">
+        {/* Encabezado */}
+        <header className="mb-12">
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-2">
+            Centro de Soporte
+          </h2>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+            ¿Tienes dudas o sugerencias para Qlatte Lumin? Cuéntanos.
+          </p>
+        </header>
 
-        {/* REEMPLAZA EL ACTION CON TU URL DE FORMSPREE */}
+        {/* Formulario */}
         <form 
           action="https://formspree.io/f/mzdkabqn" 
           method="POST"
-          className="space-y-4"
+          className="space-y-8"
         >
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Asunto</label>
+          {/* Asunto */}
+          <div className="group">
+            <label className="block text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 font-semibold mb-2 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors">
+              Asunto
+            </label>
             <select 
               name="subject" 
               required 
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-3 text-sm text-zinc-800 dark:text-zinc-200 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition-colors appearance-none cursor-pointer"
             >
-              <option value="">Selecciona una opción</option>
-              <option value="Sugerencia">Sugerencia de mejora</option>
-              <option value="Duda">Duda técnica</option>
-              <option value="Error">Reportar un error (Bug)</option>
-              <option value="Otro">Otro</option>
+              <option value="" className="dark:bg-zinc-900">Selecciona una opción</option>
+              <option value="Sugerencia" className="dark:bg-zinc-900">Sugerencia de mejora</option>
+              <option value="Duda" className="dark:bg-zinc-900">Duda técnica</option>
+              <option value="Error" className="dark:bg-zinc-900">Reportar un error (Bug)</option>
+              <option value="Otro" className="dark:bg-zinc-900">Otro</option>
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tu Correo</label>
+          {/* Email */}
+          <div className="group">
+            <label className="block text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 font-semibold mb-2 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors">
+              Tu Correo
+            </label>
             <input
               type="email"
               name="email"
               required
               placeholder="vendedor@joyeria.com"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-3 text-sm text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition-colors"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Mensaje</label>
+          {/* Mensaje */}
+          <div className="group">
+            <label className="block text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 font-semibold mb-2 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors">
+              Mensaje
+            </label>
             <textarea
               name="message"
               required
               rows={4}
               placeholder="Escribe aquí tus comentarios..."
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-3 text-sm text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition-colors resize-none"
             ></textarea>
           </div>
 
-          <div>
+          {/* Botón de envío */}
+          <div className="pt-4">
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full py-4 px-6 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-300 shadow-lg shadow-zinc-200 dark:shadow-none"
             >
               Enviar Mensaje
             </button>
           </div>
         </form>
-      </div>
+
+        {/* Footer de la página */}
+        <div className="mt-20 pt-8 border-t border-zinc-100 dark:border-zinc-900 flex justify-between items-center">
+          <Link 
+            to="/" 
+            className="text-[11px] uppercase tracking-widest text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+          >
+            ← Volver
+          </Link>
+          <span className="text-[10px] text-zinc-300 dark:text-zinc-700 uppercase tracking-widest">
+            Qlatte Lumin Support
+          </span>
+        </div>
+      </main>
     </div>
   );
 };
