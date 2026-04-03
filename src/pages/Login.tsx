@@ -165,8 +165,18 @@ const Login = () => {
       {/* Footer */}
       <footer className="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto text-zinc-600 dark:text-zinc-400 font-manrope text-[11px] tracking-widest uppercase border-t border-outline-variant/10">
         <div className="flex items-center gap-6">
-          <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Politicas de Privacidad</a>
-          <a className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline" href="#">Terminos de servicio</a>
+          <Link 
+            to="/privacy" 
+            className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline"
+          >
+            Políticas de Privacidad
+          </Link>
+          <Link 
+            to="/terms" 
+            className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline"
+          >
+            Términos de servicio
+          </Link>
         </div>
         <div className="text-zinc-400 dark:text-zinc-600">
             © 2026 Qlatte Lumin todos los derechos reservados.
