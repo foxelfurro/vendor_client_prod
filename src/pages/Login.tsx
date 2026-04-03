@@ -55,16 +55,16 @@ const Login = () => {
             <img 
               className="absolute inset-0 w-full h-full object-cover opacity-90 mix-blend-multiply" 
               alt="Macro photography of luxury diamond jewelry with soft lighting on a white silk background with elegant shadows" 
-              src="https://cdn.shopify.com/s/files/1/0664/9053/1977/files/1200_x_1200_capacitaciones-virtuales.jpg?v=1759275117&width=1200&height=1200&crop=center" 
+              src="https://images.unsplash.com/photo-1631982690223-8aa4be0a2497?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGpld2Vscnl8ZW58MHx8MHx8fDA%3D" 
             />
             <div className="absolute inset-0 bg-gradient-to-tr from-surface-container via-transparent to-transparent opacity-60"></div>
             <div className="relative h-full flex flex-col justify-end p-12 text-on-surface">
-              <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold mb-4 opacity-60">Excellence in Craft</span>
+              <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold mb-4 opacity-60">Gestión de Alto Valor</span>
               <h2 className="text-4xl font-headline font-extrabold tracking-tighter leading-tight mb-6">
-                The World's Finest <br/>Artisans, Unified.
+                El Mercado Nacional de Joyería, <br/>bajo su control.
               </h2>
               <p className="text-body-md text-on-surface-variant max-w-xs leading-relaxed">
-                Access your global inventory, manage bespoke commissions, and track market valuations in one curated environment.
+                Administre su catálogo exclusivo, supervise transacciones de alta gama y analice tendencias de mercado desde una plataforma diseñada para el éxito comercial.
               </p>
             </div>
           </div>
