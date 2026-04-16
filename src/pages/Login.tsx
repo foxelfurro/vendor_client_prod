@@ -124,7 +124,7 @@ const Login = () => {
               {/* WIDGET TURNSTILE */}
               <div className="flex justify-center py-2">
                 <Turnstile 
-                  siteKey="TU_SITE_KEY_AQUI" 
+                  siteKey="0x4AAAAAAC-O9QAaIsNyGcaa" 
                   onSuccess={(token) => setCaptchaToken(token)}
                   options={{ theme: 'light' }}
                 />
