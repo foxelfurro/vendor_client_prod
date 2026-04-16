@@ -1,23 +1,30 @@
 import React, { useState } from 'react';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState(''); 
+  
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(''); // Limpiamos errores anteriores
+
     try {
       const { data } = await api.post('/auth/login', { email, password });
       login(data.token, data.user);
       navigate('/dashboard');
-    } catch (error) {
-      alert("Error al iniciar sesión. Revisa tus credenciales.");
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.error) {
+        setErrorMessage(error.response.data.error);
+      } else {
+        setErrorMessage("Error al conectar con el servidor. Inténtalo más tarde.");
+      }
     }
   };
 
@@ -31,11 +38,9 @@ const Login = () => {
             <span className="text-xl tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">
               <span className="font-black">Qlatte</span> <span className="font-normal opacity-60 mx-2">|</span>
               <span className="font-normal opacity-80">Lumin</span>
-              
             </span>
           </div>
           <div className="hidden md:flex gap-8">
-            {/* Cambiamos <a> por <Link> y el atributo href por to */}
             <Link 
               to="/Support" 
               className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
@@ -76,6 +81,21 @@ const Login = () => {
               <p className="text-on-surface-variant text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
             </div>
 
+            {/* MÓDULO DE ERROR ELEGANTE CON TAILWIND */}
+            {errorMessage && (
+              <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md mb-6 shadow-sm">
+                <p className="text-sm font-medium">{errorMessage}</p>
+                {errorMessage.includes('expirado') && (
+                  <Link 
+                    to="/checkout" 
+                    className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-800 hover:underline transition-colors"
+                  >
+                    Renovar suscripción aquí &rarr;
+                  </Link>
+                )}
+              </div>
+            )}
+
             <form className="space-y-6" onSubmit={handleSubmit}>
               
               {/* Email Input */}
@@ -100,7 +120,7 @@ const Login = () => {
                 </div>
               </div>
 
-{/* Password Input */}
+              {/* Password Input */}
               <div className="space-y-2">
                 <div className="flex justify-between items-end ml-1">
                   <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant" htmlFor="password">
@@ -143,7 +163,7 @@ const Login = () => {
               </div>
             </form>
 
-            {/* 👇 ESTA ES LA PARTE QUE CAMBIAMOS 👇 */}
+            {/* Link para nuevos usuarios */}
             <div className="mt-12 pt-8 border-t border-outline-variant/10 text-center">
               <p className="text-on-surface-variant text-sm flex items-center justify-center gap-1">
                 Nuevo en Lumin? 
@@ -156,7 +176,6 @@ const Login = () => {
                 </button>
               </p>
             </div>
-            {/* 👆 FIN DEL CAMBIO 👆 */}
 
           </div>
         </div>
