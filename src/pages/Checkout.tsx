@@ -26,7 +26,7 @@ const Checkout = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   useEffect(() => {
-    (window as any).Conekta.setPublicKey('key_BSthmV8HcvCCy847Ri5YYma'); 
+    (window as any).Conekta.setPublicKey('key_WUA19u2Lnbkz1hYBohn8uwH'); 
     (window as any).Conekta.setLanguage("es");
   }, []);
 
