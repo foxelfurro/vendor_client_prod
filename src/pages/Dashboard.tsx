@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
+import { Input } from "@/components/ui/input";
 import { 
   DollarSign, 
   Package, 
@@ -14,7 +15,8 @@ import {
   BadgeDollarSign,
   ArrowRight,
   Users,
-  Clock3
+  Clock3,
+  Search
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -59,9 +61,24 @@ const Dashboard = () => {
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Estados para la venta (únicos y sin duplicar)
+  const [searchTerm, setSearchTerm] = useState('');
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [procesando, setProcesando] = useState(false);
+
+  // Lógica de filtrado reactiva
+  const resultadosBusqueda = useMemo(() => {
+    if (!searchTerm || productoSeleccionado) return [];
+    
+    return inventario.filter((item) => {
+      const nombre = item.nombre?.toLowerCase() || "";
+      const sku = item.sku?.toLowerCase() || "";
+      const busqueda = searchTerm.toLowerCase();
+      
+      return nombre.includes(busqueda) || sku.includes(busqueda);
+    });
+  }, [searchTerm, inventario, productoSeleccionado]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -119,6 +136,7 @@ const Dashboard = () => {
       alert("¡Venta registrada con éxito! 💰✨");
       
       setProductoSeleccionado('');
+      setSearchTerm('');
       setCantidad(1);
       
       const { data: newInventory } = await api.get('/vendor/inventory');
@@ -149,7 +167,7 @@ const Dashboard = () => {
   return (
     <div className="bg-background font-body text-on-surface antialiased min-h-screen">
       
-      {/* Header (se mantiene igual) */}
+      {/* Header */}
       <header className="border-b border-outline-variant/10 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
@@ -175,7 +193,7 @@ const Dashboard = () => {
 
       <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
         
-        {/* Tarjeta de Nueva Venta (sin cambios) */}
+        {/* Tarjeta de Nueva Venta */}
         <div className="max-w-4xl mx-auto w-full">
           <Card className="shadow-[0_16px_48px_rgba(45,52,53,0.06)] border-outline-variant/10 bg-surface-container-lowest overflow-hidden rounded-2xl">
             <CardHeader className="border-b border-outline-variant/10 pb-6 px-6 sm:px-8">
@@ -188,7 +206,7 @@ const Dashboard = () => {
                     Nueva Venta
                   </CardTitle>
                   <CardDescription className="text-on-surface-variant text-sm">
-                    Registra una salida de tu inventario.
+                    Busca por SKU o nombre para registrar la salida.
                   </CardDescription>
                 </div>
               </div>
@@ -198,36 +216,60 @@ const Dashboard = () => {
               <CardContent className="space-y-6 pt-8 px-6 sm:px-8">
                 {inventario.length === 0 ? (
                   <div className="text-center text-error py-6 font-medium bg-error/10 rounded-xl border border-error/20">
-                    No tienes productos con stock. ¡Agrega joyas desde el inventario!
+                    No tienes productos con stock.
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-3">
+                    {/* Buscador por SKU / Nombre */}
+                    <div className="space-y-3 relative">
                       <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
-                        Selecciona la Joya
+                        Buscar Joya (Nombre o SKU)
                       </label>
-                      <select 
-                        required
-                        value={productoSeleccionado}
-                        onChange={(e) => setProductoSeleccionado(e.target.value)}
-                        className="flex h-12 w-full rounded-xl border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface truncate transition-all shadow-sm hover:border-outline-variant/50"
-                      >
-                        <option value="" disabled>-- Elige un producto --</option>
-                        {inventario.map(item => (
-                          <option key={item.inventario_id} value={item.inventario_id}>
-                            {item.nombre} (Stock: {item.stock}) - ${item.precio_personalizado}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+                        <Input
+                          type="text"
+                          placeholder="Escribe el SKU o nombre..."
+                          className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-on-surface focus:ring-2 focus:ring-primary-stitch outline-none transition-all"
+                          value={searchTerm}
+                          onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            if (e.target.value === "") setProductoSeleccionado("");
+                          }}
+                        />
+                      </div>
+
+                      {/* Lista de sugerencias */}
+                      {searchTerm && !productoSeleccionado && resultadosBusqueda.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                          {resultadosBusqueda.map((item) => (
+                            <button
+                              key={item.inventario_id}
+                              type="button"
+                              className="w-full text-left px-4 py-3 hover:bg-surface-container transition-colors border-b border-outline-variant/5 last:border-0 flex justify-between items-center"
+                              onClick={() => {
+                                setProductoSeleccionado(String(item.inventario_id));
+                                setSearchTerm(`${item.nombre} (${item.sku || 'S/N'})`);
+                              }}
+                            >
+                              <div>
+                                <p className="font-medium text-on-surface">{item.nombre}</p>
+                                <p className="text-xs text-on-surface-variant">SKU: {item.sku || 'N/A'}</p>
+                              </div>
+                              <span className="text-sm font-bold text-emerald-600">${item.precio_personalizado}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
                         Cantidad
                       </label>
-                      <input 
-                        type="number" 
-                        min="1" 
+                      <input
+                        type="number"
+                        min="1"
                         required
                         value={cantidad}
                         onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
@@ -248,10 +290,10 @@ const Dashboard = () => {
               </CardContent>
 
               <CardFooter className="px-6 sm:px-8 pb-8 pt-2">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full h-14 rounded-xl bg-on-surface hover:bg-on-surface/90 text-surface-container-lowest font-bold text-base shadow-lg transition-all"
-                  disabled={procesando || inventario.length === 0 || !productoSeleccionado}
+                  disabled={procesando || !productoSeleccionado}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
                   <span className="truncate tracking-wide">{procesando ? 'Procesando...' : 'Cobrar y Registrar'}</span>
@@ -261,7 +303,7 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* KPI Grid (sin cambios) */}
+        {/* KPI Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;

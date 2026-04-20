@@ -8,7 +8,8 @@ import {
   Gem, 
   Shield,
   Menu,
-  X
+  X,
+  UserCircle
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -130,9 +131,9 @@ const Layout = () => {
           ))}
         </nav>
 
-        {/* Usuario y logout */}
-        <div className="p-6 border-t border-outline-variant/10 bg-surface-container-lowest/50">
-          <div className="px-2 mb-4">
+{/* Usuario y logout */}
+        <div className="p-6 border-t border-outline-variant/10 bg-surface-container-lowest/50 flex flex-col gap-2">
+          <div className="px-2 mb-2">
             <p className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-primary-stitch opacity-80">
               {isAdmin ? 'Atelier Admin' : 'Vendedor Autorizado'}
             </p>
@@ -140,6 +141,35 @@ const Layout = () => {
               {user?.nombre || 'Usuario Registrado'}
             </p>
           </div>
+
+          {/* Nuevo botón hacia Mi Perfil */}
+          <NavLink
+            to="/perfil"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-bold text-sm",
+                isActive
+                  ? "bg-surface-container-high text-on-surface shadow-sm border border-outline-variant/20"
+                  : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface border border-transparent"
+              )
+            }
+          >
+            <UserCircle size={18} className="group-hover:text-primary-stitch transition-colors flex-shrink-0" />
+            <span className="tracking-wide">Mi Perfil</span>
+          </NavLink>
+
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl hover:bg-error/10 text-on-surface-variant hover:text-error transition-all group disabled:opacity-50 border border-transparent hover:border-error/20 font-bold text-sm tracking-wide"
+            aria-label="Cerrar sesión"
+          >
+            <LogOut size={18} aria-hidden="true" className="group-hover:text-error transition-colors flex-shrink-0" />
+            <span className="truncate">
+              {isLoggingOut ? 'Saliendo...' : 'Cerrar Sesión'}
+            </span>
+          </button>
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
