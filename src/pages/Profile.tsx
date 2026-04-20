@@ -12,7 +12,7 @@ const Profile = () => {
     email: user?.email || 'correo@ejemplo.com',
     rol: String(user?.rol) === '1' || user?.rol === 'admin' ? 'Administrador' : 'Vendedor',
     vencimientoLicencia: user?.licencia_fin || '2027-04-20',
-    estadoLicencia: 'Activa' // Podrías calcularlo basado en la fecha
+    estadoLicencia: 'puto ' // Podrías calcularlo basado en la fecha
   };
 
   return (
