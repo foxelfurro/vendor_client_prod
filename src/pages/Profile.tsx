@@ -1,18 +1,47 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { User, Mail, KeyRound, CalendarDays, ShieldCheck } from 'lucide-react';
+import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2 } from 'lucide-react';
+import api from '@/lib/api';
 
 const Profile = () => {
   const { user } = useAuth();
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  
+  // Estados para manejar el envío del correo
+  const [passLoading, setPassLoading] = useState(false);
+  const [passMessage, setPassMessage] = useState({ type: '', text: '' });
 
-  // Aquí puedes mapear los datos reales que vengan de tu backend
+  // Mapeo real de los datos
   const userInfo = {
-    nombre: user?.nombre || 'No especificado',
-    email: user?.email || 'correo@ejemplo.com',
-    rol: String(user?.rol) === '1' || user?.rol === 'admin' ? 'Administrador' : 'Vendedor',
-    vencimientoLicencia: user?.licencia_fin || '2027-04-20',
-    estadoLicencia: 'puto ' // Podrías calcularlo basado en la fecha
+    nombre: user?.nombre || 'Cargando...',
+    email: user?.email || 'Cargando...',
+    rol: String(user?.rol) === '1' ? 'Administrador' : 'Vendedor',
+    vencimientoLicencia: user?.suscripcion_fin 
+      ? new Date(user?.suscripcion_fin).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+      : 'No disponible',
+    estadoLicencia: user?.suscripcion_estado === 'activa' ? 'Activa' : 'Inactiva/Vencida'
+  };
+
+  // Función que reutiliza el endpoint de recuperación existente
+  const handlePasswordResetRequest = async () => {
+    setPassMessage({ type: '', text: '' });
+    setPassLoading(true);
+
+    try {
+      // Usamos el email del usuario logueado para pedir el correo
+      const response = await api.post('/auth/forgot-password', { email: userInfo.email });
+      
+      setPassMessage({ 
+        type: 'success', 
+        text: response.data.message || 'Te hemos enviado un correo con el enlace seguro.' 
+      });
+    } catch (error: any) {
+      setPassMessage({ 
+        type: 'error', 
+        text: error.response?.data?.error || error.response?.data?.message || 'Ocurrió un error al enviar el correo.' 
+      });
+    } finally {
+      setPassLoading(false);
+    }
   };
 
   return (
@@ -56,33 +85,31 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="pt-4 mt-2 border-t border-outline-variant/10">
-              <button 
-                onClick={() => setIsChangingPassword(!isChangingPassword)}
-                className="flex items-center gap-2 text-primary-stitch hover:text-primary-stitch/80 font-bold transition-colors"
-              >
-                <KeyRound size={18} />
-                {isChangingPassword ? 'Cancelar cambio' : 'Cambiar Contraseña'}
-              </button>
-
-              {/* Formulario desplegable para cambiar contraseña (Simulado) */}
-              {isChangingPassword && (
-                <div className="mt-4 p-4 bg-surface-container rounded-xl border border-outline-variant/20 space-y-4 animate-in slide-in-from-top-2">
-                  <input 
-                    type="password" 
-                    placeholder="Contraseña actual" 
-                    className="w-full bg-surface-container-lowest px-4 py-2.5 rounded-lg border border-outline-variant/30 text-on-surface focus:outline-none focus:border-primary-stitch transition-colors"
-                  />
-                  <input 
-                    type="password" 
-                    placeholder="Nueva contraseña" 
-                    className="w-full bg-surface-container-lowest px-4 py-2.5 rounded-lg border border-outline-variant/30 text-on-surface focus:outline-none focus:border-primary-stitch transition-colors"
-                  />
-                  <button className="bg-primary-stitch text-white font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity w-full md:w-auto">
-                    Actualizar Contraseña
-                  </button>
+            {/* SECCIÓN ACTUALIZADA DE CAMBIO DE CONTRASEÑA */}
+            <div className="pt-6 mt-4 border-t border-outline-variant/10">
+              <div className="flex flex-col gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-on-surface">Seguridad de la cuenta</h3>
+                  <p className="text-sm text-on-surface-variant mt-1">
+                    Si deseas cambiar tu contraseña, te enviaremos un enlace seguro a tu correo electrónico registrado.
+                  </p>
                 </div>
-              )}
+                
+                <button 
+                  onClick={handlePasswordResetRequest}
+                  disabled={passLoading}
+                  className="flex items-center justify-center gap-2 bg-surface-container border border-outline-variant/30 text-on-surface font-bold px-4 py-2.5 rounded-xl hover:bg-surface-container-high transition-colors w-full md:w-auto disabled:opacity-50 mt-2"
+                >
+                  {passLoading ? <Loader2 size={18} className="animate-spin text-primary-stitch" /> : <KeyRound size={18} className="text-primary-stitch" />}
+                  Solicitar enlace de cambio
+                </button>
+
+                {passMessage.text && (
+                  <p className={`text-sm font-medium mt-1 ${passMessage.type === 'error' ? 'text-error' : 'text-emerald-500'}`}>
+                    {passMessage.text}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -108,8 +135,8 @@ const Profile = () => {
               <p className="text-xs font-bold tracking-wider uppercase text-on-surface-variant mb-1">
                 Estado de Licencia
               </p>
-              <div className="flex items-center gap-2 text-emerald-500 font-bold">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className={`flex items-center gap-2 font-bold ${userInfo.estadoLicencia === 'Activa' ? 'text-emerald-500' : 'text-error'}`}>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${userInfo.estadoLicencia === 'Activa' ? 'bg-emerald-500' : 'bg-error'}`} />
                 {userInfo.estadoLicencia}
               </div>
             </div>
