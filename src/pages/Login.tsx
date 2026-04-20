@@ -1,167 +1,165 @@
-import React, { useState } from 'react';
-import api from '../lib/api';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { Turnstile } from '@marsidev/react-turnstile';
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2 } from 'lucide-react';
+import api from '@/lib/api';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); 
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+const Profile = () => {
+  const { user } = useAuth();
+  
+  // Estados para manejar el envío del correo
+  const [passLoading, setPassLoading] = useState(false);
+  const [passMessage, setPassMessage] = useState({ type: '', text: '' });
 
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  // Mapeo real de los datos
+  const userInfo = {
+    nombre: user?.nombre || 'Cargando...',
+    email: user?.email || 'Cargando...',
+    rol: String(user?.rol) === '1' ? 'Administrador' : 'Vendedor',
+    vencimientoLicencia: user?.suscripcion_fin 
+      ? new Date(user?.suscripcion_fin).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+      : 'No disponible',
+    estadoLicencia: user?.suscripcion_estado === 'activa' ? 'Activa' : 'Inactiva/Vencida'
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (!captchaToken) {
-      setErrorMessage("Por favor, completa la verificación de seguridad.");
-      return;
-    }
+  // Función que reutiliza el endpoint de recuperación existente
+  const handlePasswordResetRequest = async () => {
+    setPassMessage({ type: '', text: '' });
+    setPassLoading(true);
 
     try {
-      const { data } = await api.post('/auth/login', { 
-        email, 
-        password, 
-        captcha_token: captchaToken 
+      // Usamos el email del usuario logueado para pedir el correo
+      const response = await api.post('/auth/forgot-password', { email: userInfo.email });
+      
+      setPassMessage({ 
+        type: 'success', 
+        text: response.data.message || 'Te hemos enviado un correo con el enlace seguro.' 
       });
-      login(data.token, data.user);
-      navigate('/dashboard');
     } catch (error: any) {
-      if (error.response?.data?.error) {
-        setErrorMessage(error.response.data.error);
-      } else {
-        setErrorMessage("Error al conectar con el servidor.");
-      }
+      setPassMessage({ 
+        type: 'error', 
+        text: error.response?.data?.error || error.response?.data?.message || 'Ocurrió un error al enviar el correo.' 
+      });
+    } finally {
+      setPassLoading(false);
     }
   };
 
   return (
-    <div className="bg-background font-body text-on-surface antialiased selection:bg-primary/20 min-h-screen flex flex-col">
-      {/* Top Navigation - RESTAURADO */}
-      <nav className="bg-zinc-50 dark:bg-zinc-950 font-manrope antialiased tracking-tight docked full-width top-0 bg-zinc-100 dark:bg-zinc-900/50 flat no-shadows">
-        <div className="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-zinc-700 dark:text-zinc-300" data-icon="diamond">diamond</span>
-            <span className="text-xl tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">
-              <span className="font-black">Qlatte</span> <span className="font-normal opacity-60 mx-2">|</span>
-              <span className="font-normal opacity-80">Lumin</span>
-            </span>
-          </div>
-          <div className="hidden md:flex gap-8">
-            <Link 
-              to="/Support" 
-              className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
-            >
-              Soporte
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="p-6 md:p-10 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      <div className="mb-8">
+        <h1 className="text-2xl md:text-3xl font-headline font-extrabold text-on-surface tracking-tight">
+          Mi Perfil
+        </h1>
+        <p className="text-on-surface-variant mt-2 text-sm md:text-base">
+          Gestiona tu información personal y los detalles de tu suscripción.
+        </p>
+      </div>
 
-      {/* Main Content Canvas */}
-      <main className="flex-grow flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-[1100px] grid md:grid-cols-2 bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(45,52,53,0.06)] border border-outline-variant/10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Tarjeta de Información Principal */}
+        <div className="md:col-span-2 bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+            <User className="text-primary-stitch" size={20} />
+            Datos Personales
+          </h2>
           
-          {/* Left Side: Editorial */}
-          <div className="relative hidden md:block overflow-hidden bg-surface-container">
-            <img 
-              className="absolute inset-0 w-full h-full object-cover opacity-90 mix-blend-multiply" 
-              alt="Luxury jewelry" 
-              src="https://images.unsplash.com/photo-1631982690223-8aa4be0a2497?w=800&auto=format&fit=crop&q=60" 
-            />
-            <div className="relative h-full flex flex-col justify-end p-12 text-on-surface">
-              <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold mb-4 opacity-60">Gestión de Alto Valor</span>
-              <h2 className="text-4xl font-headline font-extrabold tracking-tighter leading-tight mb-6">
-                El Mercado Nacional de Joyería, <br/>bajo su control.
-              </h2>
-            </div>
-          </div>
-
-          {/* Right Side: Form */}
-          <div className="p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest">
-            <div className="mb-10">
-              <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Inicia Sesión</h1>
-              <p className="text-on-surface-variant text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
+          <div className="space-y-5">
+            <div>
+              <label className="text-xs font-bold tracking-wider uppercase text-on-surface-variant mb-1 block">
+                Nombre Completo
+              </label>
+              <div className="bg-surface-container px-4 py-3 rounded-xl text-on-surface border border-outline-variant/10">
+                {userInfo.nombre}
+              </div>
             </div>
 
-            {errorMessage && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md mb-6 shadow-sm">
-                <p className="text-sm font-medium">{errorMessage}</p>
-                {errorMessage.includes('expirado') && (
-                  <Link to="/checkout" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-800 hover:underline">
-                    Renovar suscripción aquí &rarr;
-                  </Link>
+            <div>
+              <label className="text-xs font-bold tracking-wider uppercase text-on-surface-variant mb-1 block">
+                Correo Electrónico
+              </label>
+              <div className="bg-surface-container px-4 py-3 rounded-xl text-on-surface border border-outline-variant/10 flex items-center gap-3">
+                <Mail size={16} className="text-on-surface-variant" />
+                {userInfo.email}
+              </div>
+            </div>
+
+            {/* SECCIÓN ACTUALIZADA DE CAMBIO DE CONTRASEÑA */}
+            <div className="pt-6 mt-4 border-t border-outline-variant/10">
+              <div className="flex flex-col gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-on-surface">Seguridad de la cuenta</h3>
+                  <p className="text-sm text-on-surface-variant mt-1">
+                    Si deseas cambiar tu contraseña, te enviaremos un enlace seguro a tu correo electrónico registrado.
+                  </p>
+                </div>
+                
+                <button 
+                  onClick={handlePasswordResetRequest}
+                  disabled={passLoading}
+                  className="flex items-center justify-center gap-2 bg-surface-container border border-outline-variant/30 text-on-surface font-bold px-4 py-2.5 rounded-xl hover:bg-surface-container-high transition-colors w-full md:w-auto disabled:opacity-50 mt-2"
+                >
+                  {passLoading ? <Loader2 size={18} className="animate-spin text-primary-stitch" /> : <KeyRound size={18} className="text-primary-stitch" />}
+                  Solicitar enlace de cambio
+                </button>
+
+                {passMessage.text && (
+                  <p className={`text-sm font-medium mt-1 ${passMessage.type === 'error' ? 'text-error' : 'text-emerald-500'}`}>
+                    {passMessage.text}
+                  </p>
                 )}
               </div>
-            )}
-
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1">Email</label>
-                <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all" 
-                  type="email" value={email} onChange={(e) => setEmail(e.target.value)} required 
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-end ml-1">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant">Contraseña</label>
-                  <button type="button" onClick={() => navigate('/forgot-password')} className="text-[0.65rem] uppercase font-bold text-primary/60 hover:text-primary transition-colors underline-offset-4 hover:underline">
-                    ¿Olvidaste tu contraseña?
-                  </button>
-                </div>
-                <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all" 
-                  type="password" value={password} onChange={(e) => setPassword(e.target.value)} required 
-                />
-              </div>
-
-              {/* WIDGET TURNSTILE */}
-              <div className="flex justify-center py-2">
-                <Turnstile 
-                  siteKey="0x4AAAAAAC-O9QAaIsNyGcaa" 
-                  onSuccess={(token) => setCaptchaToken(token)}
-                  options={{ theme: 'light' }}
-                />
-              </div>
-
-              <div className="pt-4">
-                <button 
-                  className={`w-full bg-primary hover:bg-primary-dim text-on-primary font-bold py-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 group ${!captchaToken ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                  type="submit"
-                  disabled={!captchaToken}
-                >
-                  <span>Accede a tu negocio</span>
-                  <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </button>
-              </div>
-            </form>
-
-            <div className="mt-12 pt-8 border-t border-outline-variant/10 text-center">
-              <p className="text-on-surface-variant text-sm">
-                Nuevo en Lumin? <button onClick={() => navigate('/checkout')} className="text-primary font-bold hover:underline">Hazte socio</button>
-              </p>
             </div>
           </div>
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto text-zinc-600 dark:text-zinc-400 font-manrope text-[11px] tracking-widest uppercase border-t border-outline-variant/10">
-        <div className="flex items-center gap-6">
-          <Link to="/privacy" className="hover:text-zinc-800 transition-colors">Privacidad</Link>
-          <Link to="/terms" className="hover:text-zinc-800 transition-colors">Términos</Link>
+        {/* Tarjeta de Licencia y Rol */}
+        <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-6 shadow-sm h-fit">
+          <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+            <ShieldCheck className="text-primary-stitch" size={20} />
+            Estado de Cuenta
+          </h2>
+
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs font-bold tracking-wider uppercase text-on-surface-variant mb-1">
+                Rol del Sistema
+              </p>
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary-stitch/10 text-primary-stitch font-bold text-sm">
+                {userInfo.rol}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-bold tracking-wider uppercase text-on-surface-variant mb-1">
+                Estado de Licencia
+              </p>
+              <div className={`flex items-center gap-2 font-bold ${userInfo.estadoLicencia === 'Activa' ? 'text-emerald-500' : 'text-error'}`}>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${userInfo.estadoLicencia === 'Activa' ? 'bg-emerald-500' : 'bg-error'}`} />
+                {userInfo.estadoLicencia}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-outline-variant/10">
+              <p className="text-xs font-bold tracking-wider uppercase text-on-surface-variant mb-2">
+                Próxima Renovación
+              </p>
+              <div className="flex items-center gap-3 text-on-surface">
+                <div className="p-2 bg-surface-container rounded-lg">
+                  <CalendarDays size={18} className="text-primary-stitch" />
+                </div>
+                <span className="font-medium">{userInfo.vencimientoLicencia}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="text-zinc-400">© 2026 Qlatte Lumin</div>
-      </footer>
+
+      </div>
     </div>
   );
 };
 
+export default Profile;
 
 export default Login;
