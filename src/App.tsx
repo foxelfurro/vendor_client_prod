@@ -13,6 +13,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PrivacyPolicy from './pages/policy';
 import TermsOfService from './pages/terms';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -68,6 +69,7 @@ function App() {
             <Route path="/catalogo" element={<Catalog />} />
             <Route path="/inventario" element={<Inventory />} />
             <Route path="/caja" element={<Caja />} /> 
+            <Route path="/perfil" element={<Profile />} />
             
             {/* Ruta de Admin */}
             <Route 
