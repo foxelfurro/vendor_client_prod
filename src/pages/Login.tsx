@@ -28,7 +28,7 @@ const Login = () => {
         password, 
         captcha_token: captchaToken 
       });
-      login(data.token, data.user);
+      login(data.user);
       navigate('/dashboard');
     } catch (error: any) {
       if (error.response?.data?.error) {
