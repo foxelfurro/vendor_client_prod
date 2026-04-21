@@ -142,11 +142,11 @@ const Checkout = () => {
             <div className="px-8 py-6 space-y-4 border-b border-outline-variant/10">
               {!isRenewal && (
                 <div>
-                  <label className={labelClass}>Nombre Comercial</label>
+                  <label className={labelClass}>Nombre Completo </label>
                   <input
                     required
                     type="text"
-                    placeholder="Ej. Joyería Lumín"
+                    placeholder="Ej.  Joshua Mendez"
                     value={nombreCuenta}
                     onChange={(e) => setNombreCuenta(e.target.value)}
                     disabled={procesando}
