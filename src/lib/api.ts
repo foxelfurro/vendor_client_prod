@@ -1,17 +1,21 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://vendor-api-9vlz.onrender.com', // Tu servidor de Node en Render
-  withCredentials: true, // Crucial: Permite el envío automático de la cookie HttpOnly
+  baseURL: 'https://vendor-api-9vlz.onrender.com', // Tu servidor de Node
+  withCredentials: true, // Permite el envío automático de la cookie
 });
 
-// Interceptor de respuesta para manejar cuando la cookie expira
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Si el servidor responde con 401 (No autorizado), mandamos al usuario al login
+    // Si el error es 401 (No autorizado)
     if (error.response && error.response.status === 401) {
-      window.location.href = '/login';
+      //  EL SALVAVIDAS: Solo redirigir si NO estamos ya en la página de login 
+      // ni en rutas públicas como el checkout.
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && currentPath !== '/checkout') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
