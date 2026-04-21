@@ -3,7 +3,7 @@ import api from '../lib/api';
 
 interface AuthContextType {
   user: any;
-  login: (token: string, userData: any) => void;
+  login: (userData: any) => void; // ⚠️ OJO: Ya no recibimos el token aquí
   logout: () => void;
   loading: boolean;
 }
@@ -16,22 +16,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        // Validamos el token contra el servidor y obtenemos datos frescos
+        // 1. Ya NO buscamos en localStorage.
+        // 2. Simplemente le preguntamos al servidor "¿Quién soy?".
+        // 3. Axios adjuntará la cookie HttpOnly automáticamente.
         const { data } = await api.get('/auth/me');
         setUser(data);
       } catch (error: any) {
-        // Si el token es inválido o expiró, limpiamos el rastro
-        console.error("Sesión expirada");
-        localStorage.removeItem('token');
-        console.error("Error al validar sesión:", error.response?.data || error.message);
+        // Si no hay cookie, expiró o el servidor rechaza (401), se limpia la sesión.
+        console.error("No hay sesión activa o expiró.");
         setUser(null);
       } finally {
         setLoading(false);
@@ -41,24 +34,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initAuth();
   }, []);
 
-  const login = (token: string, userData: any) => {
-    localStorage.setItem('token', token);
+  // Cuando el usuario hace login exitoso, solo guardamos sus datos en el estado
+  const login = (userData: any) => {
     setUser(userData);
   };
 
-
-const logout = async () => {
-  try {
-    // 1. Le decimos al servidor que destruya la cookie
-    await api.post('/auth/logout'); 
-  } catch (error) {
-    console.error("Error al cerrar sesión en el servidor", error);
-  } finally {
-    // 2. Limpiamos el estado en React (sin importar si el server falló)
-    setUser(null);
-    // (Ya no usamos localStorage.removeItem aquí)
-  }
-};
+  const logout = async () => {
+    try {
+      // Le decimos al servidor que destruya la cookie
+      await api.post('/auth/logout'); 
+    } catch (error) {
+      console.error("Error al cerrar sesión en el servidor", error);
+    } finally {
+      // Limpiamos la pantalla
+      setUser(null);
+    }
+  };
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
@@ -74,4 +65,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
