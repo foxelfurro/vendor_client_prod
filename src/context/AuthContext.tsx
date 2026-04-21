@@ -46,10 +46,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+
+const logout = async () => {
+  try {
+    // 1. Le decimos al servidor que destruya la cookie
+    await api.post('/auth/logout'); 
+  } catch (error) {
+    console.error("Error al cerrar sesión en el servidor", error);
+  } finally {
+    // 2. Limpiamos el estado en React (sin importar si el server falló)
     setUser(null);
-  };
+    // (Ya no usamos localStorage.removeItem aquí)
+  }
+};
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
