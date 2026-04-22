@@ -1,8 +1,30 @@
+import { Link } from 'react-router-dom';
+
 const TermsOfService = () => {
   const lastUpdate = "22 de abril de 2026";
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-blue-100">
+      <nav className="bg-zinc-50 dark:bg-zinc-950 font-manrope antialiased tracking-tight docked full-width top-0 bg-zinc-100 dark:bg-zinc-900/50 flat no-shadows">
+        <div className="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
+          <Link to="/login" className="flex items-center gap-3 cursor-pointer group">
+            <span className="material-symbols-outlined text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" data-icon="diamond">diamond</span>
+            <span className="text-xl tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">
+              <span className="font-black group-hover:opacity-80 transition-opacity">Qlatte</span> 
+              <span className="font-normal opacity-60 mx-2">|</span>
+              <span className="font-normal opacity-80 group-hover:opacity-100 transition-opacity">Lumin</span>
+            </span>
+          </Link>
+          <div className="hidden md:flex gap-8">
+            <Link 
+              to="/Support" 
+              className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
+            >
+              Soporte
+            </Link>
+          </div>
+        </div>
+      </nav>
       <div className="max-w-3xl mx-auto px-6 py-20">
         <header className="mb-16">
           <h1 className="text-4xl font-semibold tracking-tight text-black mb-4">Términos de Servicio</h1>
@@ -73,14 +95,13 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">7. Jurisdicción y Ley Aplicable</h2>
             <p className="leading-relaxed text-gray-600">
-              Para la interpretación, cumplimiento y ejecución del presente contrato, las partes se someten a la jurisdicción de las leyes federales de los Estados Unidos Mexicanos y a los tribunales competentes en <span className="font-medium text-black">[Ciudad/Estado donde opera Qlatte]</span>, renunciando a cualquier otro fuero que pudiera corresponderles por razón de sus domicilios presentes o futuros.
+              Para la interpretación, cumplimiento y ejecución del presente contrato, las partes se someten a la jurisdicción de las leyes federales de los Estados Unidos Mexicanos y a los tribunales competentes en <span className="font-medium text-black">Estado de México</span>, renunciando a cualquier otro fuero que pudiera corresponderles por razón de sus domicilios presentes o futuros.
             </p>
           </section>
         </main>
 
         <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
           <span>Lumina by Qlatte © 2026</span>
-          <span className="font-medium">México</span>
         </footer>
       </div>
     </div>
