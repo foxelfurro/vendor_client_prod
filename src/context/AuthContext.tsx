@@ -3,7 +3,7 @@ import api from '../lib/api';
 
 interface AuthContextType {
   user: any;
-  login: (userData: any) => void; // ⚠️ OJO: Ya no recibimos el token aquí
+  login: (userData: any) => void; // 1. Cambiado: Solo recibe userData
   logout: () => void;
   loading: boolean;
 }
@@ -17,14 +17,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // 1. Ya NO buscamos en localStorage.
-        // 2. Simplemente le preguntamos al servidor "¿Quién soy?".
-        // 3. Axios adjuntará la cookie HttpOnly automáticamente.
+        // 2. Ya no usamos localStorage. El navegador envía la cookie sola
         const { data } = await api.get('/auth/me');
         setUser(data);
       } catch (error: any) {
-        // Si no hay cookie, expiró o el servidor rechaza (401), se limpia la sesión.
-        console.error("No hay sesión activa o expiró.");
+        console.error("Sesión inválida o expirada");
         setUser(null);
       } finally {
         setLoading(false);
@@ -34,19 +31,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initAuth();
   }, []);
 
-  // Cuando el usuario hace login exitoso, solo guardamos sus datos en el estado
+  // 3. Sincronizado con la interfaz: solo guardamos los datos del usuario
   const login = (userData: any) => {
     setUser(userData);
   };
 
   const logout = async () => {
     try {
-      // Le decimos al servidor que destruya la cookie
+      // 4. El servidor destruye la cookie HttpOnly
       await api.post('/auth/logout'); 
     } catch (error) {
       console.error("Error al cerrar sesión en el servidor", error);
     } finally {
-      // Limpiamos la pantalla
       setUser(null);
     }
   };
