@@ -85,7 +85,7 @@ const Checkout = () => {
   const inputClass = "w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/40 text-sm disabled:opacity-50";
   const labelClass = "block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1 mb-2";
 
-  return (
+return (
     <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col">
       <nav className="bg-zinc-50 dark:bg-zinc-950 font-manrope antialiased tracking-tight docked full-width top-0 bg-zinc-100 dark:bg-zinc-900/50 flat no-shadows">
         <div className="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
@@ -109,7 +109,7 @@ const Checkout = () => {
           </div>
         </div>
       </nav>
-    
+      
       <main className="flex-grow flex flex-col items-center justify-center p-6 py-12">
         <div className="w-full max-w-xl space-y-6">
           {/* Header */}
@@ -124,7 +124,7 @@ const Checkout = () => {
               Activa tu cuenta y comienza a gestionar tu inventario hoy mismo.
             </p>
           </div>
-    
+      
           {/* Card */}
           <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg overflow-hidden">
             <form onSubmit={handleGenerarToken}>
@@ -143,7 +143,7 @@ const Checkout = () => {
                   </div>
                 </div>
               </div>
-    
+      
               {/* Section 1: Datos de Cuenta */}
               <div className="flex items-center gap-3 px-8 py-5 border-b border-outline-variant/10 bg-surface-container-low/50">
                 <div className="w-7 h-7 rounded-lg bg-on-surface flex items-center justify-center flex-shrink-0">
@@ -153,7 +153,7 @@ const Checkout = () => {
                   1. Datos de tu nueva cuenta
                 </span>
               </div>
-    
+      
               <div className="px-8 py-6 space-y-4 border-b border-outline-variant/10">
                 <div>
                   <label className={labelClass}>Nombre Comercial</label>
@@ -194,7 +194,7 @@ const Checkout = () => {
                   </div>
                 </div>
               </div>
-    
+      
               {/* Section 2: Pago */}
               <div className="flex items-center gap-3 px-8 py-5 border-b border-outline-variant/10 bg-surface-container-low/50">
                 <div className="w-7 h-7 rounded-lg bg-on-surface flex items-center justify-center flex-shrink-0">
@@ -202,7 +202,7 @@ const Checkout = () => {
                 </div>
                 <span className="text-sm font-bold tracking-wide text-on-surface">2. Información de pago</span>
               </div>
-    
+      
               <div className="px-8 py-6 space-y-4">
                 <div>
                   <label className={labelClass}>Nombre en Tarjeta</label>
@@ -216,20 +216,20 @@ const Checkout = () => {
                     className={inputClass}
                   />
                 </div>
-    
+      
                 <div>
                   <label className={labelClass}>Número de Tarjeta</label>
                   <input
                     required
                     type="text"
-                    placeholder="0000  0000  0000  0000"
+                    placeholder="0000 0000 0000 0000"
                     value={numero}
                     onChange={handleNumeroChange}
                     disabled={procesando}
                     className={`${inputClass} font-mono tracking-widest`}
                   />
                 </div>
-    
+      
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className={labelClass}>Mes</label>
@@ -266,7 +266,7 @@ const Checkout = () => {
                   </div>
                 </div>
               </div>
-    
+      
               {/* Turnstile */}
               <div className="flex justify-center py-4 border-t border-outline-variant/10 bg-surface-container-low/30">
                 <Turnstile
@@ -275,7 +275,7 @@ const Checkout = () => {
                   options={{ theme: 'light' }}
                 />
               </div>
-    
+      
               {/* Checkbox de Términos */}
               <div className="px-8 pt-4 pb-2 border-t border-outline-variant/10 bg-surface-container-low/30">
                 <div className="flex items-start space-x-3">
@@ -299,7 +299,7 @@ const Checkout = () => {
                   </label>
                 </div>
               </div>
-    
+      
               {/* Submit */}
               <div className="px-8 pb-8 pt-4">
                 <button
@@ -342,7 +342,7 @@ const Checkout = () => {
       <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
         <span>Lumin by Qlatte © 2026</span>
       </footer>
-    </div> {/* Cierre del contenedor principal */}
+    </div>
   );
 };
 
