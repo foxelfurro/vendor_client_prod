@@ -1,52 +1,75 @@
+import React from 'react';
+
 const TermsOfService = () => {
-  const lastUpdated = "3 de abril de 2026";
+  const lastUpdate = "22 de abril de 2026";
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <article className="max-w-3xl mx-auto bg-white shadow-sm rounded-lg p-8 border border-gray-200">
-        <header className="mb-8 border-b border-gray-100 pb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Términos de Servicio</h1>
-          <p className="text-sm text-gray-500 mt-2">Última actualización: {lastUpdated}</p>
+    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-blue-100">
+      <div className="max-w-3xl mx-auto px-6 py-20">
+        <header className="mb-16">
+          <h1 className="text-4xl font-semibold tracking-tight text-black mb-4">Términos de Servicio</h1>
+          <p className="text-sm text-gray-500 uppercase tracking-widest font-medium">Última actualización: {lastUpdate}</p>
         </header>
 
-        <section className="space-y-6 text-gray-700 leading-relaxed">
-          <h2 className="text-xl font-semibold text-gray-800">1. Relación Contractual</h2>
-          <p>
-            Al acceder a <strong>Qlatte Lumin</strong>, usted acepta estos términos. 
-            Si utiliza la plataforma en nombre de una joyería o entidad legal, declara que tiene la autoridad para vincular a dicha entidad.
-          </p>
-
-          <h2 className="text-xl font-semibold text-gray-800">2. Uso de la Plataforma</h2>
-          <p>
-            Se otorga una licencia limitada, no exclusiva y revocable para utilizar el software con fines de gestión comercial. 
-            Queda prohibida la ingeniería inversa o el uso del servicio para saturar la infraestructura de red.
-          </p>
-
-          <h2 className="text-xl font-semibold text-gray-800">3. Responsabilidad del Usuario</h2>
-          <p>
-            Usted es el único responsable de la precisión de los datos ingresados (precios, quilataje, gramaje). 
-            Qlatte Lumin no se hace responsable por errores en cálculos de inventario derivados de datos incorrectos proporcionados por el usuario.
-          </p>
-
-          <h2 className="text-xl font-semibold text-gray-800">4. Propiedad del Contenido</h2>
-          <p>
-            Todo el software y diseño es propiedad de Qlatte Lumin. Los datos de inventario cargados por el usuario siguen siendo 
-            propiedad del mismo, pudiendo exportarlos o eliminarlos en cualquier momento.
-          </p>
-
-          <h2 className="text-xl font-semibold text-gray-800">5. Modificaciones</h2>
-          <p>
-            Nos reservamos el derecho de actualizar estas condiciones para reflejar cambios en la tecnología o requisitos legales. 
-            El uso continuado de la plataforma tras dichos cambios constituye la aceptación de los nuevos términos.
-          </p>
-
-          <div className="mt-10 p-4 bg-blue-50 rounded-md">
-            <p className="text-sm text-blue-800 italic">
-              Para dudas legales sobre estos términos, puede contactar al soporte técnico a través del dominio oficial qlatte.com.
+        <main className="space-y-12">
+          <section>
+            <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">1. Objeto del Servicio</h2>
+            <p className="leading-relaxed text-gray-600">
+              Lumin es una herramienta tecnológica de gestión de inventarios propiedad de <span className="font-medium text-black">Qlatte</span>. La plataforma facilita la administración de stock mediante catálogos precargados. El Suscriptor reconoce que Qlatte no tiene asociación comercial con las marcas dueñas de dichos catálogos.
             </p>
-          </div>
-        </section>
-      </article>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">2. Suscripción y Pago</h2>
+            <div className="bg-black text-white p-6 rounded-2xl mb-4 shadow-xl shadow-gray-200">
+              <p className="text-sm uppercase tracking-widest opacity-70 mb-2">Tarifa Mensual</p>
+              <h3 className="text-3xl font-semibold">$299.00 MXN <span className="text-lg font-normal opacity-70">/ mes</span></h3>
+              <p className="mt-4 text-sm opacity-80 italic">El precio incluye IVA y el cargo se realiza de forma automática cada 30 días naturales vía Conekta.</p>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">3. Cancelaciones y Reembolsos</h2>
+            <p className="leading-relaxed text-gray-600 mb-4">
+              El Suscriptor puede cancelar en cualquier momento. La cancelación impide el siguiente cargo, pero no genera reembolsos por periodos ya pagados.
+            </p>
+            <div className="border-l-4 border-gray-100 pl-4 py-2 italic text-gray-500 text-sm">
+              Conforme a la LFPC, el suscriptor cuenta con 5 días hábiles para revocar su consentimiento inicial, siempre y cuando no se haya utilizado el servicio.
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">4. Seguridad y Responsabilidad</h2>
+            <p className="leading-relaxed text-gray-600">
+              El Suscriptor es responsable de la confidencialidad de su cuenta. Lumin no se responsabiliza por:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 ml-2 mt-2">
+              <li>Pérdida de datos por acciones del usuario.</li>
+              <li>Discrepancias en precios de catálogos precargados.</li>
+              <li>Fallas en servidores de terceros o procesadores de pago.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">5. Propiedad Intelectual</h2>
+            <p className="leading-relaxed text-gray-600">
+              El código, diseño y algoritmos de Lumin son propiedad de <span className="font-medium text-black">Qlatte</span>. Se otorga una licencia de uso personal, temporal y no transferible al Suscriptor.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">6. Jurisdicción</h2>
+            <p className="leading-relaxed text-gray-600">
+              Cualquier controversia se someterá a las leyes federales mexicanas y a los tribunales competentes de México, renunciando a cualquier otro fuero.
+            </p>
+          </section>
+        </main>
+
+        <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+          <span>Lumin by Qlatte © 2026</span>
+          <span className="font-medium">México</span>
+        </footer>
+      </div>
     </div>
   );
 };
