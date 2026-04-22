@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
+// IMPORTAMOS EL BANNER (Ajusta la ruta si tu carpeta de componentes está en otro lado)
+import SubscriptionBanner from '@/components/SubscriptionBanner'; 
 
 const Profile = () => {
   const { user } = useAuth();
@@ -21,15 +23,13 @@ const Profile = () => {
     estadoLicencia: user?.suscripcion_estado === 'activa' ? 'Activa' : 'Inactiva/Vencida'
   };
 
-  // Función que reutiliza el endpoint de recuperación existente
+  // Función de recuperación
   const handlePasswordResetRequest = async () => {
     setPassMessage({ type: '', text: '' });
     setPassLoading(true);
 
     try {
-      // Usamos el email del usuario logueado para pedir el correo
       const response = await api.post('/auth/forgot-password', { email: userInfo.email });
-      
       setPassMessage({ 
         type: 'success', 
         text: response.data.message || 'Te hemos enviado un correo con el enlace seguro.' 
@@ -55,6 +55,15 @@ const Profile = () => {
           Gestiona tu información personal y los detalles de tu suscripción.
         </p>
       </div>
+
+      {/* --- AQUÍ INSERTAMOS EL BANNER MÁGICO --- */}
+      {/* Le pasamos el ID y la fecha exacta de tu base de datos */}
+      {user && user.suscripcion_fin && (
+        <SubscriptionBanner 
+          userId={user.id} 
+          expiresAt={user.suscripcion_fin} 
+        />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
