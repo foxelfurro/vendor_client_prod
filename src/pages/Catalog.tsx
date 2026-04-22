@@ -275,6 +275,9 @@ const Catalog = () => {
           </form>
         </DialogContent>
       </Dialog>
+      <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+        <span>Lumin by Qlatte © 2026</span>
+      </footer>
     </div>
   );
 };
