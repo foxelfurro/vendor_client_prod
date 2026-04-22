@@ -1,5 +1,3 @@
-import React from 'react';
-
 const TermsOfService = () => {
   const lastUpdate = "22 de abril de 2026";
 
