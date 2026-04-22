@@ -377,10 +377,10 @@ const Inventory = () => {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-12 px-8 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-[11px] tracking-widest uppercase">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <div className="text-zinc-400">
-            © 2026 Vendor Hub Joyería. Panel de Inventario.
+            Lumin by Qlatte © 2026
           </div>
         </div>
       </footer>
