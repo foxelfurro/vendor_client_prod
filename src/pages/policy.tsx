@@ -56,8 +56,9 @@ const PrivacyPolicy = () => {
           </section>
         </main>
 
-        <footer className="mt-20 pt-10 border-t border-gray-100 text-center text-gray-400 text-sm italic">
-          Lumin — Soluciones para vendedores independientes.
+        <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+          <span>Lumin by Qlatte © 2026</span>
+          <span className="font-medium">México</span>
         </footer>
       </div>
     </div>
