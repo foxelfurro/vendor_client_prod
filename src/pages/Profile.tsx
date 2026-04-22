@@ -3,7 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 // IMPORTAMOS EL BANNER (Ajusta la ruta si tu carpeta de componentes está en otro lado)
-import SubscriptionBanner from '@/components/SubscriptionBanner'; 
+import SubscriptionBanner from '@/pages/SubscriptionBanner'; 
 
 const Profile = () => {
   const { user } = useAuth();
