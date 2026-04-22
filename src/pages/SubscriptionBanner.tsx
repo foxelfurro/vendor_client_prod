@@ -6,8 +6,8 @@ interface Props {
   expiresAt: string; // La fecha que viene de Neon
 }
 
-const SubscriptionBanner: React.FC<Props> = ({ userId, expiresAt }) => {
-  const navigate = useNavigate(); // <-- Usamos el router de React
+const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
+  const navigate = useNavigate();
 
   // 1. Calculamos los días restantes
   const calcularDias = () => {
