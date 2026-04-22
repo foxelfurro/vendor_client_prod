@@ -35,7 +35,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">1. Objeto del Servicio</h2>
             <p className="leading-relaxed text-gray-600">
-              Lumina es una herramienta tecnológica de gestión de inventarios y control de ventas propiedad de <span className="font-medium text-black">Qlatte</span> (en adelante, "El Prestador"). La plataforma incluye una base de datos precargada con catálogos de proveedores externos para facilitar la administración del stock del Suscriptor. El Suscriptor reconoce que El Prestador no tiene relación ni asociación con las marcas dueñas de dichos catálogos, actuando únicamente como un facilitador de datos de libre consulta comercial.
+              Lumin es una herramienta tecnológica de gestión de inventarios y control de ventas propiedad de <span className="font-medium text-black">Qlatte</span> (en adelante, "El Prestador"). La plataforma incluye una base de datos precargada con catálogos de proveedores externos para facilitar la administración del stock del Suscriptor. El Suscriptor reconoce que El Prestador no tiene relación ni asociación con las marcas dueñas de dichos catálogos, actuando únicamente como un facilitador de datos de libre consulta comercial.
             </p>
           </section>
 
@@ -76,14 +76,14 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">5. Propiedad Intelectual</h2>
             <p className="leading-relaxed text-gray-600">
-              El código fuente, diseño gráfico, interfaz de usuario y algoritmos de Lumina son propiedad exclusiva de <span className="font-medium text-black">Qlatte</span>. El Suscriptor no adquiere ningún derecho de propiedad sobre el software, únicamente una licencia de uso temporal, personal y no transferible.
+              El código fuente, diseño gráfico, interfaz de usuario y algoritmos de Lumin son propiedad exclusiva de <span className="font-medium text-black">Qlatte</span>. El Suscriptor no adquiere ningún derecho de propiedad sobre el software, únicamente una licencia de uso temporal, personal y no transferible.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">6. Limitación de Responsabilidad</h2>
             <p className="leading-relaxed text-gray-600 mb-4">
-              El Prestador no garantiza que el servicio sea ininterrumpido o libre de errores. Lumina no se hace responsable por:
+              El Prestador no garantiza que el servicio sea ininterrumpido o libre de errores. Lumin no se hace responsable por:
             </p>
             <ul className="list-disc list-inside space-y-2 text-gray-600 ml-2">
               <li>Pérdida de datos derivada de acciones del usuario.</li>
@@ -101,7 +101,7 @@ const TermsOfService = () => {
         </main>
 
         <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
-          <span>Lumina by Qlatte © 2026</span>
+          <span>Lumin by Qlatte © 2026</span>
         </footer>
       </div>
     </div>
