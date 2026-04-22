@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://vendor-api-9vlz.onrender.com', // Tu servidor de Node
+  baseURL: 'https://api.qlatte.com', // Tu servidor de Node
   withCredentials: true, // Permite el envío automático de la cookie
 });
 
