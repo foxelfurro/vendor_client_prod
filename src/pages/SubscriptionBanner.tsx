@@ -26,14 +26,12 @@ const SubscriptionBanner: React.FC<Props> = ({ userId, expiresAt }) => {
   const estaExpirado = diasRestantes < 0;
 
   // 3. Función para llamar a tu backend
-  const handleRenovar = async () => {
+const handleRenovar = async () => {
     setLoading(true);
     try {
-      // Llama a la ruta que ya tienes en index.ts
-      const response = await api.post('/auth/renew', { userId });
+      // SOLO HACEMOS EL AWAIT, SIN GUARDARLO EN "const response ="
+      await api.post('/auth/renew', { userId });
       
-      // Aquí asumo que tu backend devolverá un link de Conekta o Stripe
-      // window.location.href = response.data.paymentLink;
       alert("¡Llamando a la pasarela de pago!"); 
       
     } catch (error) {
