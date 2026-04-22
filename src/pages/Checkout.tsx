@@ -305,19 +305,26 @@ const Checkout = () => {
                 <button
                   type="submit"
                   disabled={procesando || !captchaToken || !acceptedTerms}
-                  className={`w-full h-14 rounded-xl bg-on-surface text-surface-container-lowest font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2
-                    ${procesando || !captchaToken || !acceptedTerms ? 'opacity-50 cursor-not-allowed' : 'hover:bg-on-surface/90'}`}
+                  className={`w-full h-14 rounded-xl bg-on-surface text-surface-container-lowest font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2 ${
+                    procesando || !captchaToken || !acceptedTerms
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:bg-on-surface/90'
+                  }`}
                 >
                   {procesando ? (
-                    <><Loader2 className="animate-spin" size={20} /> Procesando pago...</>
+                    <>
+                      <Loader2 className="animate-spin" size={20} /> Procesando pago...
+                    </>
                   ) : (
-                    <><Lock size={16} className="opacity-70" /> Pagar y Crear Cuenta</>
+                    <>
+                      <Lock size={16} className="opacity-70" /> Pagar y Crear Cuenta
+                    </>
                   )}
                 </button>
               </div>
             </form>
           </div>
-    
+  
           {/* Bottom link */}
           <p className="text-center text-on-surface-variant text-[11px] tracking-wide uppercase font-manrope">
             ¿Ya tienes cuenta?{' '}
@@ -331,7 +338,7 @@ const Checkout = () => {
           </p>
         </div> {/* Cierre de w-full max-w-xl */}
       </main>
-    
+  
       <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
         <span>Lumin by Qlatte © 2026</span>
       </footer>
