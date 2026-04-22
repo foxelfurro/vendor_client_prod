@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../lib/api';
 import { Lock, Loader2, UserPlus, ShieldCheck } from "lucide-react";
 import { Turnstile } from '@marsidev/react-turnstile';
@@ -18,6 +18,10 @@ const Checkout = () => {
   const [cvc, setCvc] = useState('');
   const [procesando, setProcesando] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false); // Nuevo estado
+
+  // Precio de la suscripción (puedes ajustarlo o traerlo de una variable de entorno)
+  const precioMXN = "299.00"; // Ejemplo: $299.00 MXN
 
   useEffect(() => {
     (window as any).Conekta.setPublicKey('key_WUA19u2Lnbkz1hYBohn8uwH');
@@ -33,6 +37,10 @@ const Checkout = () => {
     e.preventDefault();
     if (!captchaToken) {
       alert("Por favor, completa la verificación de seguridad.");
+      return;
+    }
+    if (!acceptedTerms) {
+      alert("Debes aceptar los términos y la política de privacidad.");
       return;
     }
     setProcesando(true);
@@ -97,6 +105,20 @@ const Checkout = () => {
         {/* Card */}
         <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg overflow-hidden">
           <form onSubmit={handleGenerarToken}>
+
+            {/* Resumen de Suscripción (NUEVO) */}
+            <div className="px-8 py-6 border-b border-outline-variant/10 bg-surface-container-low/30">
+              <div className="bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/10">
+                <h3 className="font-semibold text-on-surface mb-1">Suscripción Vendor Hub</h3>
+                <p className="text-sm text-on-surface-variant">
+                  Licencia de uso para la plataforma de gestión de inventario y ventas de joyería.
+                </p>
+                <div className="mt-4 pt-4 border-t border-outline-variant/20 flex justify-between items-center font-bold text-lg">
+                  <span className="text-on-surface">Total a pagar:</span>
+                  <span className="text-primary">${precioMXN} <span className="text-sm font-normal text-on-surface-variant">MXN</span></span>
+                </div>
+              </div>
+            </div>
 
             {/* Section 1: Datos de Cuenta */}
             <div className="flex items-center gap-3 px-8 py-5 border-b border-outline-variant/10 bg-surface-container-low/50">
@@ -230,13 +252,37 @@ const Checkout = () => {
               />
             </div>
 
+            {/* Checkbox de Términos y Políticas (NUEVO) */}
+            <div className="px-8 pt-4 pb-2 border-t border-outline-variant/10 bg-surface-container-low/30">
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  disabled={procesando}
+                  className="mt-1 h-4 w-4 rounded border-outline-variant/40 text-primary focus:ring-primary cursor-pointer disabled:opacity-50"
+                />
+                <label htmlFor="terms" className="text-sm text-on-surface-variant cursor-pointer select-none leading-relaxed">
+                  He leído la{' '}
+                  <Link to="/policy" className="text-primary underline hover:text-primary/80 transition-colors">
+                    política de privacidad
+                  </Link>{' '}
+                  y acepto los{' '}
+                  <Link to="/terms" className="text-primary underline hover:text-primary/80 transition-colors">
+                    términos de servicio
+                  </Link>.
+                </label>
+              </div>
+            </div>
+
             {/* Submit */}
             <div className="px-8 pb-8 pt-4">
               <button
                 type="submit"
-                disabled={procesando || !captchaToken}
+                disabled={procesando || !captchaToken || !acceptedTerms}
                 className={`w-full h-14 rounded-xl bg-on-surface text-surface-container-lowest font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2
-                  ${procesando || !captchaToken ? 'opacity-50 cursor-not-allowed' : 'hover:bg-on-surface/90'}`}
+                  ${procesando || !captchaToken || !acceptedTerms ? 'opacity-50 cursor-not-allowed' : 'hover:bg-on-surface/90'}`}
               >
                 {procesando ? (
                   <><Loader2 className="animate-spin" size={20} /> Procesando pago...</>
