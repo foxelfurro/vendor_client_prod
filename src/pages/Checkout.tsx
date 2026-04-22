@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
-import { Lock, Loader2, UserPlus, RefreshCw, ShieldCheck } from "lucide-react";
+import { Lock, Loader2, UserPlus, ShieldCheck } from "lucide-react";
 import { Turnstile } from '@marsidev/react-turnstile';
 
 declare const Conekta: any;
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const [isRenewal, setIsRenewal] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nombreCuenta, setNombreCuenta] = useState('');
   const [nombre, setNombre] = useState(''); 
-  const [numero, setNumero] = useState('');
+  const [numero, setNumero] = useState(''); 
   const [mesExp, setMesExp] = useState('');
   const [anioExp, setAnioExp] = useState('');
   const [cvc, setCvc] = useState('');
@@ -50,16 +49,19 @@ const Checkout = () => {
 
     const successResponseHandler = async (token: any) => {
       try {
-        const endpoint = isRenewal ? '/auth/renew' : '/auth/subscribe';
-        const payload = isRenewal
-          ? { token_id: token.id, email, password, captcha_token: captchaToken }
-          : { token_id: token.id, email, password, nombre: nombreCuenta, captcha_token: captchaToken };
+        const payload = { 
+          token_id: token.id, 
+          email, 
+          password, 
+          nombre: nombreCuenta, 
+          captcha_token: captchaToken 
+        };
 
-        const respuesta = await api.post(endpoint, payload);
+        const respuesta = await api.post('/auth/subscribe', payload);
         alert("¡Éxito!  " + respuesta.data.message);
         navigate('/login');
       } catch (error: any) {
-        alert(error.response?.data?.error || "Hubo un error al procesar tu pago.");
+        alert(error.response?.data?.error || "Hubo un error al procesar tu suscripción.");
         setProcesando(false);
       }
     };
@@ -68,15 +70,12 @@ const Checkout = () => {
       alert(`Error de tarjeta: ${error.message_to_purchaser}`);
       setProcesando(false);
     };
-
+    
     (window as any).Conekta.Token.create(tokenParams, successResponseHandler, errorResponseHandler);
   };
 
-  const inputClass =
-    "w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/40 text-sm disabled:opacity-50";
-
-  const labelClass =
-    "block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1 mb-2";
+  const inputClass = "w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/40 text-sm disabled:opacity-50";
+  const labelClass = "block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1 mb-2";
 
   return (
     <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-6 py-12">
@@ -88,72 +87,40 @@ const Checkout = () => {
             <ShieldCheck size={22} />
           </div>
           <h1 className="text-3xl font-headline font-extrabold tracking-tight text-on-surface">
-            {isRenewal ? "Renovar Licencia" : "Adquirir Vendor Hub"}
+            Adquirir Vendor Hub
           </h1>
           <p className="text-on-surface-variant text-sm tracking-wide">
-            {isRenewal ? "Ingresa tus datos para renovar tu suscripción." : "Activa tu cuenta y comienza a vender hoy mismo."}
+            Activa tu cuenta y comienza a gestionar tu inventario hoy mismo.
           </p>
         </div>
 
-        {/* Tab switcher */}
-        <div className="flex p-1 bg-surface-container-low border border-outline-variant/20 rounded-xl">
-          <button
-            type="button"
-            onClick={() => setIsRenewal(false)}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
-              !isRenewal
-                ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant/10'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            Nueva Cuenta
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsRenewal(true)}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
-              isRenewal
-                ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant/10'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            Renovar Suscripción
-          </button>
-        </div>
-
         {/* Card */}
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_32px_64px_-16px_rgba(45,52,53,0.06)] overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg overflow-hidden">
           <form onSubmit={handleGenerarToken}>
 
-            {/* Section 1 header */}
+            {/* Section 1: Datos de Cuenta */}
             <div className="flex items-center gap-3 px-8 py-5 border-b border-outline-variant/10 bg-surface-container-low/50">
               <div className="w-7 h-7 rounded-lg bg-on-surface flex items-center justify-center flex-shrink-0">
-                {isRenewal
-                  ? <RefreshCw size={13} className="text-surface-container-lowest" />
-                  : <UserPlus size={13} className="text-surface-container-lowest" />
-                }
+                <UserPlus size={13} className="text-surface-container-lowest" />
               </div>
               <span className="text-sm font-bold tracking-wide text-on-surface">
-                1. {isRenewal ? "Valida tu cuenta" : "Datos de tu nueva cuenta"}
+                1. Datos de tu nueva cuenta
               </span>
             </div>
 
-            {/* Account fields */}
             <div className="px-8 py-6 space-y-4 border-b border-outline-variant/10">
-              {!isRenewal && (
-                <div>
-                  <label className={labelClass}>Nombre Completo </label>
-                  <input
-                    required
-                    type="text"
-                    placeholder="Ej.  Joshua Mendez"
-                    value={nombreCuenta}
-                    onChange={(e) => setNombreCuenta(e.target.value)}
-                    disabled={procesando}
-                    className={inputClass}
-                  />
-                </div>
-              )}
+              <div>
+                <label className={labelClass}>Nombre Comercial</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="Ej. Joyería Lumín"
+                  value={nombreCuenta}
+                  onChange={(e) => setNombreCuenta(e.target.value)}
+                  disabled={procesando}
+                  className={inputClass}
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Correo</label>
@@ -182,22 +149,14 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Section 2 header */}
+            {/* Section 2: Pago */}
             <div className="flex items-center gap-3 px-8 py-5 border-b border-outline-variant/10 bg-surface-container-low/50">
               <div className="w-7 h-7 rounded-lg bg-on-surface flex items-center justify-center flex-shrink-0">
                 <Lock size={13} className="text-surface-container-lowest" />
               </div>
               <span className="text-sm font-bold tracking-wide text-on-surface">2. Información de pago</span>
-              <div className="ml-auto flex gap-1.5">
-                {['VISA', 'MC', 'AMEX'].map((b) => (
-                  <span key={b} className="text-[0.6rem] font-bold tracking-wide text-on-surface-variant bg-surface-container border border-outline-variant/20 px-2 py-0.5 rounded">
-                    {b}
-                  </span>
-                ))}
-              </div>
             </div>
 
-            {/* Payment fields */}
             <div className="px-8 py-6 space-y-4">
               <div>
                 <label className={labelClass}>Nombre en Tarjeta</label>
@@ -226,27 +185,40 @@ const Checkout = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: 'Mes',  ph: 'MM',  val: mesExp,  set: setMesExp,  max: 2,  pw: false },
-                  { label: 'Año',  ph: 'AA',  val: anioExp, set: setAnioExp, max: 2,  pw: false },
-                  { label: 'CVC',  ph: '•••', val: cvc,     set: setCvc,     max: 4,  pw: true  },
-                ].map((f) => (
-                  <div key={f.label}>
-                    <label className={labelClass}>{f.label}</label>
-                    <input
-                      required
-                      type={f.pw ? 'password' : 'text'}
-                      placeholder={f.ph}
-                      value={f.val}
-                      onChange={(e) => f.set(e.target.value.replace(/\D/g, '').substring(0, f.max))}
-                      disabled={procesando}
-                      maxLength={f.max}
-                      className={`${inputClass} text-center`}
-                    />
-                  </div>
-                ))}
+                <div>
+                  <label className={labelClass}>Mes</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="MM"
+                    value={mesExp}
+                    onChange={(e) => setMesExp(e.target.value.replace(/\D/g, '').substring(0, 2))}
+                    className={`${inputClass} text-center`}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Año</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="AA"
+                    value={anioExp}
+                    onChange={(e) => setAnioExp(e.target.value.replace(/\D/g, '').substring(0, 2))}
+                    className={`${inputClass} text-center`}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>CVC</label>
+                  <input
+                    required
+                    type="password"
+                    placeholder="•••"
+                    value={cvc}
+                    onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').substring(0, 4))}
+                    className={`${inputClass} text-center`}
+                  />
+                </div>
               </div>
-
             </div>
 
             {/* Turnstile */}
@@ -269,7 +241,7 @@ const Checkout = () => {
                 {procesando ? (
                   <><Loader2 className="animate-spin" size={20} /> Procesando pago...</>
                 ) : (
-                  <><Lock size={16} className="opacity-70" /> {isRenewal ? "Pagar Renovación" : "Pagar y Crear Cuenta"}</>
+                  <><Lock size={16} className="opacity-70" /> Pagar y Crear Cuenta</>
                 )}
               </button>
             </div>
