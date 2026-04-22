@@ -336,12 +336,12 @@ return (
               Inicia sesión
             </button>
           </p>
+          
+          <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+            <span>Lumin by Qlatte © 2026</span>
+          </footer>
         </div> {/* Cierre de w-full max-w-xl */}
       </main>
-  
-      <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
-        <span>Lumin by Qlatte © 2026</span>
-      </footer>
     </div>
   );
 };
