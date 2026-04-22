@@ -1,6 +1,15 @@
 import axios from 'axios';
 
-console.log("DEBUG - URL DE LA API:", import.meta.env.VITE_API_URL);
+// En la parte superior de src/lib/api.ts
+
+const API_URL = (import.meta.env.VITE_API_URL as string);
+
+console.log("DEBUG - URL DE LA API:", API_URL);
+
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true
+});
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
