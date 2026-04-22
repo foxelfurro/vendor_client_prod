@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import api from '../lib/api'; // Tu conexión ya configurada
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   userId: string;
-  expiresAt: string; // La fecha que viene de Neon (ej. "2026-04-27T00:00:00Z")
+  expiresAt: string; // La fecha que viene de Neon
 }
 
 const SubscriptionBanner: React.FC<Props> = ({ userId, expiresAt }) => {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // <-- Usamos el router de React
 
   // 1. Calculamos los días restantes
   const calcularDias = () => {
@@ -20,29 +20,17 @@ const SubscriptionBanner: React.FC<Props> = ({ userId, expiresAt }) => {
   const diasRestantes = calcularDias();
 
   // 2. Reglas de visualización
-  // Si faltan más de 5 días, no renderizamos NADA (se oculta)
   if (diasRestantes > 5) return null; 
 
   const estaExpirado = diasRestantes < 0;
 
-  // 3. Función para llamar a tu backend
-const handleRenovar = async () => {
-    setLoading(true);
-    try {
-      // SOLO HACEMOS EL AWAIT, SIN GUARDARLO EN "const response ="
-      await api.post('/auth/renew', { userId });
-      
-      alert("¡Llamando a la pasarela de pago!"); 
-      
-    } catch (error) {
-      console.error("Error al iniciar renovación:", error);
-      alert("Hubo un problema al conectar con el sistema de pagos.");
-    } finally {
-      setLoading(false);
-    }
+  // 3. LA CONEXIÓN: Al hacer clic, los mandamos a tu página Renew.tsx
+  const handleRenovar = () => {
+    // Asegúrate de que '/renew' sea la ruta correcta en tu App.tsx o main.tsx
+    navigate('/renew'); 
   };
 
-  // 4. Renderizado condicional (Amarillo para aviso, Rojo para expirado)
+  // 4. Renderizado
   return (
     <div className={`p-4 mb-6 rounded-md shadow-sm border-l-4 flex justify-between items-center ${
       estaExpirado 
@@ -62,14 +50,13 @@ const handleRenovar = async () => {
 
       <button
         onClick={handleRenovar}
-        disabled={loading}
         className={`px-4 py-2 font-semibold rounded shadow transition-colors ${
           estaExpirado 
             ? 'bg-red-600 hover:bg-red-700 text-white' 
             : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-        } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        }`}
       >
-        {loading ? 'Cargando...' : 'Renovar Ahora'}
+        Renovar Ahora
       </button>
     </div>
   );
