@@ -87,6 +87,26 @@ const Checkout = () => {
 
   return (
     <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-6 py-12">
+      <nav className="bg-zinc-50 dark:bg-zinc-950 font-manrope antialiased tracking-tight docked full-width top-0 bg-zinc-100 dark:bg-zinc-900/50 flat no-shadows">
+        <div className="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
+          <Link to="/login" className="flex items-center gap-3 cursor-pointer group">
+            <span className="material-symbols-outlined text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" data-icon="diamond">diamond</span>
+            <span className="text-xl tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">
+              <span className="font-black group-hover:opacity-80 transition-opacity">Qlatte</span> 
+              <span className="font-normal opacity-60 mx-2">|</span>
+              <span className="font-normal opacity-80 group-hover:opacity-100 transition-opacity">Lumin</span>
+            </span>
+          </Link>
+          <div className="hidden md:flex gap-8">
+            <Link 
+              to="/Support" 
+              className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
+            >
+              Soporte
+            </Link>
+          </div>
+        </div>
+      </nav>
       <div className="w-full max-w-xl space-y-6">
 
         {/* Header */}
@@ -95,7 +115,7 @@ const Checkout = () => {
             <ShieldCheck size={22} />
           </div>
           <h1 className="text-3xl font-headline font-extrabold tracking-tight text-on-surface">
-            Adquirir Vendor Hub
+            Adquirir Lumin
           </h1>
           <p className="text-on-surface-variant text-sm tracking-wide">
             Activa tu cuenta y comienza a gestionar tu inventario hoy mismo.
@@ -109,9 +129,9 @@ const Checkout = () => {
             {/* Resumen de Suscripción (NUEVO) */}
             <div className="px-8 py-6 border-b border-outline-variant/10 bg-surface-container-low/30">
               <div className="bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/10">
-                <h3 className="font-semibold text-on-surface mb-1">Suscripción Vendor Hub</h3>
+                <h3 className="font-semibold text-on-surface mb-1">Suscripción Lumin</h3>
                 <p className="text-sm text-on-surface-variant">
-                  Licencia de uso para la plataforma de gestión de inventario y ventas de joyería.
+                  Licencia de uso para la plataforma de gestión de inventario y ventas de joyería. Se renueva automáticamente por $299.00 MXN/mes, cancela en cualquier momento desde tu perfil de usuario.
                 </p>
                 <div className="mt-4 pt-4 border-t border-outline-variant/20 flex justify-between items-center font-bold text-lg">
                   <span className="text-on-surface">Total a pagar:</span>
@@ -306,7 +326,9 @@ const Checkout = () => {
             Inicia sesión
           </button>
         </p>
-
+        <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+          <span>Lumin by Qlatte © 2026</span>
+        </footer>
       </div>
     </div>
   );
