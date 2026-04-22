@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.qlatte.com', // Tu servidor de Node
-  withCredentials: true, // Permite el envío automático de la cookie
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, // Esto es lo que permite enviar la cookie de vuelta al server
 });
 
 api.interceptors.response.use(
