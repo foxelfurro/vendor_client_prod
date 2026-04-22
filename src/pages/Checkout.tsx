@@ -86,7 +86,7 @@ const Checkout = () => {
   const labelClass = "block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1 mb-2";
 
   return (
-    <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-6 py-12">
+    <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col">
       <nav className="bg-zinc-50 dark:bg-zinc-950 font-manrope antialiased tracking-tight docked full-width top-0 bg-zinc-100 dark:bg-zinc-900/50 flat no-shadows">
         <div className="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
           <Link to="/login" className="flex items-center gap-3 cursor-pointer group">
@@ -107,6 +107,7 @@ const Checkout = () => {
           </div>
         </div>
       </nav>
+    <main className="flex-grow flex flex-col items-center justify-center p-6 py-12">
       <div className="w-full max-w-xl space-y-6">
 
         {/* Header */}
@@ -326,6 +327,7 @@ const Checkout = () => {
             Inicia sesión
           </button>
         </p>
+      </main>
         <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
           <span>Lumin by Qlatte © 2026</span>
         </footer>
