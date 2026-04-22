@@ -265,7 +265,7 @@ const Checkout = () => {
                 />
                 <label htmlFor="terms" className="text-sm text-on-surface-variant cursor-pointer select-none leading-relaxed">
                   He leído la{' '}
-                  <Link to="/policy" className="text-primary underline hover:text-primary/80 transition-colors">
+                  <Link to="/privacy" className="text-primary underline hover:text-primary/80 transition-colors">
                     política de privacidad
                   </Link>{' '}
                   y acepto los{' '}
