@@ -14,6 +14,7 @@ import ResetPassword from './pages/ResetPassword';
 import PrivacyPolicy from './pages/policy';
 import TermsOfService from './pages/terms';
 import Profile from './pages/Profile';
+import Renew from './pages/Renew'; //
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -49,13 +50,14 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
-          {/* 👇 Si alguien entra a la raíz, lo mandamos directo al Login 👇 */}
+       
           <Route path="/" element={<Navigate to="/login" replace />} />
           
           <Route path="/login" element={<Login />} />
           <Route path="/support" element={<SupportPage />} />
           {/* El Checkout DEBE ser público para que los nuevos puedan pagar y registrarse */}
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/renovar" element={<Renew />} />
 
           {/* --- 2. RUTAS PROTEGIDAS (Solo para usuarios logueados) --- */}
           <Route
