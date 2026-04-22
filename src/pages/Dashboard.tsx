@@ -172,7 +172,7 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
             <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold text-primary-stitch opacity-80">
-              Vendor Hub Joyería
+              Lumin
             </span>
             <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter leading-tight text-on-surface">
               Panel de Control
@@ -421,7 +421,7 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
-      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest uppercase">
+      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <div className="text-zinc-400">
             Lumin by Qlatte © 2026
