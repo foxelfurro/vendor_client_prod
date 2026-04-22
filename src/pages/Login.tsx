@@ -7,7 +7,7 @@ import { Turnstile } from '@marsidev/react-turnstile';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); 
+  const [errorMessage, setErrorMessage] = useState<React.ReactNode>(''); 
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const { login } = useAuth();
@@ -31,10 +31,18 @@ const Login = () => {
       login(data.user);
       navigate('/dashboard');
     } catch (error: any) {
-      if (error.response?.data?.error) {
-        setErrorMessage(error.response.data.error);
+      const status = error.response?.status;
+      const mensajeServidor = error.response?.data?.error || "Error al conectar con el servidor.";
+
+      // Lógica para mostrar el link de renovación si la cuenta expiró (Status 403)
+      if (status === 403 && mensajeServidor.toLowerCase().includes('expirado')) {
+        setErrorMessage(
+          <span>
+            {mensajeServidor} <Link to="/renovar" className="underline font-bold text-red-600">Renovar aquí</Link>
+          </span>
+        );
       } else {
-        setErrorMessage("Error al conectar con el servidor.");
+        setErrorMessage(mensajeServidor);
       }
     }
   };
@@ -89,15 +97,17 @@ const Login = () => {
             </div>
 
             {errorMessage && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md mb-6 shadow-sm">
-                <p className="text-sm font-medium">{errorMessage}</p>
-                {errorMessage.includes('expirado') && (
-                  <Link to="/checkout" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-800 hover:underline">
-                    Renovar suscripción aquí &rarr;
-                  </Link>
-                )}
-              </div>
-            )}
+  <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md mb-6 shadow-sm">
+    <p className="text-sm font-medium">{errorMessage}</p>
+    
+    {/* CAMBIO AQUÍ: Usamos String() para que TypeScript no se queje */}
+    {String(errorMessage).toLowerCase().includes('expirado') && (
+      <Link to="/renovar" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-800 hover:underline">
+        Renovar suscripción aquí &rarr;
+      </Link>
+    )}
+  </div>
+)}
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
@@ -165,3 +175,4 @@ const Login = () => {
 
 
 export default Login;
+
