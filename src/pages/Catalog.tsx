@@ -275,8 +275,12 @@ const Catalog = () => {
           </form>
         </DialogContent>
       </Dialog>
-      <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
-        <span>Lumin by Qlatte © 2026</span>
+      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+          <div className="text-zinc-400">
+            Lumin by Qlatte © 2026
+          </div>
+        </div>
       </footer>
     </div>
   );
