@@ -93,7 +93,7 @@ const Layout = () => {
               <Gem size={20} strokeWidth={2} />
             </div>
             <span className="text-sm font-headline font-extrabold tracking-[0.15em] uppercase text-on-surface">
-              Vendor Hub
+              Lumin
             </span>
           </div>
           {/* Botón de cerrar solo visible en móvil y DENTRO del sidebar para evitar empalmes */}
@@ -158,18 +158,6 @@ const Layout = () => {
             <UserCircle size={18} className="group-hover:text-primary-stitch transition-colors flex-shrink-0" />
             <span className="tracking-wide">Mi Perfil</span>
           </NavLink>
-
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl hover:bg-error/10 text-on-surface-variant hover:text-error transition-all group disabled:opacity-50 border border-transparent hover:border-error/20 font-bold text-sm tracking-wide"
-            aria-label="Cerrar sesión"
-          >
-            <LogOut size={18} aria-hidden="true" className="group-hover:text-error transition-colors flex-shrink-0" />
-            <span className="truncate">
-              {isLoggingOut ? 'Saliendo...' : 'Cerrar Sesión'}
-            </span>
-          </button>
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
@@ -203,7 +191,7 @@ const Layout = () => {
               <Gem size={18} strokeWidth={2} />
             </div>
             <span className="text-xs font-headline font-extrabold tracking-[0.15em] uppercase text-on-surface">
-              Vendor Hub
+              Lumin
             </span>
           </div>
           <button
