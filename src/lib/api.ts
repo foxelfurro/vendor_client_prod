@@ -15,10 +15,24 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Si el error es 401 (No autorizado)
-    if (error.response && error.response.status === 401) {
+    // Si el error es 401 (No autorizado) o 403 (Prohibido)
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       const currentPath = window.location.pathname;
-      if (currentPath !== '/login' && currentPath !== '/checkout') {
+      
+      // Lista blanca de rutas donde ES NORMAL no tener sesión
+      const publicRoutes = [
+        '/login', 
+        '/checkout', 
+        '/reset-password', 
+        '/forgot-password',
+        '/renovar',
+        '/privacy',
+        '/terms',
+        '/support'
+      ];
+
+      // Si la ruta actual NO está en la lista de rutas públicas, redirigimos
+      if (!publicRoutes.includes(currentPath)) {
         window.location.href = '/login';
       }
     }
