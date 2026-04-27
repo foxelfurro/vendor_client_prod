@@ -78,7 +78,7 @@ const Renew = () => {
             <RefreshCw size={22} />
           </div>
           <h1 className="text-3xl font-headline font-extrabold tracking-tight text-on-surface">Renovar Membresía</h1>
-          <p className="text-on-surface-variant text-sm tracking-wide">Extiende tu acceso a Vendor Hub por 30 días más.</p>
+          <p className="text-on-surface-variant text-sm tracking-wide">Extiende tu acceso a Lumin por 30 días más.</p>
         </div>
 
         <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg overflow-hidden">
