@@ -198,76 +198,99 @@ const Catalog = () => {
         </>
       )}
 
-      {/* --- MODAL DE AGREGAR PRODUCTO --- */}
+  {/* --- MODAL DE AGREGAR PRODUCTO (DISEÑO MEJORADO LUMIN) --- */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Añadir a mi Inventario</DialogTitle>
-            <DialogDescription>
-              Configura el stock inicial y el precio de venta para <strong className="text-slate-800">{productoSeleccionado?.nombre}</strong>.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-[480px] bg-surface-container-lowest border border-outline-variant/20 shadow-[0_32px_64px_-16px_rgba(45,52,53,0.1)] rounded-3xl p-0 overflow-hidden font-body gap-0">
+          
+          {/* Cabecera del Modal con Fondo Diferenciado */}
+          <div className="bg-surface-container-low p-6 sm:p-8 border-b border-outline-variant/10">
+            <DialogHeader className="space-y-1">
+              <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-primary-stitch opacity-80 mb-1 text-left">
+                Nueva Incorporación
+              </span>
+              <DialogTitle className="text-2xl sm:text-3xl font-headline font-extrabold tracking-tighter text-on-surface text-left">
+                Añadir a Inventario
+              </DialogTitle>
+              <DialogDescription className="text-on-surface-variant text-sm leading-relaxed text-left">
+                Configura los detalles de entrada para <span className="font-bold text-on-surface">{productoSeleccionado?.nombre}</span>.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <form onSubmit={handleConfirmarAgregar} className="space-y-6 pt-4">
+          {/* Cuerpo del Formulario */}
+          <form onSubmit={handleConfirmarAgregar} className="p-6 sm:p-8 space-y-7 bg-surface-container-lowest">
+            
             <div className="space-y-2">
-              <label htmlFor="stock" className="text-sm font-semibold text-slate-700">
-                ¿Cuántas piezas físicas tienes?
+              <label htmlFor="stock" className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+                Piezas Físicas Disponibles
               </label>
-              <Input
-                id="stock"
-                type="number"
-                min="1"
-                required
-                value={formStock}
-                onChange={(e) => setFormStock(e.target.value)}
-                placeholder="Ej. 5"
-                className="w-full"
-              />
+              <div className="relative">
+                <PackagePlus className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant w-5 h-5" />
+                <Input
+                  id="stock"
+                  type="number"
+                  min="1"
+                  required
+                  value={formStock}
+                  onChange={(e) => setFormStock(e.target.value)}
+                  placeholder="Ej. 5"
+                  className="pl-12 h-14 bg-surface-container-low border border-outline-variant/20 rounded-xl text-lg font-bold text-on-surface placeholder:text-outline-variant/60 focus:ring-1 focus:ring-primary-stitch focus:border-primary-stitch transition-all"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="precio" className="text-sm font-semibold text-slate-700">
-                Tu precio de venta personalizado ($)
+              <label htmlFor="precio" className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+                Precio de Venta (MXN)
               </label>
-              <Input
-                id="precio"
-                type="number"
-                min="0"
-                step="0.01"
-                required
-                value={formPrecio}
-                onChange={(e) => setFormPrecio(e.target.value)}
-                placeholder="Ej. 1500"
-                className="w-full"
-              />
-              <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                La marca sugiere venderlo a <span className="font-bold text-slate-700">${productoSeleccionado?.precio_sugerido}</span>
-              </p>
+              <div className="relative">
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-outline-variant font-bold text-lg">$</span>
+                <Input
+                  id="precio"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  required
+                  value={formPrecio}
+                  onChange={(e) => setFormPrecio(e.target.value)}
+                  placeholder="Ej. 1500"
+                  className="pl-9 h-14 bg-surface-container-low border border-outline-variant/20 rounded-xl text-lg font-bold text-on-surface placeholder:text-outline-variant/60 focus:ring-1 focus:ring-primary-stitch focus:border-primary-stitch transition-all"
+                />
+              </div>
+              
+              {/* Callout de precio sugerido */}
+              <div className="flex items-center gap-3 mt-3 bg-surface-container p-3.5 rounded-xl border border-outline-variant/10">
+                 <div className="w-2 h-2 rounded-full bg-primary-stitch animate-pulse shadow-[0_0_8px_rgba(var(--primary-stitch),0.8)]"></div>
+                 <p className="text-xs text-on-surface-variant font-medium">
+                  Precio sugerido por la marca: <span className="font-bold text-on-surface text-sm ml-1">${productoSeleccionado?.precio_sugerido}</span>
+                 </p>
+              </div>
             </div>
 
-            <DialogFooter className="pt-2 gap-2 sm:gap-0">
+            <DialogFooter className="pt-2 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => setIsModalOpen(false)}
                 disabled={guardando}
+                className="w-full sm:w-1/2 h-12 bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high rounded-xl font-bold transition-all"
               >
                 Cancelar
               </Button>
               <Button 
                 type="submit" 
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
                 disabled={guardando}
+                className="w-full sm:w-1/2 h-12 bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl font-bold shadow-[0_8px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-2 border-0"
               >
                 {guardando ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Guardando...
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Guardando...</span>
                   </>
                 ) : (
                   <>
-                    <PackagePlus className="w-4 h-4 mr-2" />
-                    Confirmar
+                    <PackagePlus className="w-5 h-5" />
+                    <span>Confirmar Ingreso</span>
                   </>
                 )}
               </Button>
