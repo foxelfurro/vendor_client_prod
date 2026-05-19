@@ -1,25 +1,19 @@
+// src/lib/api.ts
 import axios from 'axios';
 
-// 1. Definimos la URL con el respaldo (fallback) por si Vercel falla
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.qlatte.com';
 
-console.log("DEBUG - URL DE LA API:", API_URL);
-
-// 2. CREAMOS LA INSTANCIA (SOLO UNA VEZ)
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true
 });
 
-// 3. CONFIGURAMOS EL INTERCEPTOR
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Si el error es 401 (No autorizado) o 403 (Prohibido)
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       const currentPath = window.location.pathname;
       
-      // Lista blanca de rutas donde ES NORMAL no tener sesión
       const publicRoutes = [
         '/login', 
         '/checkout', 
@@ -31,8 +25,11 @@ api.interceptors.response.use(
         '/support'
       ];
 
-      // Si la ruta actual NO está en la lista de rutas públicas, redirigimos
-      if (!publicRoutes.includes(currentPath)) {
+      // EVALUACIÓN: Es pública si está en el array O si la URL comienza con /store/
+      const isPublicRoute = publicRoutes.includes(currentPath) || currentPath.startsWith('/store/');
+
+      // Si NO es una ruta pública, entonces sí forzamos el login
+      if (!isPublicRoute) {
         window.location.href = '/login';
       }
     }
