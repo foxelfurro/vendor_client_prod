@@ -1,38 +1,29 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. Importamos useNavigate
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// 2. Importamos los nuevos iconos
-import { PackagePlus, Search, Library, Loader2, PackageSearch, MailPlus, PlusCircle } from "lucide-react";
+import { PackagePlus, Search, Library, Loader2, PackageSearch, PlusCircle } from "lucide-react";
 
-const ITEMS_PER_PAGE = 12; // Cantidad de joyas a cargar por scroll
+const ITEMS_PER_PAGE = 12;
 
 const Catalog = () => {
-  const navigate = useNavigate(); // Inicializamos navigate
+  const navigate = useNavigate();
   const [productos, setProductos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Estados para Búsqueda e Infinite Scroll
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  // Estados para el Modal (Dialog) de agregar producto existente
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
   const [formStock, setFormStock] = useState<string>("1");
   const [formPrecio, setFormPrecio] = useState<string>("");
   const [guardando, setGuardando] = useState(false);
 
-  // 3. Estados para el Modal de Sugerencia (Resend)
-  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const [requestDescripcion, setRequestDescripcion] = useState("");
-  const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
-
-  // Cargar los productos que el vendedor AÚN NO tiene en su inventario
   const fetchCatalog = async () => {
     try {
       const { data } = await api.get('/vendor/explore');
@@ -48,7 +39,6 @@ const Catalog = () => {
     fetchCatalog();
   }, []);
 
-  // --- LÓGICA DEL MODAL DE INVENTARIO ---
   const abrirModal = (producto: any) => {
     setProductoSeleccionado(producto);
     setFormStock("1"); 
@@ -78,32 +68,11 @@ const Catalog = () => {
     }
   };
 
-  // --- LÓGICA DEL MODAL DE RESEND ---
-  const handleSolicitarJoya = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setEnviandoSolicitud(true);
-    try {
-      await api.post('/vendor/request-catalog', {
-        busqueda: searchTerm,
-        descripcion: requestDescripcion
-      });
-      alert("¡Gracias! Hemos enviado la sugerencia a la marca para la próxima actualización. 📧");
-      setIsRequestModalOpen(false);
-      setRequestDescripcion("");
-    } catch (error) {
-      alert("Hubo un error al enviar la solicitud.");
-    } finally {
-      setEnviandoSolicitud(false);
-    }
-  };
-
-  // --- LÓGICA DE FILTRADO ---
   const productosFiltrados = productos.filter((item) => 
     item.sku.toLowerCase().includes(searchTerm.toLowerCase()) || 
     item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // --- LÓGICA DE INFINITE SCROLL ---
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [searchTerm]);
@@ -132,6 +101,7 @@ const Catalog = () => {
 
   return (
     <div className="p-4 sm:p-8 bg-slate-50 min-h-screen font-body text-slate-900">
+      
       {/* Cabecera */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Catálogo Maestro</h1>
@@ -156,10 +126,9 @@ const Catalog = () => {
         </div>
       </div>
 
-{/* Grid de Tarjetas / Empty State Simplificado */}
+      {/* Grid de Tarjetas o Estado Vacío */}
       {productosFiltrados.length === 0 ? (
         <div className="col-span-full flex flex-col items-center justify-center py-20 px-4 text-slate-500 space-y-8 bg-white rounded-3xl border border-slate-200 shadow-sm w-full animate-in fade-in zoom-in-95 duration-300">
-          
           <div className="bg-slate-50 p-6 rounded-full border border-slate-100">
             <PackageSearch size={56} className="text-indigo-500 opacity-80" strokeWidth={1.5} />
           </div>
@@ -172,8 +141,7 @@ const Catalog = () => {
                 : `No hay coincidencias en el catálogo maestro para "${searchTerm}".`}
             </p>
           </div>
-        ) : (
-          {/* Botón único que lleva a crear la pieza (dispara el correo oculto) */}
+
           {searchTerm && (
             <div className="mt-2 w-full max-w-xs px-4">
               <button 
@@ -182,29 +150,6 @@ const Catalog = () => {
               >
                 <PlusCircle size={18} className="flex-shrink-0" />
                 <span>Agregar al inventario</span>
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-
-          {/* Botones de Acción (Solo si escribieron algo en el buscador) */}
-          {searchTerm && (
-            <div className="flex flex-col sm:flex-row gap-4 mt-2 w-full max-w-md px-4">
-              <button 
-                onClick={() => setIsRequestModalOpen(true)}
-                className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-xl transition-all shadow-sm text-sm"
-              >
-                <MailPlus size={18} className="text-indigo-500 flex-shrink-0" />
-                <span>Solicitar a la Marca</span>
-              </button>
-
-              <button 
-                onClick={() => navigate('/inventario', { state: { openCustom: true } })}
-                className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md text-sm"
-              >
-                <PlusCircle size={18} className="flex-shrink-0" />
-                <span>Crear Pieza Propia</span>
               </button>
             </div>
           )}
@@ -356,69 +301,6 @@ const Catalog = () => {
                   <>
                     <PackagePlus className="w-5 h-5" />
                     <span>Confirmar Ingreso</span>
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* --- MODAL PARA SOLICITAR JOYA A LA MARCA (RESEND) --- */}
-      <Dialog open={isRequestModalOpen} onOpenChange={setIsRequestModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white border border-slate-200 rounded-3xl p-0 overflow-hidden font-body gap-0 shadow-2xl">
-          <div className="bg-slate-50 p-6 sm:p-8 border-b border-slate-100">
-            <DialogHeader className="space-y-1">
-              <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-indigo-500 opacity-80 mb-1 text-left">
-                Sugerencia
-              </span>
-              <DialogTitle className="text-2xl sm:text-3xl font-extrabold tracking-tighter text-slate-900 text-left">
-                Solicitar Joya
-              </DialogTitle>
-              <DialogDescription className="text-slate-500 text-sm leading-relaxed text-left">
-                Envíanos los detalles de la pieza que estabas buscando para considerarla en la próxima actualización del maestro.
-              </DialogDescription>
-            </DialogHeader>
-          </div>
-          
-          <form onSubmit={handleSolicitarJoya} className="p-6 sm:p-8 space-y-6 bg-white">
-            <div className="space-y-2">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-slate-500 block">
-                Detalles de la pieza
-              </label>
-              <textarea
-                required
-                rows={4}
-                value={requestDescripcion}
-                onChange={(e) => setRequestDescripcion(e.target.value)}
-                placeholder="Ej. Buscaba una esclava de plata 925 con tejido Cartier..."
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none font-medium transition-all"
-              ></textarea>
-            </div>
-            
-            <DialogFooter className="pt-2 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setIsRequestModalOpen(false)} 
-                className="w-full sm:w-1/2 h-12 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl font-bold transition-all"
-              >
-                Cancelar
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={enviandoSolicitud} 
-                className="w-full sm:w-1/2 h-12 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 border-0"
-              >
-                {enviandoSolicitud ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Enviando...</span>
-                  </>
-                ) : (
-                  <>
-                    <MailPlus className="w-5 h-5" />
-                    <span>Enviar Sugerencia</span>
                   </>
                 )}
               </Button>
