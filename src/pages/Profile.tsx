@@ -101,7 +101,7 @@ const Profile = () => {
     e.preventDefault();
     setFormStatus('loading');
 
-    const fullPhone = `+52${formData.telefono_digits}`;
+    const fullPhone = `${formData.telefono_digits}`;
     const payload = {
       store_name: formData.store_name,
       store_slug: formData.store_slug,
@@ -110,18 +110,36 @@ const Profile = () => {
 
     try {
       const response = await api.put('/vendor/store-settings', payload);
-      // Actualizar el contexto global
+
+      // Obtenemos el teléfono que devuelve el backend (viene con +52)
+      const backendPhone = response.data.data.telefono || '';
+      // Le removemos el +52 para actualizar nuestro estado local de 10 dígitos
+      const cleanDigits = backendPhone.startsWith('+52') ? backendPhone.slice(3) : backendPhone;
+
+      // 1. Actualizar el contexto global de Auth con el teléfono completo tal como está en la BD
       login({
         ...user,
         store_name: response.data.data.store_name,
         store_slug: response.data.data.store_slug,
-        telefono: response.data.data.telefono
+        telefono: backendPhone
       });
+
+      // 2. Asegurar que nuestro formulario local mantenga solo los 10 dígitos
+      setFormData({
+        store_name: response.data.data.store_name,
+        store_slug: response.data.data.store_slug,
+        telefono_digits: cleanDigits.replace(/\D/g, '').slice(0, 10)
+      });
+
       setFormStatus('success');
-      setFormMessage(response.data.message);
+      setFormMessage(response.data.message || 'Configuración guardada correctamente.');
     } catch (error: any) {
       setFormStatus('error');
-      setFormMessage(error.response?.data?.error || 'Ocurrió un error al guardar.');
+      setFormMessage(
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        'Ocurrió un error al guardar la configuración.'
+      );
     }
   };
 
