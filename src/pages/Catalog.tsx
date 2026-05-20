@@ -1,14 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // 1. Importamos useNavigate
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PackagePlus, Search, Library, Loader2 } from "lucide-react";
+// 2. Importamos los nuevos iconos
+import { PackagePlus, Search, Library, Loader2, PackageSearch, MailPlus, PlusCircle } from "lucide-react";
 
 const ITEMS_PER_PAGE = 12; // Cantidad de joyas a cargar por scroll
 
 const Catalog = () => {
+  const navigate = useNavigate(); // Inicializamos navigate
   const [productos, setProductos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -17,12 +20,17 @@ const Catalog = () => {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  // Estados para el Modal (Dialog) de agregar producto
+  // Estados para el Modal (Dialog) de agregar producto existente
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
   const [formStock, setFormStock] = useState<string>("1");
   const [formPrecio, setFormPrecio] = useState<string>("");
   const [guardando, setGuardando] = useState(false);
+
+  // 3. Estados para el Modal de Sugerencia (Resend)
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [requestDescripcion, setRequestDescripcion] = useState("");
+  const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
 
   // Cargar los productos que el vendedor AÚN NO tiene en su inventario
   const fetchCatalog = async () => {
@@ -40,16 +48,14 @@ const Catalog = () => {
     fetchCatalog();
   }, []);
 
-  // --- LÓGICA DEL MODAL ---
-  // Abre el modal y prepara los datos por defecto
+  // --- LÓGICA DEL MODAL DE INVENTARIO ---
   const abrirModal = (producto: any) => {
     setProductoSeleccionado(producto);
-    setFormStock("1"); // Por defecto sugerimos 1 pieza
-    setFormPrecio(producto.precio_sugerido.toString()); // Sugerimos el precio base
+    setFormStock("1"); 
+    setFormPrecio(producto.precio_sugerido.toString()); 
     setIsModalOpen(true);
   };
 
-  // Procesa el formulario del modal
   const handleConfirmarAgregar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productoSeleccionado || !formStock || !formPrecio) return;
@@ -63,12 +69,31 @@ const Catalog = () => {
       });
       
       alert("¡Producto agregado a tu inventario con éxito! 💎");
-      setIsModalOpen(false); // Cerramos el modal
-      fetchCatalog(); // Volvemos a cargar para que desaparezca del catálogo
+      setIsModalOpen(false);
+      fetchCatalog();
     } catch (error: any) {
       alert(error.response?.data?.error || "Hubo un error al agregar el producto");
     } finally {
       setGuardando(false);
+    }
+  };
+
+  // --- LÓGICA DEL MODAL DE RESEND ---
+  const handleSolicitarJoya = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEnviandoSolicitud(true);
+    try {
+      await api.post('/vendor/request-catalog', {
+        busqueda: searchTerm,
+        descripcion: requestDescripcion
+      });
+      alert("¡Gracias! Hemos enviado la sugerencia a la marca para la próxima actualización. 📧");
+      setIsRequestModalOpen(false);
+      setRequestDescripcion("");
+    } catch (error) {
+      alert("Hubo un error al enviar la solicitud.");
+    } finally {
+      setEnviandoSolicitud(false);
     }
   };
 
@@ -106,10 +131,10 @@ const Catalog = () => {
   if (loading) return <div className="p-10 text-center text-slate-500 flex flex-col items-center justify-center min-h-[50vh] w-full"><Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-500" />Abriendo la bóveda...</div>;
 
   return (
-    <div className="p-4 sm:p-8 bg-slate-50 min-h-screen">
+    <div className="p-4 sm:p-8 bg-slate-50 min-h-screen font-body text-slate-900">
       {/* Cabecera */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-900">Catálogo Maestro</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Catálogo Maestro</h1>
         <p className="text-sm sm:text-base text-slate-500">Explora las joyas de la marca y agrégalas a tu vitrina personal.</p>
       </div>
 
@@ -124,31 +149,62 @@ const Catalog = () => {
           <Input
             type="text"
             placeholder="Buscar joya por nombre o SKU..."
-            className="pl-9 bg-slate-50 border-slate-200 w-full"
+            className="pl-9 bg-slate-50 border-slate-200 w-full rounded-xl"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      {/* Grid de Tarjetas */}
+      {/* Grid de Tarjetas / Empty State */}
       {productosFiltrados.length === 0 ? (
-        <div className="text-center py-16 px-4 bg-white rounded-xl border border-slate-200 text-slate-500 shadow-sm w-full">
-          {productos.length === 0 
-            ? "Ya tienes todos los productos de la marca en tu inventario. 😎"
-            : "No se encontraron joyas con esa búsqueda."}
+        <div className="col-span-full flex flex-col items-center justify-center py-20 px-4 text-slate-500 space-y-8 bg-white rounded-3xl border border-slate-200 shadow-sm w-full animate-in fade-in zoom-in-95 duration-300">
+          
+          <div className="bg-slate-50 p-6 rounded-full border border-slate-100">
+            <PackageSearch size={56} className="text-indigo-500 opacity-80" strokeWidth={1.5} />
+          </div>
+          
+          <div className="text-center space-y-3 max-w-lg">
+            <h3 className="text-2xl font-bold text-slate-900">No encontramos esa joya</h3>
+            <p className="text-base text-slate-500 leading-relaxed px-4">
+              {productos.length === 0 
+                ? "Ya tienes todos los productos de la marca en tu inventario. 😎"
+                : `No hay coincidencias en el catálogo maestro para "${searchTerm}".`}
+            </p>
+          </div>
+
+          {/* Botones de Acción (Solo si escribieron algo en el buscador) */}
+          {searchTerm && (
+            <div className="flex flex-col sm:flex-row gap-4 mt-2 w-full max-w-md px-4">
+              <button 
+                onClick={() => setIsRequestModalOpen(true)}
+                className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-xl transition-all shadow-sm text-sm"
+              >
+                <MailPlus size={18} className="text-indigo-500 flex-shrink-0" />
+                <span>Solicitar a la Marca</span>
+              </button>
+
+              <button 
+                onClick={() => navigate('/inventario', { state: { openCustom: true } })}
+                className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md text-sm"
+              >
+                <PlusCircle size={18} className="flex-shrink-0" />
+                <span>Crear Pieza Propia</span>
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {productosMostrados.map((prod) => (
-              <Card key={prod.id} className="h-full overflow-hidden flex flex-col hover:shadow-lg transition-all border-slate-200">
-                <div className="aspect-square bg-slate-100 flex items-center justify-center overflow-hidden group relative">
+              <Card key={prod.id} className="h-full overflow-hidden flex flex-col hover:shadow-lg transition-all border-slate-200 rounded-2xl">
+                <div className="aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden group relative">
                   {prod.ruta_imagen ? (
                     <img 
                       src={prod.ruta_imagen} 
                       alt={prod.nombre} 
-                      className="absolute inset-0 object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" 
+                      className="absolute inset-0 object-cover w-full h-full group-hover:scale-105 transition-transform duration-700" 
                     />
                   ) : (
                     <span className="text-slate-400 text-xs sm:text-sm flex flex-col items-center z-10">
@@ -158,37 +214,35 @@ const Catalog = () => {
                   )}
                 </div>
                 
-                {/* Redujimos el padding y tamaño de fuente en móvil (p-3, text-sm) */}
-                <CardHeader className="pb-2 p-3 sm:p-6 bg-white flex-none">
-                  <div className="text-[10px] sm:text-xs text-slate-400 font-mono mb-1 truncate">SKU: {prod.sku}</div>
-                  <CardTitle className="text-sm sm:text-lg leading-tight text-slate-800 line-clamp-2 min-h-[2.5rem] sm:min-h-[2.75rem]">
+                <CardHeader className="pb-2 p-3 sm:p-5 bg-white flex-none space-y-1">
+                  <div className="text-[10px] sm:text-xs text-slate-500 font-mono mb-1 truncate bg-slate-50 inline-block px-2 py-0.5 rounded w-fit">SKU: {prod.sku}</div>
+                  <CardTitle className="text-sm sm:text-lg font-bold text-slate-900 line-clamp-2 leading-snug">
                     {prod.nombre}
                   </CardTitle>
                 </CardHeader>
                 
-                <CardContent className="flex-grow pt-0 p-3 sm:p-6 bg-white flex flex-col justify-end">
-                  <div>
-                    <p className="text-lg sm:text-2xl font-bold text-slate-900">
-                      ${prod.precio_sugerido}
+                <CardContent className="flex-grow pt-0 p-3 sm:p-5 bg-white flex flex-col justify-end">
+                  <div className="flex flex-col items-start">
+                    <p className="text-lg sm:text-2xl font-extrabold tracking-tighter text-slate-900">
+                      ${prod.precio_sugerido?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-slate-500 font-medium">Precio sugerido</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-0.5">Precio sugerido</p>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="bg-slate-50/50 p-3 sm:p-6 pt-3 sm:pt-4 border-t border-slate-100 flex-none">
+                <CardFooter className="bg-slate-50 p-3 sm:p-5 pt-3 sm:pt-4 border-t border-slate-100 flex-none">
                   <Button 
                     onClick={() => abrirModal(prod)} 
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all hover:translate-y-[-2px] h-9 sm:h-10 text-xs sm:text-sm px-2 sm:px-4"
+                    className="w-full h-10 sm:h-12 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-sm transition-all flex items-center justify-center gap-2"
                   >
-                    <PackagePlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                    <span className="truncate">Agregar</span>
+                    <PackagePlus className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate text-sm">Agregar</span>
                   </Button>
                 </CardFooter>
               </Card>
             ))}
           </div>
 
-          {/* Animación de carga para el Infinite Scroll */}
           {visibleCount < productosFiltrados.length && (
             <div ref={loaderRef} className="py-12 flex justify-center items-center text-slate-400 w-full">
               <Loader2 className="w-8 h-8 animate-spin" />
@@ -198,34 +252,31 @@ const Catalog = () => {
         </>
       )}
 
-  {/* --- MODAL DE AGREGAR PRODUCTO (DISEÑO MEJORADO LUMIN) --- */}
+      {/* --- MODAL DE AGREGAR PRODUCTO EXISTENTE --- */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[480px] bg-surface-container-lowest border border-outline-variant/20 shadow-[0_32px_64px_-16px_rgba(45,52,53,0.1)] rounded-3xl p-0 overflow-hidden font-body gap-0">
+        <DialogContent className="sm:max-w-[480px] bg-white border border-slate-200 shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0">
           
-          {/* Cabecera del Modal con Fondo Diferenciado */}
-          <div className="bg-surface-container-low p-6 sm:p-8 border-b border-outline-variant/10">
+          <div className="bg-slate-50 p-6 sm:p-8 border-b border-slate-100">
             <DialogHeader className="space-y-1">
-              <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-primary-stitch opacity-80 mb-1 text-left">
+              <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-indigo-500 opacity-80 mb-1 text-left">
                 Nueva Incorporación
               </span>
-              <DialogTitle className="text-2xl sm:text-3xl font-headline font-extrabold tracking-tighter text-on-surface text-left">
+              <DialogTitle className="text-2xl sm:text-3xl font-extrabold tracking-tighter text-slate-900 text-left">
                 Añadir a Inventario
               </DialogTitle>
-              <DialogDescription className="text-on-surface-variant text-sm leading-relaxed text-left">
-                Configura los detalles de entrada para <span className="font-bold text-on-surface">{productoSeleccionado?.nombre}</span>.
+              <DialogDescription className="text-slate-500 text-sm leading-relaxed text-left">
+                Configura los detalles de entrada para <span className="font-bold text-slate-900">{productoSeleccionado?.nombre}</span>.
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          {/* Cuerpo del Formulario */}
-          <form onSubmit={handleConfirmarAgregar} className="p-6 sm:p-8 space-y-7 bg-surface-container-lowest">
-            
+          <form onSubmit={handleConfirmarAgregar} className="p-6 sm:p-8 space-y-7 bg-white">
             <div className="space-y-2">
-              <label htmlFor="stock" className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+              <label htmlFor="stock" className="text-[0.7rem] font-bold uppercase tracking-widest text-slate-500 block">
                 Piezas Físicas Disponibles
               </label>
               <div className="relative">
-                <PackagePlus className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant w-5 h-5" />
+                <PackagePlus className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <Input
                   id="stock"
                   type="number"
@@ -234,17 +285,17 @@ const Catalog = () => {
                   value={formStock}
                   onChange={(e) => setFormStock(e.target.value)}
                   placeholder="Ej. 5"
-                  className="pl-12 h-14 bg-surface-container-low border border-outline-variant/20 rounded-xl text-lg font-bold text-on-surface placeholder:text-outline-variant/60 focus:ring-1 focus:ring-primary-stitch focus:border-primary-stitch transition-all"
+                  className="pl-12 h-14 bg-slate-50 border border-slate-200 rounded-xl text-lg font-bold text-slate-900 placeholder:text-slate-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="precio" className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+              <label htmlFor="precio" className="text-[0.7rem] font-bold uppercase tracking-widest text-slate-500 block">
                 Precio de Venta (MXN)
               </label>
               <div className="relative">
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-outline-variant font-bold text-lg">$</span>
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">$</span>
                 <Input
                   id="precio"
                   type="number"
@@ -254,15 +305,14 @@ const Catalog = () => {
                   value={formPrecio}
                   onChange={(e) => setFormPrecio(e.target.value)}
                   placeholder="Ej. 1500"
-                  className="pl-9 h-14 bg-surface-container-low border border-outline-variant/20 rounded-xl text-lg font-bold text-on-surface placeholder:text-outline-variant/60 focus:ring-1 focus:ring-primary-stitch focus:border-primary-stitch transition-all"
+                  className="pl-9 h-14 bg-slate-50 border border-slate-200 rounded-xl text-lg font-bold text-slate-900 placeholder:text-slate-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 />
               </div>
               
-              {/* Callout de precio sugerido */}
-              <div className="flex items-center gap-3 mt-3 bg-surface-container p-3.5 rounded-xl border border-outline-variant/10">
-                 <div className="w-2 h-2 rounded-full bg-primary-stitch animate-pulse shadow-[0_0_8px_rgba(var(--primary-stitch),0.8)]"></div>
-                 <p className="text-xs text-on-surface-variant font-medium">
-                  Precio sugerido por la marca: <span className="font-bold text-on-surface text-sm ml-1">${productoSeleccionado?.precio_sugerido}</span>
+              <div className="flex items-center gap-3 mt-3 bg-indigo-50 p-3.5 rounded-xl border border-indigo-100">
+                 <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
+                 <p className="text-xs text-indigo-700 font-medium">
+                  Precio sugerido por la marca: <span className="font-bold text-indigo-900 text-sm ml-1">${productoSeleccionado?.precio_sugerido}</span>
                  </p>
               </div>
             </div>
@@ -273,14 +323,14 @@ const Catalog = () => {
                 variant="outline" 
                 onClick={() => setIsModalOpen(false)}
                 disabled={guardando}
-                className="w-full sm:w-1/2 h-12 bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high rounded-xl font-bold transition-all"
+                className="w-full sm:w-1/2 h-12 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl font-bold transition-all"
               >
                 Cancelar
               </Button>
               <Button 
                 type="submit" 
                 disabled={guardando}
-                className="w-full sm:w-1/2 h-12 bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl font-bold shadow-[0_8px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-2 border-0"
+                className="w-full sm:w-1/2 h-12 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 border-0"
               >
                 {guardando ? (
                   <>
@@ -298,9 +348,73 @@ const Catalog = () => {
           </form>
         </DialogContent>
       </Dialog>
-      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest">
+
+      {/* --- MODAL PARA SOLICITAR JOYA A LA MARCA (RESEND) --- */}
+      <Dialog open={isRequestModalOpen} onOpenChange={setIsRequestModalOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-white border border-slate-200 rounded-3xl p-0 overflow-hidden font-body gap-0 shadow-2xl">
+          <div className="bg-slate-50 p-6 sm:p-8 border-b border-slate-100">
+            <DialogHeader className="space-y-1">
+              <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-indigo-500 opacity-80 mb-1 text-left">
+                Sugerencia
+              </span>
+              <DialogTitle className="text-2xl sm:text-3xl font-extrabold tracking-tighter text-slate-900 text-left">
+                Solicitar Joya
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 text-sm leading-relaxed text-left">
+                Envíanos los detalles de la pieza que estabas buscando para considerarla en la próxima actualización del maestro.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          
+          <form onSubmit={handleSolicitarJoya} className="p-6 sm:p-8 space-y-6 bg-white">
+            <div className="space-y-2">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-slate-500 block">
+                Detalles de la pieza
+              </label>
+              <textarea
+                required
+                rows={4}
+                value={requestDescripcion}
+                onChange={(e) => setRequestDescripcion(e.target.value)}
+                placeholder="Ej. Buscaba una esclava de plata 925 con tejido Cartier..."
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none font-medium transition-all"
+              ></textarea>
+            </div>
+            
+            <DialogFooter className="pt-2 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsRequestModalOpen(false)} 
+                className="w-full sm:w-1/2 h-12 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl font-bold transition-all"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={enviandoSolicitud} 
+                className="w-full sm:w-1/2 h-12 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 border-0"
+              >
+                {enviandoSolicitud ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <MailPlus className="w-5 h-5" />
+                    <span>Enviar Sugerencia</span>
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-slate-200 bg-slate-50 text-slate-500 font-mono text-xs tracking-widest">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <div className="text-zinc-400">
+          <div className="text-slate-400">
             Lumin by Qlatte © 2026
           </div>
         </div>
