@@ -15,6 +15,7 @@ import PrivacyPolicy from './pages/policy';
 import TermsOfService from './pages/terms';
 import Profile from './pages/Profile';
 import Renew from './pages/Renew'; //
+import PublicStore from './pages/PublicStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -50,7 +51,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
-       
+          <Route path="/store/:slug" element={<PublicStore />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
           
           <Route path="/login" element={<Login />} />
