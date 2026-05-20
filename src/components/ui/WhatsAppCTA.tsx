@@ -7,7 +7,7 @@ interface WhatsAppCTAProps {
 
 export function WhatsAppCTA({ phone, productName }: WhatsAppCTAProps) {
   // Limpiamos el teléfono (por si el usuario puso espacios o guiones en su perfil)
-  const cleanPhone = phone.replace(/\D/g, '');
+  const cleanPhone = phone;
   
   // Mensaje predeterminado codificado para URL
   const message = `Hola! Me interesa el producto *${productName}* que vi en tu catálogo de Lumin.`;
