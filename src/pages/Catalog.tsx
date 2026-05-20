@@ -142,6 +142,7 @@ const Catalog = () => {
             </p>
           </div>
 
+          {/* ÚNICO BOTÓN: Redirige a crear joya custom */}
           {searchTerm && (
             <div className="mt-2 w-full max-w-xs px-4">
               <button 
@@ -149,7 +150,7 @@ const Catalog = () => {
                 className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md text-sm"
               >
                 <PlusCircle size={18} className="flex-shrink-0" />
-                <span>Agregar al inventario</span>
+                <span>Agregar Joya Propia</span>
               </button>
             </div>
           )}
