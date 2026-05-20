@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import api from '@/lib/api';
 import { Input } from "@/components/ui/input";
-import { QrCode, X, Search, Package, Loader2, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ITEMS_PER_PAGE = 12;
@@ -9,14 +11,14 @@ const ITEMS_PER_PAGE = 12;
 // --- INTERFAZ PARA EL INVENTARIO ---
 interface InventoryItem {
   inventario_id: number;
-  producto_maestro_id: string;
+  producto_maestro_id?: string;
   sku: string;
   nombre: string;
   stock: number;
   precio_personalizado: number;
   precio_sugerido: number;
   ruta_imagen: string;
-  categoria?: string; // opcional por si acaso no viene
+  categoria?: string; 
 }
 // -----------------------------------
 
@@ -30,6 +32,14 @@ const Inventory = () => {
 
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
+
+  // Estados para la Joya Personalizada (Custom)
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [customNombre, setCustomNombre] = useState("");
+  const [customSku, setCustomSku] = useState("");
+  const [customStock, setCustomStock] = useState("1");
+  const [customPrecio, setCustomPrecio] = useState("");
+  const [guardandoCustom, setGuardandoCustom] = useState(false);
 
   const fetchInventory = async () => {
     try {
@@ -65,6 +75,37 @@ const Inventory = () => {
     }
   };
 
+  // Función para guardar una joya que NO está en el catálogo maestro
+  const handleAgregarCustom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customNombre || !customSku || !customStock || !customPrecio) return;
+
+    setGuardandoCustom(true);
+    try {
+      await api.post('/vendor/inventory/custom', {
+        nombre: customNombre,
+        sku: customSku.toUpperCase(), // Forzamos mayúsculas para el SKU
+        stock: parseInt(customStock),
+        precio_personalizado: parseFloat(customPrecio)
+      });
+      
+      alert("¡Pieza propia agregada a tu vitrina! ✨");
+      setIsCustomModalOpen(false);
+      
+      // Limpiar formulario
+      setCustomNombre("");
+      setCustomSku("");
+      setCustomStock("1");
+      setCustomPrecio("");
+      
+      fetchInventory(); // Recargamos para ver la nueva joya
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Hubo un error al guardar tu pieza.");
+    } finally {
+      setGuardandoCustom(false);
+    }
+  };
+
   useEffect(() => {
     fetchInventory();
   }, []);
@@ -88,7 +129,6 @@ const Inventory = () => {
         const posibleSku2 = partes[partes.length - 2];
 
         try {
-          // 1. PRIMERO BUSCAMOS SI YA LA TIENES EN TU INVENTARIO LOCAL
           const joyaEnMiInventario = inventario.find((p: any) =>
             p.sku?.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
             p.sku?.trim().toUpperCase() === posibleSku2?.toUpperCase()
@@ -110,7 +150,6 @@ const Inventory = () => {
             return;
           }
 
-          // 2. SI NO LA TIENES, LA BUSCAMOS EN EL CATÁLOGO PARA IMPORTARLA
           const { data: catalogo } = await api.get("/vendor/explore");
 
           const joyaNueva = catalogo.find((p: any) =>
@@ -219,8 +258,8 @@ const Inventory = () => {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
         
-        {/* Controls Bar */}
-        <div className="grid md:grid-cols-[1fr,auto,auto] gap-4 items-center bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)]">
+        {/* Controls Bar - Actualizado a 4 columnas */}
+        <div className="grid md:grid-cols-[1fr,auto,auto,auto] gap-4 items-center bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)]">
           
           {/* Search Input */}
           <div className="relative">
@@ -233,6 +272,15 @@ const Inventory = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          {/* Botón: Crear Pieza Propia */}
+          <button 
+            onClick={() => setIsCustomModalOpen(true)}
+            className="flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high hover:border-primary-stitch transition-all"
+          >
+            <PlusCircle size={20} className="text-primary-stitch" />
+            <span className="hidden sm:inline">Pieza Propia</span>
+          </button>
 
           {/* QR Code Button */}
           <button 
@@ -250,7 +298,7 @@ const Inventory = () => {
           {/* Filters Button (UI placeholder) */}
           <button className="flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high transition-all">
             <Filter size={20} />
-            <span>Filtros Avanzados</span>
+            <span className="hidden lg:inline">Filtros Avanzados</span>
           </button>
         </div>
 
@@ -276,7 +324,7 @@ const Inventory = () => {
               <h3 className="text-xl font-headline font-bold text-on-surface">No se encontraron joyas</h3>
               <p className="text-body-md max-w-sm">
                 {inventario.length === 0
-                  ? "Aún no tienes joyas. ¡Usa el escáner para agregar piezas!"
+                  ? "Aún no tienes joyas. ¡Usa el escáner o crea una pieza propia!"
                   : "Tu búsqueda no coincide con ninguna pieza de tu inventario."}
               </p>
             </div>
@@ -305,7 +353,7 @@ const Inventory = () => {
                   <div className="p-3 sm:p-6 space-y-3 sm:space-y-4 flex flex-col flex-grow">
                     <div className="space-y-1">
                       <span className="text-[0.55rem] sm:text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant opacity-70 truncate block">
-                        {item.categoria || "Joya"}
+                        {item.categoria || (item.producto_maestro_id ? "Catálogo" : "Pieza Propia")}
                       </span>
                       <h3 className="text-sm sm:text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors line-clamp-2">
                         {item.nombre}
@@ -374,6 +422,120 @@ const Inventory = () => {
             )}
           </>
         )}
+
+        {/* --- MODAL PARA CREAR JOYA PROPIA --- */}
+        <Dialog open={isCustomModalOpen} onOpenChange={setIsCustomModalOpen}>
+          <DialogContent className="sm:max-w-[500px] bg-surface-container-lowest border border-outline-variant/20 shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0">
+            
+            <div className="bg-surface-container-low p-6 sm:p-8 border-b border-outline-variant/10">
+              <DialogHeader className="space-y-1">
+                <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-primary-stitch opacity-80 mb-1 text-left">
+                  Inventario Independiente
+                </span>
+                <DialogTitle className="text-2xl sm:text-3xl font-headline font-extrabold tracking-tighter text-on-surface text-left">
+                  Crear Pieza Propia
+                </DialogTitle>
+                <DialogDescription className="text-on-surface-variant text-sm leading-relaxed text-left">
+                  Registra una joya que no pertenece al catálogo maestro de la marca.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <form onSubmit={handleAgregarCustom} className="p-6 sm:p-8 space-y-6 bg-surface-container-lowest">
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 col-span-2">
+                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+                    Nombre de la Joya
+                  </label>
+                  <Input
+                    required
+                    value={customNombre}
+                    onChange={(e) => setCustomNombre(e.target.value)}
+                    placeholder="Ej. Anillo de Compromiso Oro 14k"
+                    className="h-12 bg-surface-container-low border-outline-variant/20 rounded-xl font-medium"
+                  />
+                </div>
+
+                <div className="space-y-2 col-span-2 sm:col-span-1">
+                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+                    Tu SKU (Código)
+                  </label>
+                  <Input
+                    required
+                    value={customSku}
+                    onChange={(e) => setCustomSku(e.target.value)}
+                    placeholder="Ej. MY-AN-01"
+                    className="h-12 bg-surface-container-low border-outline-variant/20 rounded-xl font-mono uppercase"
+                  />
+                </div>
+
+                <div className="space-y-2 col-span-2 sm:col-span-1">
+                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+                    Stock Físico
+                  </label>
+                  <Input
+                    type="number"
+                    min="1"
+                    required
+                    value={customStock}
+                    onChange={(e) => setCustomStock(e.target.value)}
+                    className="h-12 bg-surface-container-low border-outline-variant/20 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div className="space-y-2 col-span-2 mt-2">
+                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
+                    Precio de Venta (MXN)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant font-bold">$</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      value={customPrecio}
+                      onChange={(e) => setCustomPrecio(e.target.value)}
+                      placeholder="0.00"
+                      className="pl-8 h-14 bg-surface-container-low border-outline-variant/20 rounded-xl font-bold text-lg text-primary-stitch"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsCustomModalOpen(false)}
+                  disabled={guardandoCustom}
+                  className="w-full sm:w-1/2 h-12 rounded-xl font-bold"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={guardandoCustom}
+                  className="w-full sm:w-1/2 h-12 bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  {guardandoCustom ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Guardando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="w-5 h-5" />
+                      <span>Crear Pieza</span>
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
       </main>
 
       {/* Footer */}
