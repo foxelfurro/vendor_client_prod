@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2, Store, Phone, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2, Store, Phone, CheckCircle2, AlertCircle, Copy, QrCode, X } from 'lucide-react';
 import api from '@/lib/api';
 import SubscriptionBanner from '@/pages/SubscriptionBanner';
+import { QRCodeSVG } from 'qrcode.react'; // NUEVO: importar componente QR
 
 const Profile = () => {
   const { user, login } = useAuth();
@@ -13,11 +14,16 @@ const Profile = () => {
 
   // Estados para el formulario de tienda
   const [formData, setFormData] = useState({
-    store_slug: '',
-    telefono: ''
+    store_name: '',   // NUEVO: nombre legible
+    store_slug: '',   // NUEVO: slug generado automáticamente
+    telefono_digits: '' // NUEVO: solo los 10 dígitos locales (sin +52)
   });
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [formMessage, setFormMessage] = useState('');
+
+  // Estados para funcionalidades extra
+  const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   // Datos del usuario para mostrar
   const userInfo = {
@@ -33,12 +39,42 @@ const Profile = () => {
   // Sincronizar formulario con los datos actuales del usuario
   useEffect(() => {
     if (user) {
+      // Extraer solo los 10 dígitos del teléfono si empieza con +52
+      const rawPhone = user.telefono || '';
+      const digits = rawPhone.startsWith('+52') ? rawPhone.slice(3) : rawPhone;
       setFormData({
+        store_name: user.store_name || '',
         store_slug: user.store_slug || '',
-        telefono: user.telefono || ''
+        telefono_digits: digits.replace(/\D/g, '').slice(0, 10) // asegura solo dígitos
       });
     }
   }, [user]);
+
+  // Generar slug automáticamente al cambiar el nombre de la tienda
+  const handleStoreNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    const slug = name
+      .toLowerCase()
+      .normalize('NFD')                     // elimina acentos
+      .replace(/[\u0300-\u036f]/g, '')      // elimina marcas diacríticas
+      .replace(/[^a-z0-9\s]/g, '')          // quita caracteres especiales (excepto espacios)
+      .replace(/\s+/g, '');                 // quita todos los espacios
+
+    setFormData(prev => ({
+      ...prev,
+      store_name: name,
+      store_slug: slug
+    }));
+    setFormStatus('idle');
+  };
+
+  // Manejar cambios en el dígitos del teléfono
+  const handlePhoneDigitsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, ''); // solo números
+    const digits = raw.slice(0, 10);               // máximo 10 dígitos
+    setFormData(prev => ({ ...prev, telefono_digits: digits }));
+    setFormStatus('idle');
+  };
 
   // Solicitar enlace de cambio de contraseña
   const handlePasswordResetRequest = async () => {
@@ -60,29 +96,52 @@ const Profile = () => {
     }
   };
 
-  // Manejar cambios en los campos del formulario
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let { name, value } = e.target;
-    if (name === 'store_slug') {
-      value = value.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-    }
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setFormStatus('idle');
-  };
-
   // Enviar configuración de la tienda
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormStatus('loading');
+
+    const fullPhone = `+52${formData.telefono_digits}`;
+    const payload = {
+      store_name: formData.store_name,
+      store_slug: formData.store_slug,
+      telefono: fullPhone
+    };
+
     try {
-      const response = await api.put('/vendor/store-settings', formData);
-      // Actualizar el contexto global para reflejar los cambios en el menú/header
-      login({ ...user, store_slug: response.data.data.store_slug, telefono: response.data.data.telefono });
+      const response = await api.put('/vendor/store-settings', payload);
+      // Actualizar el contexto global
+      login({
+        ...user,
+        store_name: response.data.data.store_name,
+        store_slug: response.data.data.store_slug,
+        telefono: response.data.data.telefono
+      });
       setFormStatus('success');
       setFormMessage(response.data.message);
     } catch (error: any) {
       setFormStatus('error');
       setFormMessage(error.response?.data?.error || 'Ocurrió un error al guardar.');
+    }
+  };
+
+  // Copiar enlace al portapapeles
+  const storeLink = `https://lumin.qlatte.com/store/${formData.store_slug}`;
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(storeLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback
+      const textArea = document.createElement('textarea');
+      textArea.value = storeLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -199,7 +258,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Configuración de Tienda (Catálogo Público) */}
+      {/* ==================== CATÁLOGO PÚBLICO (MODIFICADO) ==================== */}
       <div className="mt-8 bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 bg-surface-container rounded-lg">
@@ -209,45 +268,78 @@ const Profile = () => {
         </div>
 
         <form onSubmit={handleFormSubmit} className="space-y-6">
-          {/* Enlace de la tienda */}
+          {/* Nombre de la tienda (NUEVO) */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-on-surface">Enlace de tu Tienda</label>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="flex items-center px-3 py-2 bg-surface-container border border-outline-variant/10 rounded-lg text-sm text-on-surface-variant select-none">
-                lumin.qlatte.com/store/
-              </div>
-              <input
-                name="store_slug"
-                type="text"
-                placeholder="mi-tienda"
-                value={formData.store_slug}
-                onChange={handleFormChange}
-                required
-                className="flex-1 px-3 py-2 bg-surface-container border border-outline-variant/10 rounded-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-stitch transition-colors"
-              />
-            </div>
+            <label className="text-sm font-medium text-on-surface">Nombre de la Tienda</label>
+            <input
+              name="store_name"
+              type="text"
+              placeholder="Ej. Tienda Cool"
+              value={formData.store_name}
+              onChange={handleStoreNameChange}
+              required
+              className="w-full px-3 py-2 bg-surface-container border border-outline-variant/10 rounded-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-stitch transition-colors"
+            />
             <p className="text-[13px] text-on-surface-variant">
-              Este es el enlace que compartirás con tus clientes en redes sociales.
+              Este nombre se usará para mostrar tu tienda públicamente.
             </p>
           </div>
 
-          {/* Teléfono WhatsApp */}
+          {/* Slug generado automáticamente y enlace (NUEVO) */}
+          {formData.store_slug && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-on-surface">Tu Enlace</label>
+              <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                <div className="flex items-center px-3 py-2 bg-surface-container border border-outline-variant/10 rounded-lg text-sm text-on-surface-variant select-none w-full">
+                  <span className="text-primary-stitch font-semibold">lumin.qlatte.com/store/</span>
+                  <span className="text-on-surface font-medium">{formData.store_slug}</span>
+                </div>
+                {/* Botones de acción */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyLink}
+                    className="flex items-center gap-1 px-3 py-2 bg-surface-container border border-outline-variant/20 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors"
+                    title="Copiar enlace"
+                  >
+                    <Copy size={16} />
+                    {copied ? 'Copiado' : 'Copiar'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowQR(true)}
+                    className="flex items-center gap-1 px-3 py-2 bg-surface-container border border-outline-variant/20 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors"
+                    title="Generar código QR"
+                  >
+                    <QrCode size={16} />
+                    QR
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Teléfono con prefijo +52 fijo */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-on-surface">Teléfono (WhatsApp)</label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-2.5 h-4 w-4 text-on-surface-variant" />
+            <div className="flex items-center gap-0">
+              <span className="inline-flex items-center px-3 py-2 bg-surface-container border border-outline-variant/10 border-r-0 rounded-l-lg text-sm font-medium text-on-surface">
+                +52
+              </span>
               <input
-                name="telefono"
+                name="telefono_digits"
                 type="text"
-                placeholder="Ej. 527221234567"
-                value={formData.telefono}
-                onChange={handleFormChange}
+                inputMode="numeric"
+                placeholder="10 dígitos"
+                value={formData.telefono_digits}
+                onChange={handlePhoneDigitsChange}
                 required
-                className="w-full pl-9 pr-3 py-2 bg-surface-container border border-outline-variant/10 rounded-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-stitch transition-colors"
+                maxLength={10}
+                className="flex-1 px-3 py-2 bg-surface-container border border-outline-variant/10 rounded-r-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-stitch transition-colors"
               />
             </div>
             <p className="text-[13px] text-on-surface-variant">
-              Incluye el código de país (ej. 52 para México). Aquí llegarán los mensajes de compra.
+              Solo números, sin espacios ni guiones. Ejemplo: 5512345678
             </p>
           </div>
 
@@ -283,6 +375,46 @@ const Profile = () => {
           </div>
         </form>
       </div>
+
+      {/* Modal de QR (NUEVO) */}
+      {showQR && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 shadow-xl max-w-sm w-full text-center relative">
+            <button
+              onClick={() => setShowQR(false)}
+              className="absolute top-3 right-3 p-1 rounded-full hover:bg-zinc-100"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-lg font-bold mb-4 text-on-surface">Código QR de tu tienda</h3>
+            <QRCodeSVG value={storeLink} size={200} className="mx-auto mb-4" />
+            <p className="text-sm text-on-surface-variant break-all">{storeLink}</p>
+            <p className="text-xs text-on-surface-variant mt-2">Escanea para ver tu catálogo</p>
+            <div className="mt-4 flex justify-center gap-3">
+              <button
+                onClick={() => {
+                  const canvas = document.querySelector('canvas');
+                  if (canvas) {
+                    const link = document.createElement('a');
+                    link.download = `qr-${formData.store_slug}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                  }
+                }}
+                className="px-4 py-2 text-sm font-medium bg-primary-stitch text-white rounded-xl hover:bg-primary-stitch/90 transition-colors"
+              >
+                Descargar QR
+              </button>
+              <button
+                onClick={() => setShowQR(false)}
+                className="px-4 py-2 text-sm font-medium border border-outline-variant/30 rounded-xl hover:bg-surface-container-high transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest">
