@@ -156,7 +156,7 @@ const Catalog = () => {
         </div>
       </div>
 
-      {/* Grid de Tarjetas / Empty State */}
+{/* Grid de Tarjetas / Empty State Simplificado */}
       {productosFiltrados.length === 0 ? (
         <div className="col-span-full flex flex-col items-center justify-center py-20 px-4 text-slate-500 space-y-8 bg-white rounded-3xl border border-slate-200 shadow-sm w-full animate-in fade-in zoom-in-95 duration-300">
           
@@ -172,6 +172,21 @@ const Catalog = () => {
                 : `No hay coincidencias en el catálogo maestro para "${searchTerm}".`}
             </p>
           </div>
+
+          {/* Botón único que lleva a crear la pieza (dispara el correo oculto) */}
+          {searchTerm && (
+            <div className="mt-2 w-full max-w-xs px-4">
+              <button 
+                onClick={() => navigate('/inventario', { state: { openCustom: true } })}
+                className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md text-sm"
+              >
+                <PlusCircle size={18} className="flex-shrink-0" />
+                <span>Agregar al inventario</span>
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
 
           {/* Botones de Acción (Solo si escribieron algo en el buscador) */}
           {searchTerm && (
