@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2, Store, Phone, CheckCircle2, AlertCircle, Copy, QrCode, X } from 'lucide-react';
+import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2, Store, CheckCircle2, AlertCircle, Copy, QrCode, X } from 'lucide-react';
 import api from '@/lib/api';
 import SubscriptionBanner from '@/pages/SubscriptionBanner';
 import { QRCodeSVG } from 'qrcode.react'; // NUEVO: importar componente QR
