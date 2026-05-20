@@ -172,7 +172,7 @@ const Catalog = () => {
                 : `No hay coincidencias en el catálogo maestro para "${searchTerm}".`}
             </p>
           </div>
-
+        ) : (
           {/* Botón único que lleva a crear la pieza (dispara el correo oculto) */}
           {searchTerm && (
             <div className="mt-2 w-full max-w-xs px-4">
