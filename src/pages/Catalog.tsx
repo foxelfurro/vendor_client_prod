@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   PackagePlus, Search, Library, Loader2, PackageSearch,
-  PlusCircle, QrCode, X, SlidersHorizontal, ChevronLeft, ChevronRight
+  PlusCircle, QrCode, X, SlidersHorizontal, ChevronLeft, ChevronRight, Pencil
 } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
 import { matchSku, skuIncluye } from '@/lib/sku';
+import { useAuth } from '@/context/AuthContext';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 const ITEMS_PER_PAGE = 30;
@@ -20,6 +21,9 @@ const ITEMS_PER_PAGE = 30;
 // ─── Componente ────────────────────────────────────────────────────────────────
 const Catalog = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = String(user?.rol) === '1' || user?.rol === 'admin';
+
   const [productos, setProductos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,6 +45,14 @@ const Catalog = () => {
   const [formPrecio, setFormPrecio] = useState('');
   const [guardando, setGuardando] = useState(false);
 
+  // Edición de joya — SKU y categoría (solo admin)
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editProducto, setEditProducto] = useState<any>(null);
+  const [editSku, setEditSku] = useState('');
+  const [editCategoriaId, setEditCategoriaId] = useState<number>(0);
+  const [guardandoEdit, setGuardandoEdit] = useState(false);
+  const [categorias, setCategorias] = useState<{ id: number; nombre: string }[]>([]);
+
   // ── Debounce búsqueda para no filtrar en cada tecla con 4k registros ──────
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm), 300);
@@ -61,6 +73,14 @@ const Catalog = () => {
 
   useEffect(() => { fetchCatalog(); }, [fetchCatalog]);
 
+  // Categorías para el selector de edición (solo admin)
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.get('/admin/categorias')
+      .then(({ data }) => setCategorias(data))
+      .catch((err) => console.error('Error al cargar categorías:', err));
+  }, [isAdmin]);
+
   // ── Modal ──────────────────────────────────────────────────────────────────
   const abrirModal = useCallback((producto: any) => {
     setProductoSeleccionado(producto);
@@ -68,6 +88,33 @@ const Catalog = () => {
     setFormPrecio(producto.precio_sugerido.toString());
     setIsModalOpen(true);
   }, []);
+
+  // ── Edición de joya (solo admin) ───────────────────────────────────────────
+  const abrirEdicion = useCallback((producto: any) => {
+    setEditProducto(producto);
+    setEditSku(producto.sku ?? '');
+    setEditCategoriaId(producto.categoria_id ?? 0);
+    setIsEditOpen(true);
+  }, []);
+
+  const handleGuardarEdicion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editProducto) return;
+    setGuardandoEdit(true);
+    try {
+      await api.put(`/admin/catalogo/${editProducto.id}`, {
+        sku: editSku.trim(),
+        categoria_id: editCategoriaId || null,
+      });
+      alert('Joya actualizada correctamente.');
+      setIsEditOpen(false);
+      fetchCatalog();
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'No se pudo actualizar la joya.');
+    } finally {
+      setGuardandoEdit(false);
+    }
+  };
 
   const handleConfirmarAgregar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -396,7 +443,13 @@ const Catalog = () => {
                 {/* Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {productosMostrados.map((prod) => (
-                    <ProductCard key={prod.id} prod={prod} onAgregar={abrirModal} />
+                    <ProductCard
+                      key={prod.id}
+                      prod={prod}
+                      onAgregar={abrirModal}
+                      isAdmin={isAdmin}
+                      onEdit={abrirEdicion}
+                    />
                   ))}
                 </div>
 
@@ -564,6 +617,89 @@ const Catalog = () => {
         </DialogContent>
       </Dialog>
 
+      {/* ── Modal editar joya — SKU y categoría (solo admin) ──────────────────── */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[440px] bg-white border border-slate-200 shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0 mx-4">
+          <div className="bg-slate-50 p-6 border-b border-slate-100">
+            <DialogHeader className="space-y-1">
+              <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-indigo-500 opacity-80 text-left block">
+                Edición de Catálogo
+              </span>
+              <DialogTitle className="text-2xl font-extrabold tracking-tighter text-slate-900 text-left">
+                Editar Joya
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 text-sm leading-relaxed text-left">
+                Actualiza el SKU y la categoría de{' '}
+                <span className="font-bold text-slate-900">{editProducto?.nombre}</span>.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <form onSubmit={handleGuardarEdicion} className="p-6 space-y-5 bg-white">
+            <div className="space-y-2">
+              <label htmlFor="edit-sku" className="text-[0.7rem] font-bold uppercase tracking-widest text-slate-500 block">
+                SKU
+              </label>
+              <Input
+                id="edit-sku"
+                required
+                value={editSku}
+                onChange={(e) => setEditSku(e.target.value)}
+                className="h-11 bg-slate-50 border border-slate-200 rounded-xl font-mono"
+              />
+              {editProducto?.skus_anteriores?.length > 0 && (
+                <p className="text-[11px] text-slate-400">
+                  SKU anteriores: {editProducto.skus_anteriores.join(', ')}
+                </p>
+              )}
+              <p className="text-[11px] text-slate-400">
+                Al cambiar el SKU, el anterior se archiva y la búsqueda lo seguirá reconociendo.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="edit-cat" className="text-[0.7rem] font-bold uppercase tracking-widest text-slate-500 block">
+                Categoría
+              </label>
+              <select
+                id="edit-cat"
+                className="flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
+                value={editCategoriaId}
+                onChange={(e) => setEditCategoriaId(Number(e.target.value))}
+              >
+                <option value={0}>— Sin categoría —</option>
+                {categorias.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            <DialogFooter className="pt-2 flex flex-col sm:flex-row gap-3 w-full">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditOpen(false)}
+                disabled={guardandoEdit}
+                className="w-full sm:w-1/2 h-11 rounded-xl font-bold"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={guardandoEdit}
+                className="w-full sm:w-1/2 h-11 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-bold flex items-center justify-center gap-2 border-0"
+              >
+                {guardandoEdit ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /><span>Guardando…</span></>
+                ) : (
+                  <span>Guardar cambios</span>
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Footer */}
       <footer className="mt-16 py-8 border-t border-slate-200 bg-slate-50 text-slate-400 font-mono text-xs tracking-widest text-center">
         Lumin by Qlatte © 2026
@@ -575,7 +711,17 @@ const Catalog = () => {
 // ─── Sub-componentes ────────────────────────────────────────────────────────────
 
 /** Tarjeta de producto — extraída para evitar re-renders del grid completo */
-const ProductCard = ({ prod, onAgregar }: { prod: any; onAgregar: (p: any) => void }) => (
+const ProductCard = ({
+  prod,
+  onAgregar,
+  isAdmin = false,
+  onEdit,
+}: {
+  prod: any;
+  onAgregar: (p: any) => void;
+  isAdmin?: boolean;
+  onEdit?: (p: any) => void;
+}) => (
   <Card className="h-full overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-200 border-slate-200 rounded-2xl">
     <div className="aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden group relative">
       {prod.ruta_imagen ? (
@@ -619,13 +765,24 @@ const ProductCard = ({ prod, onAgregar }: { prod: any; onAgregar: (p: any) => vo
     </CardContent>
 
     <CardFooter className="bg-slate-50 p-3 sm:p-4 border-t border-slate-100 flex-none">
-      <Button
-        onClick={() => onAgregar(prod)}
-        className="w-full h-9 sm:h-10 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all"
-      >
-        <PackagePlus className="w-3.5 h-3.5 flex-shrink-0" />
-        Agregar
-      </Button>
+      {isAdmin && onEdit ? (
+        <Button
+          onClick={() => onEdit(prod)}
+          variant="outline"
+          className="w-full h-9 sm:h-10 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border-slate-300 text-slate-700"
+        >
+          <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
+          Editar
+        </Button>
+      ) : (
+        <Button
+          onClick={() => onAgregar(prod)}
+          className="w-full h-9 sm:h-10 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all"
+        >
+          <PackagePlus className="w-3.5 h-3.5 flex-shrink-0" />
+          Agregar
+        </Button>
+      )}
     </CardFooter>
   </Card>
 );
