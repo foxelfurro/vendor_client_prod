@@ -12,6 +12,7 @@ import {
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
+import { matchSku, skuIncluye } from '@/lib/sku';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 const ITEMS_PER_PAGE = 30;
@@ -107,8 +108,7 @@ const Catalog = () => {
 
         try {
           const joyaEncontrada = productos.find((p: any) =>
-            p.sku?.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
-            p.sku?.trim().toUpperCase() === posibleSku2?.toUpperCase()
+            matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
           );
 
           await scanner.clear();
@@ -135,7 +135,7 @@ const Catalog = () => {
       const q = debouncedSearch.toLowerCase();
       const matchSearch =
         !q ||
-        item.sku.toLowerCase().includes(q) ||
+        skuIncluye(item, q) ||
         item.nombre.toLowerCase().includes(q);
 
       const matchCategoria =
@@ -600,7 +600,10 @@ const ProductCard = ({ prod, onAgregar }: { prod: any; onAgregar: (p: any) => vo
     </div>
 
     <CardHeader className="pb-1 p-3 sm:p-4 bg-white flex-none">
-      <div className="text-[10px] text-slate-400 font-mono mb-1 truncate">
+      <div
+        className="text-[10px] text-slate-400 font-mono mb-1 truncate"
+        title={prod.skus_anteriores?.length ? `SKU anteriores: ${prod.skus_anteriores.join(', ')}` : undefined}
+      >
         SKU: {prod.sku}
       </div>
       <CardTitle className="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">

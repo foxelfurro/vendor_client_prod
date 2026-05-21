@@ -9,6 +9,7 @@ import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
+import { matchSku, skuIncluye } from '@/lib/sku';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -25,6 +26,7 @@ interface InventoryItem {
   categoria_id?: number | null;
   estado?: boolean;
   es_custom?: boolean;
+  skus_anteriores?: string[];
 }
 
 const Inventory = () => {
@@ -168,8 +170,7 @@ const Inventory = () => {
 
         try {
           const joyaEnMiInventario = inventario.find((p: any) =>
-            p.sku?.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
-            p.sku?.trim().toUpperCase() === posibleSku2?.toUpperCase()
+            matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
           );
 
           if (joyaEnMiInventario) {
@@ -190,8 +191,7 @@ const Inventory = () => {
 
           const { data: catalogo } = await api.get("/vendor/explore");
           const joyaNueva = catalogo.find((p: any) =>
-            p.sku?.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
-            p.sku?.trim().toUpperCase() === posibleSku2?.toUpperCase()
+            matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
           );
 
           if (joyaNueva) {
@@ -242,7 +242,7 @@ const Inventory = () => {
     let result = inventario.filter((item) => {
       const matchSearch =
         !q ||
-        item.sku?.toLowerCase().includes(q) ||
+        skuIncluye(item, q) ||
         item.nombre?.toLowerCase().includes(q);
       const matchCategoria = !filters.categoria || item.categoria === filters.categoria;
       const matchTipo =
@@ -461,7 +461,10 @@ const Inventory = () => {
                       <h3 className="text-sm sm:text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors line-clamp-2">
                         {item.nombre}
                       </h3>
-                      <p className="text-[10px] sm:text-sm text-outline font-mono tracking-tight bg-surface-container-low inline-block px-1.5 sm:px-2 py-0.5 rounded max-w-full truncate">
+                      <p
+                        className="text-[10px] sm:text-sm text-outline font-mono tracking-tight bg-surface-container-low inline-block px-1.5 sm:px-2 py-0.5 rounded max-w-full truncate"
+                        title={item.skus_anteriores?.length ? `SKU anteriores: ${item.skus_anteriores.join(', ')}` : undefined}
+                      >
                         SKU: {item.sku}
                       </p>
                     </div>
