@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { SlidersHorizontal, Tag, TrendingUp, X, ChevronDown, Layers, CheckSquare } from 'lucide-react';
+import { SlidersHorizontal, Tag, X, ChevronDown, Layers, CheckSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
+
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────────
 export interface InventoryFilterState {
@@ -73,9 +73,6 @@ const InventoryFilters = ({ inventario, filters, onChange, isOpen, onClose }: In
 
   const setTipo = (tipo: InventoryFilterState['tipo']) =>
     onChange({ ...filters, tipo: filters.tipo === tipo ? 'todos' : tipo });
-
-  const setPrecioRange = (vals: number[]) =>
-    onChange({ ...filters, precioMin: vals[0], precioMax: vals[1] });
 
   const toggleSoloConStock = () =>
     onChange({ ...filters, soloConStock: !filters.soloConStock });

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { SlidersHorizontal, Tag, TrendingUp, X, ChevronDown } from 'lucide-react';
+import { SlidersHorizontal, Tag, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
+
 
 export interface CatalogFilterState {
   categoria: string;
@@ -55,8 +55,6 @@ const CatalogFilters = ({ productos, filters, onChange, isOpen, onClose }: Catal
   const setOrden = (orden: CatalogFilterState['ordenPrecio']) =>
     onChange({ ...filters, ordenPrecio: filters.ordenPrecio === orden ? 'none' : orden });
 
-  const setPrecioRange = (vals: number[]) =>
-    onChange({ ...filters, precioMin: vals[0], precioMax: vals[1] });
 
   return (
     <>
