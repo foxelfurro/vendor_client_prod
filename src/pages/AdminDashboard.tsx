@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../lib/api'; // Asegúrate de que la ruta a tu api.ts sea correcta
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,12 @@ const ROLES_DISPONIBLES = [
   { id: 3, nombre: "Vendedor - x" },
   { id: 4, nombre: "Vendedor - x" },
 ];
+
+// Categoría proveniente de la tabla relacional `categorias`
+interface Categoria {
+  id: number;
+  nombre: string;
+}
 
 const AdminDashboard = () => {
   // Estado para el formulario de nuevo usuario
@@ -28,11 +34,30 @@ const AdminDashboard = () => {
     descripcion: '',
     precio_sugerido: '',
     ruta_imagen: '',
-    categoria_id: 1, // 'Joyas' por defecto según tu SQL
+    categoria_id: 0, // Se asigna con la primera categoría real al cargar
     marca_id: 1      // Tu marca por defecto
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Categorías reales traídas de la tabla `categorias` para el selector
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const { data } = await api.get<Categoria[]>('/admin/categorias');
+        setCategorias(data);
+        // Preseleccionamos la primera categoría disponible
+        if (data.length > 0) {
+          setJewelryForm((prev) => ({ ...prev, categoria_id: data[0].id }));
+        }
+      } catch (error) {
+        console.error('Error al cargar las categorías:', error);
+      }
+    };
+    fetchCategorias();
+  }, []);
 
   const handleUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,10 +81,10 @@ const AdminDashboard = () => {
     try {
       const response = await api.post('/admin/catalogo', jewelryForm);
       alert(response.data.message || "Joya agregada al catálogo maestro");
-      // Limpiamos el formulario después de guardar
-      setJewelryForm({ 
-        sku: '', nombre: '', descripcion: '', precio_sugerido: '', 
-        ruta_imagen: '', categoria_id: 1, marca_id: 1 
+      // Limpiamos el formulario después de guardar (conservando una categoría válida)
+      setJewelryForm({
+        sku: '', nombre: '', descripcion: '', precio_sugerido: '',
+        ruta_imagen: '', categoria_id: categorias[0]?.id ?? 0, marca_id: 1
       });
     } catch (error: any) {
       alert("Error al registrar joya: " + (error.response?.data?.message || "Error de conexión"));
@@ -189,17 +214,27 @@ return (
                 />
               </div>
 
-              {/* Nuevos campos de Categoría y Marca ocultos o visibles según prefieras. Aquí los pongo visibles pero básicos */}
+              {/* Categoría: selector poblado desde la tabla relacional `categorias` */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">ID Categoría</label>
-                  <Input 
-                    type="number" 
-                    placeholder="1" 
+                  <label className="text-sm font-medium text-slate-700">Categoría</label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={jewelryForm.categoria_id}
                     onChange={(e) => setJewelryForm({...jewelryForm, categoria_id: Number(e.target.value)})}
+                    disabled={categorias.length === 0}
                     required
-                  />
+                  >
+                    {categorias.length === 0 ? (
+                      <option value={0}>Cargando categorías…</option>
+                    ) : (
+                      categorias.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.nombre}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">ID Marca</label>
