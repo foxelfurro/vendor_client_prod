@@ -25,21 +25,29 @@ export const DEFAULT_STORE_FILTERS: StoreFilterState = {
 };
 
 const StoreFilters = ({ productos, filters, onChange, isOpen, onClose }: StoreFiltersProps) => {
+  // Extraer categorías únicas de los productos de la tienda
   const categorias = useMemo(() => {
     const set = new Set<string>();
-    productos.forEach((p) => {
+    productos.forEach(p => {
       if (p.categoria && p.categoria.trim()) set.add(p.categoria.trim());
     });
     return Array.from(set).sort();
   }, [productos]);
 
+  const precioRange = useMemo(() => {
+    if (!productos.length) return { min: 0, max: 10000 };
+    const precios = productos.map(p => parseFloat(p.precio_personalizado) || parseFloat(p.precio_sugerido) || 0);
+    return { min: Math.floor(Math.min(...precios)), max: Math.ceil(Math.max(...precios)) };
+  }, [productos]);
+
   const hasActiveFilters =
     filters.categoria !== '' ||
     filters.ordenPrecio !== 'none' ||
-    filters.precioMin > 0 ||
-    filters.precioMax < 999999;
+    filters.precioMin > precioRange.min ||
+    filters.precioMax < precioRange.max;
 
-  const resetFilters = () => onChange(DEFAULT_STORE_FILTERS);
+  const resetFilters = () =>
+    onChange({ ...DEFAULT_STORE_FILTERS, precioMin: precioRange.min, precioMax: precioRange.max });
 
   const setCategoria = (cat: string) =>
     onChange({ ...filters, categoria: filters.categoria === cat ? '' : cat });
@@ -73,7 +81,15 @@ const StoreFilters = ({ productos, filters, onChange, isOpen, onClose }: StoreFi
             )}
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onClose} className="lg:hidden text-zinc-400 hover:text-zinc-900 transition-colors">
+            {hasActiveFilters && (
+              <button
+                onClick={resetFilters}
+                className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors underline underline-offset-2"
+              >
+                Limpiar
+              </button>
+            )}
+            <button onClick={onClose} className="lg:hidden text-zinc-400 hover:text-zinc-700 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -81,43 +97,45 @@ const StoreFilters = ({ productos, filters, onChange, isOpen, onClose }: StoreFi
 
         {/* Filtros */}
         <div className="flex-1 overflow-y-auto p-5 space-y-7">
+          
           {/* Categoría */}
-          {categorias.length > 0 && (
-            <section>
-              <div className="flex items-center gap-2 mb-3">
-                <Tag className="w-3.5 h-3.5 text-zinc-400" />
-                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-500">Categoría</span>
-              </div>
-              <div className="space-y-1">
-                {categorias.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setCategoria(cat)}
-                    className={`
-                      w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all
-                      ${filters.categoria === cat
-                        ? 'bg-zinc-900 text-white'
-                        : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'}
-                    `}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Tag className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-500">Categoría</span>
+            </div>
+            <div className="space-y-1">
+              {categorias.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setCategoria(cat)}
+                  className={`
+                    w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all
+                    ${filters.categoria === cat
+                      ? 'bg-zinc-900 text-white'
+                      : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'}
+                  `}
+                >
+                  {cat}
+                </button>
+              ))}
+              {categorias.length === 0 && (
+                <p className="text-xs text-zinc-400 italic px-3">Sin categorías disponibles</p>
+              )}
+            </div>
+          </section>
 
-          {/* Ordenar */}
+          {/* Ordenar por precio */}
           <section>
             <div className="flex items-center gap-2 mb-3">
               <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-500">Ordenar por precio</span>
+              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-500">Ordenar por Precio</span>
             </div>
             <div className="space-y-1">
               {[
                 { value: 'asc' as const,  label: 'Menor a mayor' },
                 { value: 'desc' as const, label: 'Mayor a menor' },
-              ].map((opt) => (
+              ].map(opt => (
                 <button
                   key={opt.value}
                   onClick={() => setOrden(opt.value)}

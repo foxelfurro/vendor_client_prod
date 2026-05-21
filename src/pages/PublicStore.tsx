@@ -8,7 +8,7 @@ import StoreFilters, { DEFAULT_STORE_FILTERS } from '@/components/StoreFilters';
 import type { StoreFilterState } from '@/components/StoreFilters';
 
 interface StoreData {
-  vendor: { nombre: string; telefono: string };
+  vendor: { nombre: string; telefono: string; store_name?: string };
   products: any[];
 }
 
@@ -120,6 +120,8 @@ export default function PublicStore() {
     );
   }
 
+  const nombreParaMostrar = data.vendor.store_name || data.vendor.nombre;
+
   return (
     <div className="bg-[#fafafa] min-h-screen font-sans text-zinc-900 pb-20">
       
@@ -127,12 +129,12 @@ export default function PublicStore() {
       <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-zinc-200/50">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-              {data.vendor.nombre.charAt(0).toUpperCase()}
+            <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-lg shadow-sm uppercase">
+              {nombreParaMostrar.charAt(0)}
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-zinc-900 leading-tight">
-                {data.vendor.nombre}
+                {nombreParaMostrar}
               </h1>
               <p className="text-[11px] uppercase tracking-widest text-zinc-500 font-semibold">Catálogo Oficial</p>
             </div>
