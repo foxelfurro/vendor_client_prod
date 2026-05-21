@@ -4,10 +4,14 @@ import api from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
-import { Loader2, Store, SlidersHorizontal } from 'lucide-react';
+import { Loader2, Store, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface StoreData {
-  vendor: { nombre: string; telefono: string };
+  vendor: { 
+    nombre: string; 
+    store_name?: string; 
+    telefono: string 
+  };
   products: any[];
 }
 
@@ -17,9 +21,13 @@ export default function PublicStore() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filtros (componente unificado)
+  // Filtros
   const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -37,13 +45,12 @@ export default function PublicStore() {
 
   const productos = data?.products ?? [];
 
-  // ── Filtrado + ordenamiento por categoría y precio ──────────────────────────
+  // ── Filtrado + ordenamiento ──────────────────────────
   const productosFiltrados = useMemo(() => {
     const precioDe = (p: any) => Number(p.precio_personalizado ?? p.precio_sugerido ?? 0);
 
     let result = productos.filter((p) => {
-      const matchCategoria = !filters.categoria || p.categoria === filters.categoria;
-      return matchCategoria;
+      return !filters.categoria || p.categoria === filters.categoria;
     });
 
     if (filters.ordenPrecio === 'asc') {
@@ -54,6 +61,18 @@ export default function PublicStore() {
 
     return result;
   }, [productos, filters]);
+
+  // Resetear a la página 1 cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  // ── Paginación ───────────────────────────────────────
+  const totalPages = Math.ceil(productosFiltrados.length / ITEMS_PER_PAGE);
+  const paginatedProducts = productosFiltrados.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const hasActiveFilters = filters.categoria !== '' || filters.ordenPrecio !== 'none';
 
@@ -76,18 +95,21 @@ export default function PublicStore() {
     );
   }
 
+  // Fallback por si el usuario no ha configurado el store_name aún
+  const displayName = data.vendor.store_name || data.vendor.nombre;
+
   return (
     <main className="min-h-screen bg-[#fafafa] pb-20">
       {/* Header Minimalista (Efecto cristal) */}
       <header className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-zinc-200/50">
         <div className="max-w-7xl px-4 py-4 mx-auto md:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-lg">
-              {data.vendor.nombre.charAt(0).toUpperCase()}
+            <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+              {displayName.charAt(0).toUpperCase()}
             </div>
             <div>
               <h1 className="text-lg font-semibold tracking-tight text-zinc-900 leading-tight">
-                {data.vendor.nombre}
+                {displayName}
               </h1>
               <p className="text-xs text-zinc-500 font-medium">Catálogo Oficial</p>
             </div>
@@ -96,11 +118,11 @@ export default function PublicStore() {
       </header>
 
       {/* Contenido */}
-      <section className="max-w-7xl px-4 py-10 mx-auto md:px-8">
+      <section className="max-w-7xl px-4 py-8 mx-auto md:px-8 md:py-10">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold tracking-tight text-zinc-900">Disponibles ahora</h2>
-            <p className="text-zinc-500 mt-1">
+            <p className="text-zinc-500 mt-1 text-sm">
               {productosFiltrados.length} pieza{productosFiltrados.length === 1 ? '' : 's'} en exhibición.
             </p>
           </div>
@@ -110,7 +132,7 @@ export default function PublicStore() {
             <button
               onClick={() => setSidebarOpen(true)}
               className={`
-                lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all self-start
+                lg:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all self-start w-full sm:w-auto
                 ${hasActiveFilters
                   ? 'bg-zinc-900 text-white shadow-md'
                   : 'bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50'}
@@ -128,15 +150,15 @@ export default function PublicStore() {
         </div>
 
         {productos.length === 0 ? (
-          <div className="text-center py-32 bg-white rounded-2xl border border-zinc-100 shadow-sm">
+          <div className="text-center py-24 sm:py-32 bg-white rounded-3xl border border-zinc-100 shadow-sm">
             <Store className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-zinc-900">Sin productos</h3>
-            <p className="text-zinc-500 mt-1">Esta tienda aún no ha agregado productos a su catálogo público.</p>
+            <p className="text-zinc-500 mt-1 text-sm">Esta tienda aún no ha agregado productos a su catálogo público.</p>
           </div>
         ) : (
-          <div className="flex gap-6 items-start">
+          <div className="flex gap-8 items-start">
             {/* Sidebar desktop */}
-            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-24 self-start">
+            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-28 self-start">
               <ProductFilters
                 productos={productos}
                 filters={filters}
@@ -157,23 +179,63 @@ export default function PublicStore() {
               />
             </div>
 
-            {/* Grid */}
+            {/* Grid y Paginación */}
             <div className="flex-1 min-w-0">
-              {productosFiltrados.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {productosFiltrados.map((product) => (
-                    <ProductCard
-                      key={product.inventario_id}
-                      product={product}
-                      vendorPhone={data.vendor.telefono}
-                    />
-                  ))}
-                </div>
+              {paginatedProducts.length > 0 ? (
+                <>
+                  {/* Grid adaptado para 2 columnas en móvil */}
+                  <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {paginatedProducts.map((product) => (
+                      <ProductCard
+                        key={product.inventario_id}
+                        product={product}
+                        vendorPhone={data.vendor.telefono}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Controles de Paginación */}
+                  {totalPages > 1 && (
+                    <div className="mt-12 flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      
+                      <div className="flex items-center gap-1 px-2">
+                        {Array.from({ length: totalPages }).map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setCurrentPage(i + 1)}
+                            className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-all ${
+                              currentPage === i + 1 
+                                ? 'bg-zinc-900 text-white' 
+                                : 'text-zinc-500 hover:bg-zinc-100'
+                            }`}
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
-                <div className="text-center py-24 bg-white rounded-2xl border border-zinc-100 shadow-sm">
+                <div className="text-center py-20 sm:py-24 bg-white rounded-3xl border border-zinc-100 shadow-sm">
                   <Store className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-zinc-900">Sin coincidencias</h3>
-                  <p className="text-zinc-500 mt-1">No hay piezas para los filtros seleccionados.</p>
+                  <p className="text-zinc-500 mt-1 text-sm">No hay piezas para los filtros seleccionados.</p>
                 </div>
               )}
             </div>
