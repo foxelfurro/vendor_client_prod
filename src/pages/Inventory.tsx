@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '@/lib/api';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle } from "lucide-react";
+import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2 } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ITEMS_PER_PAGE = 12;
 
-// --- INTERFAZ PARA EL INVENTARIO ---
 interface InventoryItem {
   inventario_id: number;
   producto_maestro_id?: string;
@@ -20,9 +20,9 @@ interface InventoryItem {
   ruta_imagen: string;
   categoria?: string; 
 }
-// -----------------------------------
 
 const Inventory = () => {
+  const location = useLocation();
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
@@ -52,30 +52,43 @@ const Inventory = () => {
     }
   };
 
-  const handleUpdateStock = async (inventarioId: number, nuevoStock: number) => {
+  // ACTUALIZADO: Función unificada para actualizar precio o stock
+  const handleUpdateItem = async (inventarioId: number, camposActualizados: { stock?: number; precio_personalizado?: number }) => {
     try {
       setUpdatingId(inventarioId);
 
-      await api.put(`/vendor/inventory/${inventarioId}`, {
-        stock: nuevoStock,
-      });
+      await api.put(`/vendor/inventory/${inventarioId}`, camposActualizados);
 
       setInventario((prev) =>
         prev.map((item) =>
           item.inventario_id === inventarioId
-            ? { ...item, stock: nuevoStock }
+            ? { ...item, ...camposActualizados }
             : item
         )
       );
     } catch (error) {
-      console.error("Error al actualizar stock:", error);
-      alert("No se pudo actualizar el stock.");
+      console.error("Error al actualizar la joya:", error);
+      alert("No se pudieron guardar los cambios.");
     } finally {
       setUpdatingId(null);
     }
   };
 
-  // Función para guardar una joya que NO está en el catálogo maestro
+  // NUEVO: Función para eliminar una joya de la vitrina
+  const handleDeleteItem = async (inventarioId: number, nombreJoya: string) => {
+    const confirmar = window.confirm(`¿Seguro que quieres eliminar "${nombreJoya}" de tu inventario? Esta acción no se puede deshacer.`);
+    if (!confirmar) return;
+
+    try {
+      await api.delete(`/vendor/inventory/${inventarioId}`);
+      setInventario((prev) => prev.filter((item) => item.inventario_id !== inventarioId));
+      alert("Joya eliminada correctamente.");
+    } catch (error) {
+      console.error("Error al eliminar la joya:", error);
+      alert("No se pudo eliminar la joya del inventario.");
+    }
+  };
+
   const handleAgregarCustom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customNombre || !customSku || !customStock || !customPrecio) return;
@@ -84,7 +97,7 @@ const Inventory = () => {
     try {
       await api.post('/vendor/inventory/custom', {
         nombre: customNombre,
-        sku: customSku.toUpperCase(), // Forzamos mayúsculas para el SKU
+        sku: customSku.toUpperCase(),
         stock: parseInt(customStock),
         precio_personalizado: parseFloat(customPrecio)
       });
@@ -92,13 +105,12 @@ const Inventory = () => {
       alert("¡Pieza propia agregada a tu vitrina! ✨");
       setIsCustomModalOpen(false);
       
-      // Limpiar formulario
       setCustomNombre("");
       setCustomSku("");
       setCustomStock("1");
       setCustomPrecio("");
       
-      fetchInventory(); // Recargamos para ver la nueva joya
+      fetchInventory();
     } catch (error: any) {
       alert(error.response?.data?.error || "Hubo un error al guardar tu pieza.");
     } finally {
@@ -110,7 +122,14 @@ const Inventory = () => {
     fetchInventory();
   }, []);
 
-  // --- LÓGICA DEL ESCÁNER AUTOMÁTICO (mantenida intacta) ---
+  useEffect(() => {
+    if (location.state?.openCustom) {
+      setIsCustomModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
+
+  // --- LÓGICA DEL ESCÁNER AUTOMÁTICO ---
   useEffect(() => {
     if (!showScanner) return;
 
@@ -145,7 +164,7 @@ const Inventory = () => {
 
             if (sumarStock) {
               const nuevoStockTotal = joyaEnMiInventario.stock + parseInt(sumarStock);
-              await handleUpdateStock(joyaEnMiInventario.inventario_id, nuevoStockTotal);
+              await handleUpdateItem(joyaEnMiInventario.inventario_id, { stock: nuevoStockTotal });
             }
             return;
           }
@@ -193,9 +212,7 @@ const Inventory = () => {
           alert("Hubo un error de conexión al procesar el código QR.");
         }
       },
-      () => {
-        /* Ignoramos errores de enfoque */
-      }
+      () => {}
     );
 
     return () => {
@@ -258,10 +275,8 @@ const Inventory = () => {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
         
-        {/* Controls Bar - Actualizado a 4 columnas */}
+        {/* Controls Bar */}
         <div className="grid md:grid-cols-[1fr,auto,auto,auto] gap-4 items-center bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)]">
-          
-          {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
             <Input 
@@ -273,7 +288,6 @@ const Inventory = () => {
             />
           </div>
 
-          {/* Botón: Crear Pieza Propia */}
           <button 
             onClick={() => setIsCustomModalOpen(true)}
             className="flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high hover:border-primary-stitch transition-all"
@@ -282,7 +296,6 @@ const Inventory = () => {
             <span className="hidden sm:inline">Pieza Propia</span>
           </button>
 
-          {/* QR Code Button */}
           <button 
             onClick={() => setShowScanner(!showScanner)}
             className={`flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold transition-all ${
@@ -295,7 +308,6 @@ const Inventory = () => {
             <span>{showScanner ? 'Cerrar Escáner' : 'Escanear QR'}</span>
           </button>
 
-          {/* Filters Button (UI placeholder) */}
           <button className="flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high transition-all">
             <Filter size={20} />
             <span className="hidden lg:inline">Filtros Avanzados</span>
@@ -328,18 +340,22 @@ const Inventory = () => {
                   : "Tu búsqueda no coincide con ninguna pieza de tu inventario."}
               </p>
             </div>
-            {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="text-primary-stitch font-bold hover:underline">
-                Limpiar búsqueda
-              </button>
-            )}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8">
               {joyasMostradas.map((item) => (
-                <div key={item.inventario_id} className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] hover:shadow-[0_16px_48px_rgba(45,52,53,0.08)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col">
+                <div key={item.inventario_id} className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] hover:shadow-[0_16px_48px_rgba(45,52,53,0.08)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col relative">
                   
+                  {/* NUEVO: Botón Flotante para Eliminar de Inventario */}
+                  <button 
+                    onClick={() => handleDeleteItem(item.inventario_id, item.nombre)}
+                    className="absolute top-3 right-3 z-10 p-2.5 rounded-full bg-white/90 shadow-md border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-white transition-all transform hover:scale-105"
+                    title="Eliminar de mi inventario"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+
                   {/* Product Image */}
                   <div className="aspect-[4/3] overflow-hidden bg-surface-container flex-shrink-0">
                     <img 
@@ -349,7 +365,7 @@ const Inventory = () => {
                     />
                   </div>
 
-                  {/* Product Details adaptado a pantallas pequeñas */}
+                  {/* Product Details */}
                   <div className="p-3 sm:p-6 space-y-3 sm:space-y-4 flex flex-col flex-grow">
                     <div className="space-y-1">
                       <span className="text-[0.55rem] sm:text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant opacity-70 truncate block">
@@ -372,35 +388,59 @@ const Inventory = () => {
                           <Package size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
                           <span className="truncate">{item.stock > 0 ? `${item.stock} stock` : 'Agotado'}</span>
                         </p>
-                        {item.stock > 0 && (
-                          <span className="text-[9px] sm:text-[10px] text-on-surface-variant/60 mt-0.5 sm:mt-1">
-                            {item.stock > 5 ? "✔ Suficiente" : "⚠ Bajo"}
-                          </span>
-                        )}
                       </div>
                     </div>
 
-                    {/* Stock Editor */}
+                    {/* ACTUALIZADO: Editor Dual de Stock y Precio (Inline) */}
                     <div className="mt-auto pt-2">
                       <div className="bg-surface-container-low p-2 sm:p-3 rounded-xl border border-outline-variant/20">
-                        <label className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1.5 sm:mb-2 text-center">
-                          Stock
-                        </label>
-                        <div className="relative">
-                          <Input
-                            type="number"
-                            min="0"
-                            className="text-center text-sm sm:text-lg font-bold h-9 sm:h-12 bg-surface-container-lowest px-1 sm:px-3"
-                            defaultValue={item.stock}
-                            onBlur={(e) => {
-                              const val = parseInt(e.target.value);
-                              if (!isNaN(val) && val !== item.stock && val >= 0) {
-                                handleUpdateStock(item.inventario_id, val);
-                              }
-                            }}
-                          />
+                        <div className="grid grid-cols-2 gap-2">
+                          
+                          {/* Columna 1: Stock */}
+                          <div>
+                            <label className="text-[9px] sm:text-[10px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1 text-center">
+                              Stock
+                            </label>
+                            <Input
+                              type="number"
+                              min="0"
+                              className="text-center text-xs sm:text-sm font-bold h-9 bg-surface-container-lowest px-1 rounded-lg"
+                              defaultValue={item.stock}
+                              onBlur={(e) => {
+                                const val = parseInt(e.target.value);
+                                if (!isNaN(val) && val !== item.stock && val >= 0) {
+                                  handleUpdateItem(item.inventario_id, { stock: val });
+                                }
+                              }}
+                            />
+                          </div>
+
+                          {/* Columna 2: Precio */}
+                          <div>
+                            <label className="text-[9px] sm:text-[10px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1 text-center">
+                              Precio (MXN)
+                            </label>
+                            <div className="relative">
+                              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-outline-variant">$</span>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className="text-center text-xs sm:text-sm font-bold h-9 bg-surface-container-lowest pl-4 pr-1 rounded-lg"
+                                defaultValue={item.precio_personalizado}
+                                onBlur={(e) => {
+                                  const val = parseFloat(e.target.value);
+                                  if (!isNaN(val) && val !== item.precio_personalizado && val >= 0) {
+                                    handleUpdateItem(item.inventario_id, { precio_personalizado: val });
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+
                         </div>
-                        <p className="text-[9px] sm:text-[10px] text-on-surface-variant/60 mt-1 sm:mt-2 text-center h-3">
+
+                        <p className="text-[9px] sm:text-[10px] text-on-surface-variant/60 mt-1.5 text-center h-3">
                           {updatingId === item.inventario_id ? (
                             <span className="text-primary-stitch font-medium animate-pulse">Guardando...</span>
                           ) : (
@@ -409,6 +449,7 @@ const Inventory = () => {
                         </p>
                       </div>
                     </div>
+
                   </div>
                 </div>
               ))}
@@ -442,7 +483,6 @@ const Inventory = () => {
             </div>
 
             <form onSubmit={handleAgregarCustom} className="p-6 sm:p-8 space-y-6 bg-surface-container-lowest">
-              
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 col-span-2">
                   <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant block">
@@ -539,12 +579,8 @@ const Inventory = () => {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <div className="text-zinc-400">
-            Lumin by Qlatte © 2026
-          </div>
-        </div>
+      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-400 font-manrope text-xs tracking-widest text-center">
+        Lumin by Qlatte © 2026
       </footer>
     </div>
   );

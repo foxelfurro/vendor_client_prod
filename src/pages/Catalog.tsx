@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PackagePlus, Search, Library, Loader2, PackageSearch, PlusCircle } from "lucide-react";
+import { PackagePlus, Search, Library, Loader2, PackageSearch, PlusCircle, QrCode, X } from "lucide-react";
+import { Html5QrcodeScanner } from 'html5-qrcode'; // <-- Importamos el escáner
 
 const ITEMS_PER_PAGE = 12;
 
@@ -17,6 +18,9 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
+
+  // Estados del Escáner
+  const [showScanner, setShowScanner] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
@@ -68,6 +72,55 @@ const Catalog = () => {
     }
   };
 
+  // --- LÓGICA DEL ESCÁNER QR ---
+  useEffect(() => {
+    if (!showScanner) return;
+
+    const scanner = new Html5QrcodeScanner(
+      "catalog-reader",
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      false
+    );
+
+    scanner.render(
+      async (decodedText) => {
+        const cleanUrl = decodedText.trim().replace(/\/$/, "");
+        const partes = cleanUrl.split("/");
+
+        const posibleSku1 = partes[partes.length - 1];
+        const posibleSku2 = partes[partes.length - 2];
+
+        try {
+          // Buscamos si la joya existe en el catálogo disponible
+          const joyaEncontrada = productos.find((p: any) =>
+            p.sku?.trim().toUpperCase() === posibleSku1?.toUpperCase() ||
+            p.sku?.trim().toUpperCase() === posibleSku2?.toUpperCase()
+          );
+
+          await scanner.clear();
+          setShowScanner(false);
+
+          if (joyaEncontrada) {
+            // Si la encontramos, abrimos automáticamente el modal de agregar
+            abrirModal(joyaEncontrada);
+          } else {
+            alert(`El código ${posibleSku1} no se encontró en el catálogo. Tal vez ya la tienes en tu inventario o necesitas crearla como Pieza Propia.`);
+          }
+        } catch (error) {
+          console.error("Error al procesar el código QR:", error);
+          alert("Hubo un error al procesar el código QR.");
+        }
+      },
+      () => {
+        /* Ignoramos errores de enfoque */
+      }
+    );
+
+    return () => {
+      scanner.clear().catch(() => {});
+    };
+  }, [showScanner, productos]);
+
   const productosFiltrados = productos.filter((item) => 
     item.sku.toLowerCase().includes(searchTerm.toLowerCase()) || 
     item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
@@ -108,23 +161,54 @@ const Catalog = () => {
         <p className="text-sm sm:text-base text-slate-500">Explora las joyas de la marca y agrégalas a tu vitrina personal.</p>
       </div>
 
-      {/* Barra de Búsqueda */}
+      {/* Barra de Búsqueda y Botones */}
       <div className="mb-8 bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-4 md:items-center justify-between">
         <h2 className="font-semibold text-slate-700 flex items-center gap-2">
           <Library className="w-5 h-5 text-indigo-500 flex-shrink-0" />
           <span className="truncate">Joyas para Importar ({productosFiltrados.length})</span>
         </h2>
-        <div className="relative w-full md:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            type="text"
-            placeholder="Buscar joya por nombre o SKU..."
-            className="pl-9 bg-slate-50 border-slate-200 w-full rounded-xl"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          {/* Search Input */}
+          <div className="relative w-full sm:w-72 md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="Buscar por nombre o SKU..."
+              className="pl-9 bg-slate-50 border-slate-200 w-full rounded-xl"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {/* Botón QR */}
+          <button 
+            onClick={() => setShowScanner(!showScanner)}
+            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-bold transition-all h-10 ${
+              showScanner 
+                ? 'bg-red-500 text-white hover:bg-red-600 shadow-md' 
+                : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm'
+            }`}
+          >
+            {showScanner ? <X size={18} /> : <QrCode size={18} />}
+            <span className="hidden sm:inline">{showScanner ? 'Cerrar Escáner' : 'Escanear QR'}</span>
+          </button>
         </div>
       </div>
+
+      {/* Contenedor del Escáner QR */}
+      {showScanner && (
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-8 animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-slate-900">Escáner de Catálogo</h3>
+            <button onClick={() => setShowScanner(false)} className="text-slate-400 hover:text-red-500 transition-colors">
+              <X size={24} />
+            </button>
+          </div>
+          <div id="catalog-reader" className="w-full max-w-lg mx-auto overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50"></div>
+          <p className="text-xs text-slate-500 text-center mt-4 font-medium tracking-wide">Apunta con la cámara al código QR de la etiqueta para importarla.</p>
+        </div>
+      )}
 
       {/* Grid de Tarjetas o Estado Vacío */}
       {productosFiltrados.length === 0 ? (
@@ -142,7 +226,6 @@ const Catalog = () => {
             </p>
           </div>
 
-          {/* ÚNICO BOTÓN: Redirige a crear joya custom */}
           {searchTerm && (
             <div className="mt-2 w-full max-w-xs px-4">
               <button 
