@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Library, 
-  Package, 
-  LogOut, 
-  Gem, 
+import {
+  LayoutDashboard,
+  Library,
+  Package,
+  LogOut,
+  Gem,
   Shield,
+  ShieldCheck,
   Menu,
   X,
   UserCircle
@@ -33,8 +34,9 @@ const Layout = () => {
     
     if (isAdmin) {
       items.push({ name: 'Panel Admin', path: '/admin', icon: Shield });
+      items.push({ name: 'Aprobaciones', path: '/admin/aprobaciones', icon: ShieldCheck });
     }
-    
+
     return items;
   }, [isAdmin]);
 
@@ -111,6 +113,7 @@ const Layout = () => {
             <NavLink
               key={path}
               to={path}
+              end
               onClick={handleLinkClick}
               className={({ isActive }) =>
                 cn(

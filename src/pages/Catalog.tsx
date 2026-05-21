@@ -10,8 +10,8 @@ import {
   PlusCircle, QrCode, X, SlidersHorizontal, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import CatalogFilters, { DEFAULT_FILTERS } from '@/components/CatalogFilters';
-import type { CatalogFilterState } from '@/components/CatalogFilters';
+import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
+import type { ProductFilterState } from '@/components/ProductFilters';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 const ITEMS_PER_PAGE = 30;
@@ -30,7 +30,7 @@ const Catalog = () => {
   const [showScanner, setShowScanner] = useState(false);
 
   // Filtros
-  const [filters, setFilters] = useState<CatalogFilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Modal
@@ -334,7 +334,7 @@ const Catalog = () => {
 
           {/* Sidebar desktop — sticky, fuera del flujo del grid */}
           <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-6 self-start">
-            <CatalogFilters
+            <ProductFilters
               productos={productos}
               filters={filters}
               onChange={setFilters}
@@ -343,9 +343,9 @@ const Catalog = () => {
             />
           </aside>
 
-          {/* Sidebar móvil — drawer gestionado por CatalogFilters */}
+          {/* Sidebar móvil — drawer gestionado por ProductFilters */}
           <div className="lg:hidden">
-            <CatalogFilters
+            <ProductFilters
               productos={productos}
               filters={filters}
               onChange={setFilters}
@@ -374,7 +374,7 @@ const Catalog = () => {
                 {(searchTerm || hasActiveFilters) && (
                   <div className="flex flex-col gap-3 w-full max-w-xs">
                     <button
-                      onClick={() => { setFilters(DEFAULT_FILTERS); setSearchTerm(''); }}
+                      onClick={() => { setFilters(DEFAULT_PRODUCT_FILTERS); setSearchTerm(''); }}
                       className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 transition-all text-sm"
                     >
                       Limpiar filtros

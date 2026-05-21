@@ -7,6 +7,7 @@ import Catalog from './pages/Catalog';
 import Inventory from './pages/Inventory';
 import Caja from './pages/Caja';
 import AdminDashboard from './pages/AdminDashboard';
+import JewelryApproval from './pages/JewelryApproval';
 import Checkout from './pages/Checkout';
 import SupportPage from './pages/Support';
 import ForgotPassword from './pages/ForgotPassword';
@@ -75,13 +76,23 @@ function App() {
             <Route path="/perfil" element={<Profile />} />
             
             {/* Ruta de Admin */}
-            <Route 
-              path="/admin" 
+            <Route
+              path="/admin"
               element={
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
-              } 
+              }
+            />
+
+            {/* Aprobación de joyas propias (solo admin) */}
+            <Route
+              path="/admin/aprobaciones"
+              element={
+                <AdminRoute>
+                  <JewelryApproval />
+                </AdminRoute>
+              }
             />
           </Route>
 

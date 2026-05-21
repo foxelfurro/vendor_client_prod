@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
-import { Loader2, Store } from 'lucide-react';
+import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
+import type { ProductFilterState } from '@/components/ProductFilters';
+import { Loader2, Store, SlidersHorizontal } from 'lucide-react';
 
 interface StoreData {
   vendor: { nombre: string; telefono: string };
@@ -14,6 +16,10 @@ export default function PublicStore() {
   const [data, setData] = useState<StoreData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Filtros (componente unificado)
+  const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTERS);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -28,6 +34,28 @@ export default function PublicStore() {
     };
     if (slug) fetchCatalog();
   }, [slug]);
+
+  const productos = data?.products ?? [];
+
+  // ── Filtrado + ordenamiento por categoría y precio ──────────────────────────
+  const productosFiltrados = useMemo(() => {
+    const precioDe = (p: any) => Number(p.precio_personalizado ?? p.precio_sugerido ?? 0);
+
+    let result = productos.filter((p) => {
+      const matchCategoria = !filters.categoria || p.categoria === filters.categoria;
+      return matchCategoria;
+    });
+
+    if (filters.ordenPrecio === 'asc') {
+      result = [...result].sort((a, b) => precioDe(a) - precioDe(b));
+    } else if (filters.ordenPrecio === 'desc') {
+      result = [...result].sort((a, b) => precioDe(b) - precioDe(a));
+    }
+
+    return result;
+  }, [productos, filters]);
+
+  const hasActiveFilters = filters.categoria !== '' || filters.ordenPrecio !== 'none';
 
   if (loading) {
     return (
@@ -51,7 +79,7 @@ export default function PublicStore() {
   return (
     <main className="min-h-screen bg-[#fafafa] pb-20">
       {/* Header Minimalista (Efecto cristal) */}
-      <header className="sticky top-0 z-10 bg-white/70 backdrop-blur-xl border-b border-zinc-200/50">
+      <header className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-zinc-200/50">
         <div className="max-w-7xl px-4 py-4 mx-auto md:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-lg">
@@ -67,28 +95,88 @@ export default function PublicStore() {
         </div>
       </header>
 
-      {/* Grid de Productos */}
-      <section className="max-w-7xl px-4 py-10 mx-auto md:px-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900">Disponibles ahora</h2>
-          <p className="text-zinc-500 mt-1">Explora nuestro inventario y contáctanos para comprar.</p>
+      {/* Contenido */}
+      <section className="max-w-7xl px-4 py-10 mx-auto md:px-8">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-zinc-900">Disponibles ahora</h2>
+            <p className="text-zinc-500 mt-1">
+              {productosFiltrados.length} pieza{productosFiltrados.length === 1 ? '' : 's'} en exhibición.
+            </p>
+          </div>
+
+          {/* Botón filtros — solo móvil/tablet */}
+          {productos.length > 0 && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className={`
+                lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all self-start
+                ${hasActiveFilters
+                  ? 'bg-zinc-900 text-white shadow-md'
+                  : 'bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50'}
+              `}
+            >
+              <SlidersHorizontal size={16} />
+              <span>Filtros</span>
+              {hasActiveFilters && (
+                <span className="bg-white text-zinc-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                  ON
+                </span>
+              )}
+            </button>
+          )}
         </div>
 
-        {data.products.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {data.products.map((product) => (
-              <ProductCard 
-                key={product.inventario_id} 
-                product={product} 
-                vendorPhone={data.vendor.telefono} 
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-32 bg-white rounded-2xl border border-zinc-100 shadow-sm mt-8">
+        {productos.length === 0 ? (
+          <div className="text-center py-32 bg-white rounded-2xl border border-zinc-100 shadow-sm">
             <Store className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-zinc-900">Sin productos</h3>
             <p className="text-zinc-500 mt-1">Esta tienda aún no ha agregado productos a su catálogo público.</p>
+          </div>
+        ) : (
+          <div className="flex gap-6 items-start">
+            {/* Sidebar desktop */}
+            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-24 self-start">
+              <ProductFilters
+                productos={productos}
+                filters={filters}
+                onChange={setFilters}
+                isOpen={true}
+                onClose={() => {}}
+              />
+            </aside>
+
+            {/* Sidebar móvil — drawer */}
+            <div className="lg:hidden">
+              <ProductFilters
+                productos={productos}
+                filters={filters}
+                onChange={setFilters}
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+              />
+            </div>
+
+            {/* Grid */}
+            <div className="flex-1 min-w-0">
+              {productosFiltrados.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  {productosFiltrados.map((product) => (
+                    <ProductCard
+                      key={product.inventario_id}
+                      product={product}
+                      vendorPhone={data.vendor.telefono}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-24 bg-white rounded-2xl border border-zinc-100 shadow-sm">
+                  <Store className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-zinc-900">Sin coincidencias</h3>
+                  <p className="text-zinc-500 mt-1">No hay piezas para los filtros seleccionados.</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </section>

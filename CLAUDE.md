@@ -18,7 +18,15 @@ Este proyecto (`vendor-hub-client`) es el frontend de una plataforma SaaS orient
 El enrutamiento está dividido en tres niveles de acceso, gestionados a través de `AuthContext`:
 1. **Rutas Públicas:** Accesibles sin sesión (`/login`, `/checkout`, `/renovar`, `/store/:slug`, `/support`, `/forgot-password`, `/reset-password`). El checkout y renovación son públicos para facilitar el onboarding y pagos de nuevos usuarios.
 2. **Rutas Protegidas (`<ProtectedRoute>`):** Requieren sesión activa. Incluyen vistas clave de operación como `/dashboard`, `/catalogo`, `/inventario`, `/caja` y `/perfil`.
-3. **Rutas de Administrador (`<AdminRoute>`):** Restringidas a usuarios con `rol === 1` (ej. `/admin`).
+3. **Rutas de Administrador (`<AdminRoute>`):** Restringidas a usuarios con `rol === 1` (ej. `/admin`, `/admin/aprobaciones`).
+
+## Modelo de Datos y Reglas de Negocio
+Estas reglas son obligatorias. No reintroduzcas patrones antiguos que ya fueron migrados.
+
+1. **Categorías relacionales:** La categoría de una joya se modela con `catalogo_maestro.categoria_id` (entero) que referencia `categorias(id)`. NUNCA uses un campo de texto libre para la categoría (la antigua columna `catalogo_maestro.categoria` de texto fue eliminada). El backend expone el nombre de la categoría como `categoria` (string) haciendo `JOIN` con la tabla `categorias`; el frontend filtra/agrupa por ese nombre.
+2. **Joyas propias y aprobación:** TODA joya vive en `catalogo_maestro`. La columna `estado` (boolean) controla su visibilidad: `false` = pendiente (visible solo en el inventario y la tienda pública de la vendedora que la creó), `true` = aprobada (visible para todas en el catálogo maestro). La columna `creado_por` (uuid) indica qué vendedora la originó (`NULL` = creada por un administrador, nace aprobada). Una vendedora NO agrega joyas propias directamente a `inventario_vendedor`: se crean en `catalogo_maestro` con `estado = false` y se vinculan a su inventario. El administrador las revisa, asigna categoría y aprueba/rechaza en `/admin/aprobaciones`.
+3. **Inventario:** `inventario_vendedor.producto_maestro_id` es obligatorio (NOT NULL) y siempre referencia una joya de `catalogo_maestro`. Ya NO existen las columnas `nombre_custom`, `sku_custom` ni `imagen_custom`.
+4. **Filtros:** Existe un único componente de filtro, `src/components/ProductFilters.tsx` (con `ProductFilterState` y `DEFAULT_PRODUCT_FILTERS`), usado en `Catalog.tsx`, `Inventory.tsx` y `PublicStore.tsx`. No crees componentes de filtro por página.
 
 ## Convenciones de Código y Diseño
 1. **Importaciones y Alias:** Las importaciones absolutas apuntando a `src/` deben utilizar el alias `@/` (ya configurado en `vite.config.ts`).

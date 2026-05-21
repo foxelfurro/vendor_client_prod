@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '@/lib/api';
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 // @ts-ignore: No declaration file for 'lucide-react' in this project
 import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
+import type { ProductFilterState } from '@/components/ProductFilters';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -19,7 +21,10 @@ interface InventoryItem {
   precio_personalizado: number;
   precio_sugerido: number;
   ruta_imagen: string;
-  categoria?: string; 
+  categoria?: string;
+  categoria_id?: number | null;
+  estado?: boolean;
+  es_custom?: boolean;
 }
 
 const Inventory = () => {
@@ -30,6 +35,10 @@ const Inventory = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+
+  // Filtros (componente unificado)
+  const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTERS);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -104,15 +113,15 @@ const Inventory = () => {
 
     setGuardandoCustom(true);
     try {
-      await api.post('/vendor/inventory/custom', {
+      const { data } = await api.post('/vendor/inventory/custom', {
         nombre: customNombre,
         sku: customSku.toUpperCase(),
         stock: parseInt(customStock),
         precio_personalizado: parseFloat(customPrecio),
         imagen_custom: customImagen
       });
-      
-      alert("¡Pieza propia agregada a tu vitrina! ✨");
+
+      alert(data?.message || "¡Pieza propia agregada a tu vitrina! ✨");
       setIsCustomModalOpen(false);
       
       setCustomNombre("");
@@ -228,14 +237,42 @@ const Inventory = () => {
     };
   }, [showScanner, inventario]);
 
-  const inventarioFiltrado = inventario.filter((item) =>
-    item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const inventarioFiltrado = useMemo(() => {
+    const q = searchTerm.toLowerCase();
+    let result = inventario.filter((item) => {
+      const matchSearch =
+        !q ||
+        item.sku?.toLowerCase().includes(q) ||
+        item.nombre?.toLowerCase().includes(q);
+      const matchCategoria = !filters.categoria || item.categoria === filters.categoria;
+      const matchTipo =
+        filters.tipo === 'todos' ||
+        (filters.tipo === 'propias' && item.es_custom) ||
+        (filters.tipo === 'catalogo' && !item.es_custom);
+      const matchStock = !filters.soloConStock || (item.stock ?? 0) > 0;
+      return matchSearch && matchCategoria && matchTipo && matchStock;
+    });
+
+    switch (filters.ordenPrecio) {
+      case 'asc':
+        result = [...result].sort((a, b) => (a.precio_personalizado || 0) - (b.precio_personalizado || 0));
+        break;
+      case 'desc':
+        result = [...result].sort((a, b) => (b.precio_personalizado || 0) - (a.precio_personalizado || 0));
+        break;
+      case 'stock_asc':
+        result = [...result].sort((a, b) => (a.stock || 0) - (b.stock || 0));
+        break;
+      case 'stock_desc':
+        result = [...result].sort((a, b) => (b.stock || 0) - (a.stock || 0));
+        break;
+    }
+    return result;
+  }, [inventario, searchTerm, filters]);
 
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [searchTerm]);
+  }, [searchTerm, filters]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -249,6 +286,12 @@ const Inventory = () => {
   }, [inventarioFiltrado.length]);
 
   const joyasMostradas = inventarioFiltrado.slice(0, visibleCount);
+
+  const hasActiveFilters =
+    filters.categoria !== '' ||
+    filters.ordenPrecio !== 'none' ||
+    filters.tipo !== 'todos' ||
+    filters.soloConStock;
 
   if (loading) return <div className="p-10 text-center text-slate-500">Contando las piezas...</div>;
 
@@ -308,9 +351,15 @@ const Inventory = () => {
             <span>{showScanner ? 'Cerrar Escáner' : 'Escanear QR'}</span>
           </button>
 
-          <button className="flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high transition-all">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden flex items-center gap-2.5 py-3.5 px-6 rounded-xl font-bold bg-surface-container border border-outline-variant/30 text-on-surface hover:bg-surface-container-high transition-all"
+          >
             <Filter size={20} />
-            <span className="hidden lg:inline">Filtros Avanzados</span>
+            <span>Filtros</span>
+            {hasActiveFilters && (
+              <span className="bg-primary-stitch text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">ON</span>
+            )}
           </button>
         </div>
 
@@ -328,7 +377,37 @@ const Inventory = () => {
           </div>
         )}
 
-        {/* Inventory Grid */}
+        {/* Layout: Filtros + Grid */}
+        <div className="flex gap-6 items-start">
+
+          {/* Sidebar desktop — sticky */}
+          <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-6 self-start">
+            <ProductFilters
+              productos={inventario}
+              filters={filters}
+              onChange={setFilters}
+              isOpen={true}
+              onClose={() => {}}
+              showTipo
+              showStock
+            />
+          </aside>
+
+          {/* Sidebar móvil — drawer */}
+          <div className="lg:hidden">
+            <ProductFilters
+              productos={inventario}
+              filters={filters}
+              onChange={setFilters}
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+              showTipo
+              showStock
+            />
+          </div>
+
+          {/* Inventory Grid */}
+          <div className="flex-1 min-w-0">
         {inventarioFiltrado.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-24 text-on-surface-variant space-y-6 bg-surface-container-low rounded-2xl border-2 border-dashed border-outline-variant/30">
             <Package size={64} className="opacity-40" strokeWidth={1} />
@@ -346,13 +425,23 @@ const Inventory = () => {
                 <div key={item.inventario_id} className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] hover:shadow-[0_16px_48px_rgba(45,52,53,0.08)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col relative">
                   
                   {/* Botón Flotante para Eliminar de Vitrina */}
-                  <button 
+                  <button
                     onClick={() => handleDeleteItem(item.inventario_id, item.nombre)}
                     className="absolute top-3 right-3 z-10 p-2.5 rounded-full bg-white/90 shadow-md border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-white transition-all transform hover:scale-105"
                     title="Eliminar de mi vitrina"
                   >
                     <Trash2 size={16} />
                   </button>
+
+                  {/* Badge: joya propia pendiente de aprobación del administrador */}
+                  {item.es_custom && item.estado === false && (
+                    <span
+                      className="absolute top-3 left-3 z-10 bg-amber-100 text-amber-700 border border-amber-200 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm"
+                      title="Pendiente de aprobación. Solo es visible en tu inventario y tu tienda."
+                    >
+                      Pendiente
+                    </span>
+                  )}
 
                   {/* Product Image */}
                   <div className="aspect-[4/3] overflow-hidden bg-surface-container flex-shrink-0">
@@ -367,7 +456,7 @@ const Inventory = () => {
                   <div className="p-3 sm:p-6 space-y-3 sm:space-y-4 flex flex-col flex-grow">
                     <div className="space-y-1">
                       <span className="text-[0.55rem] sm:text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant opacity-70 truncate block">
-                        {item.categoria || (item.producto_maestro_id ? "Catálogo" : "Pieza Propia")}
+                        {item.categoria || (item.es_custom ? "Pieza Propia" : "Catálogo")}
                       </span>
                       <h3 className="text-sm sm:text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors line-clamp-2">
                         {item.nombre}
@@ -455,6 +544,8 @@ const Inventory = () => {
             )}
           </>
         )}
+          </div>
+        </div>
 
         {/* --- MODAL PARA CREAR JOYA PROPIA --- */}
         <Dialog open={isCustomModalOpen} onOpenChange={setIsCustomModalOpen}>
@@ -469,7 +560,7 @@ const Inventory = () => {
                   Crear Pieza Propia
                 </DialogTitle>
                 <DialogDescription className="text-on-surface-variant text-sm leading-relaxed text-left">
-                  Registra una joya con fotografía nativa para tu vitrina personal.
+                  Registra una joya para tu vitrina. Un administrador la revisará y le asignará una categoría antes de publicarla en el catálogo maestro.
                 </DialogDescription>
               </DialogHeader>
             </div>
