@@ -431,14 +431,16 @@ const Inventory = () => {
           </aside>
 
           {/* Sidebar móvil — drawer */}
-          <InventoryFilters
-            inventario={inventario}
-            filters={filters}
-            onChange={setFilters}
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-          />
-
+          <div className="lg:hidden">
+            <InventoryFilters
+              inventario={inventario}
+              filters={filters}
+              onChange={setFilters}
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
+          </div>
+          
           {/* Grid */}
           <div className="flex-1 min-w-0">
 

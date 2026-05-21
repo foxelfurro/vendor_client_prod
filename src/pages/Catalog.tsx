@@ -344,13 +344,15 @@ const Catalog = () => {
           </aside>
 
           {/* Sidebar móvil — drawer gestionado por CatalogFilters */}
-          <CatalogFilters
-            productos={productos}
-            filters={filters}
-            onChange={setFilters}
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-          />
+          <div className="lg:hidden">
+            <CatalogFilters
+              productos={productos}
+              filters={filters}
+              onChange={setFilters}
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
+          </div>
 
           {/* ── Grid de productos ─────────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
