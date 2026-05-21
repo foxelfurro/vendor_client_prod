@@ -3,7 +3,7 @@ import api from '../lib/api';
 
 interface AuthContextType {
   user: any;
-  login: (userData: any) => void; // 1. Cambiado: Solo recibe userData
+  login: (userData?: any) => Promise<void>; // 1. ACTUALIZADO: Ahora es una promesa
   logout: () => void;
   loading: boolean;
 }
@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // 2. Ya no usamos localStorage. El navegador envía la cookie sola
         const { data } = await api.get('/auth/me');
         setUser(data);
       } catch (error: any) {
@@ -31,14 +30,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initAuth();
   }, []);
 
-  // 3. Sincronizado con la interfaz: solo guardamos los datos del usuario
-  const login = (userData: any) => {
-    setUser(userData);
+  // 2. ¡AQUÍ ESTÁ LA MAGIA! 🪄
+  // Modificamos el login para que siempre traiga el perfil completo de inmediato
+  const login = async (userData?: any) => {
+    // A) Ponemos los datos básicos inmediatos para que React no truene y sepa que estás logueado
+    if (userData) setUser(userData);
+    
+    // B) Disparamos la petición silenciosa para traer el "paquete premium" (nombre, teléfono, etc.)
+    try {
+      const { data } = await api.get('/auth/me');
+      setUser(data); // ¡Boom! El estado se actualiza con toda tu info al instante
+    } catch (error) {
+      console.error("Error al traer el perfil completo post-login", error);
+    }
   };
 
   const logout = async () => {
     try {
-      // 4. El servidor destruye la cookie HttpOnly
       await api.post('/auth/logout'); 
     } catch (error) {
       console.error("Error al cerrar sesión en el servidor", error);
