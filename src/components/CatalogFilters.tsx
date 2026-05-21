@@ -132,40 +132,6 @@ const CatalogFilters = ({ productos, filters, onChange, isOpen, onClose }: Catal
             </div>
           </section>
 
-          {/* Rango de precio */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">Rango de Precio</span>
-            </div>
-            <Slider
-              min={precioRange.min}
-              max={precioRange.max}
-              step={50}
-              value={[
-                filters.precioMin === 0 ? precioRange.min : filters.precioMin,
-                filters.precioMax === 999999 ? precioRange.max : filters.precioMax,
-              ]}
-              onValueChange={setPrecioRange}
-              className="mb-4"
-            />
-            <div className="flex items-center justify-between gap-2">
-              <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-center flex-1">
-                <p className="text-[10px] text-slate-400 font-medium">Mín</p>
-                <p className="text-sm font-bold text-slate-900">
-                  ${(filters.precioMin === 0 ? precioRange.min : filters.precioMin).toLocaleString('es-MX')}
-                </p>
-              </div>
-              <div className="w-4 h-px bg-slate-300" />
-              <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-center flex-1">
-                <p className="text-[10px] text-slate-400 font-medium">Máx</p>
-                <p className="text-sm font-bold text-slate-900">
-                  ${(filters.precioMax === 999999 ? precioRange.max : filters.precioMax).toLocaleString('es-MX')}
-                </p>
-              </div>
-            </div>
-          </section>
-
           {/* Ordenar por precio */}
           <section>
             <div className="flex items-center gap-2 mb-3">

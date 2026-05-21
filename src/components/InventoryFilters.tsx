@@ -199,40 +199,6 @@ const InventoryFilters = ({ inventario, filters, onChange, isOpen, onClose }: In
             </section>
           )}
 
-          {/* Rango de precio */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-3.5 h-3.5 text-on-surface-variant" />
-              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-on-surface-variant">Rango de Precio</span>
-            </div>
-            <Slider
-              min={precioRange.min}
-              max={precioRange.max}
-              step={50}
-              value={[
-                filters.precioMin === 0 ? precioRange.min : filters.precioMin,
-                filters.precioMax === 999999 ? precioRange.max : filters.precioMax,
-              ]}
-              onValueChange={setPrecioRange}
-              className="mb-4"
-            />
-            <div className="flex items-center justify-between gap-2">
-              <div className="bg-surface-container border border-outline-variant/20 rounded-lg px-3 py-1.5 text-center flex-1">
-                <p className="text-[10px] text-on-surface-variant font-medium">Mín</p>
-                <p className="text-sm font-bold text-on-surface">
-                  ${(filters.precioMin === 0 ? precioRange.min : filters.precioMin).toLocaleString('es-MX')}
-                </p>
-              </div>
-              <div className="w-4 h-px bg-outline-variant/30" />
-              <div className="bg-surface-container border border-outline-variant/20 rounded-lg px-3 py-1.5 text-center flex-1">
-                <p className="text-[10px] text-on-surface-variant font-medium">Máx</p>
-                <p className="text-sm font-bold text-on-surface">
-                  ${(filters.precioMax === 999999 ? precioRange.max : filters.precioMax).toLocaleString('es-MX')}
-                </p>
-              </div>
-            </div>
-          </section>
-
           {/* Ordenar */}
           <section>
             <div className="flex items-center gap-2 mb-3">
