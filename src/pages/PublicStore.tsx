@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
@@ -28,6 +28,14 @@ export default function PublicStore() {
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const changePage = (page: number) => {
+    setCurrentPage(page);
+    setTimeout(() => {
+      gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -98,8 +106,21 @@ export default function PublicStore() {
   // Fallback por si el usuario no ha configurado el store_name aún
   const displayName = data.vendor.store_name || data.vendor.nombre;
 
+  // Paginación inteligente: máximo 7 páginas visibles con elipsis
+  const getPageNumbers = (): (number | null)[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | null)[] = [1];
+    if (currentPage - 1 > 2) pages.push(null);
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      pages.push(i);
+    }
+    if (currentPage + 1 < totalPages - 1) pages.push(null);
+    pages.push(totalPages);
+    return pages;
+  };
+
   return (
-    <main className="min-h-screen bg-[#fafafa] pb-20">
+    <main className="min-h-screen bg-[#fafafa] pb-20 overflow-x-hidden w-full">
       {/* Header Minimalista (Efecto cristal) */}
       <header className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-zinc-200/50">
         <div className="max-w-7xl px-4 py-4 mx-auto md:px-8 flex items-center justify-between">
@@ -156,7 +177,7 @@ export default function PublicStore() {
             <p className="text-zinc-500 mt-1 text-sm">Esta tienda aún no ha agregado productos a su catálogo público.</p>
           </div>
         ) : (
-          <div className="flex gap-8 items-start">
+          <div className="flex lg:gap-8 items-start">
             {/* Sidebar desktop */}
             <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-28 self-start">
               <ProductFilters
@@ -180,7 +201,7 @@ export default function PublicStore() {
             </div>
 
             {/* Grid y Paginación */}
-            <div className="flex-1 min-w-0">
+            <div ref={gridRef} className="flex-1 min-w-0">
               {paginatedProducts.length > 0 ? (
                 <>
                   {/* Grid adaptado para 2 columnas en móvil */}
@@ -196,35 +217,44 @@ export default function PublicStore() {
 
                   {/* Controles de Paginación */}
                   {totalPages > 1 && (
-                    <div className="mt-12 flex items-center justify-center gap-2">
+                    <div className="mt-12 w-full flex items-center justify-center gap-2">
                       <button
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        onClick={() => changePage(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
-                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all"
+                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0"
                       >
                         <ChevronLeft size={20} />
                       </button>
-                      
-                      <div className="flex items-center gap-1 px-2">
-                        {Array.from({ length: totalPages }).map((_, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setCurrentPage(i + 1)}
-                            className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-all ${
-                              currentPage === i + 1 
-                                ? 'bg-zinc-900 text-white' 
-                                : 'text-zinc-500 hover:bg-zinc-100'
-                            }`}
-                          >
-                            {i + 1}
-                          </button>
-                        ))}
+
+                      <div className="flex items-center gap-1">
+                        {getPageNumbers().map((page, idx) =>
+                          page === null ? (
+                            <span
+                              key={`ellipsis-${idx}`}
+                              className="w-8 h-8 flex items-center justify-center text-zinc-400 text-sm select-none"
+                            >
+                              …
+                            </span>
+                          ) : (
+                            <button
+                              key={page}
+                              onClick={() => changePage(page)}
+                              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-all ${
+                                currentPage === page
+                                  ? 'bg-zinc-900 text-white'
+                                  : 'text-zinc-500 hover:bg-zinc-100'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          )
+                        )}
                       </div>
 
                       <button
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        onClick={() => changePage(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
-                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all"
+                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0"
                       >
                         <ChevronRight size={20} />
                       </button>
