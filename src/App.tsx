@@ -8,14 +8,15 @@ import Inventory from './pages/Inventory';
 import Caja from './pages/Caja';
 import AdminDashboard from './pages/AdminDashboard';
 import JewelryApproval from './pages/JewelryApproval';
-import Checkout from './pages/Checkout';
+import Register from './pages/Register';
+import Subscribe from './pages/Subscribe';
+import PaymentReturn from './pages/PaymentReturn';
 import SupportPage from './pages/Support';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PrivacyPolicy from './pages/policy';
 import TermsOfService from './pages/terms';
 import Profile from './pages/Profile';
-import Renew from './pages/Renew'; //
 import PublicStore from './pages/PublicStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -57,9 +58,14 @@ function App() {
           
           <Route path="/login" element={<Login />} />
           <Route path="/support" element={<SupportPage />} />
-          {/* El Checkout DEBE ser público para que los nuevos puedan pagar y registrarse */}
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/renovar" element={<Renew />} />
+
+          {/* Flujo de alta y pago (público, en dos pasos) */}
+          <Route path="/registro" element={<Register />} />
+          <Route path="/suscripcion" element={<Subscribe />} />
+          <Route path="/pago/resultado" element={<PaymentReturn />} />
+          {/* Rutas antiguas conservadas como redirección */}
+          <Route path="/checkout" element={<Navigate to="/registro" replace />} />
+          <Route path="/renovar" element={<Navigate to="/suscripcion" replace />} />
 
           {/* --- 2. RUTAS PROTEGIDAS (Solo para usuarios logueados) --- */}
           <Route

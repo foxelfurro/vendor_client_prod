@@ -24,10 +24,9 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
 
   const estaExpirado = diasRestantes < 0;
 
-  // 3. LA CONEXIÓN: Al hacer clic, los mandamos a tu página Renew.tsx
+  // 3. Al hacer clic, se envía a la página de suscripción / pago.
   const handleRenovar = () => {
-    // Asegúrate de que '/renew' sea la ruta correcta en tu App.tsx o main.tsx
-    navigate('/renovar'); 
+    navigate('/suscripcion');
   };
 
   // 4. Renderizado

@@ -15,9 +15,12 @@ api.interceptors.response.use(
       const currentPath = window.location.pathname;
       
       const publicRoutes = [
-        '/login', 
-        '/checkout', 
-        '/reset-password', 
+        '/login',
+        '/checkout',
+        '/registro',
+        '/suscripcion',
+        '/pago/resultado',
+        '/reset-password',
         '/forgot-password',
         '/renovar',
         '/privacy',

@@ -32,13 +32,22 @@ const Login = () => {
       navigate('/dashboard');
     } catch (error: any) {
       const status = error.response?.status;
+      const code = error.response?.data?.code;
       const mensajeServidor = error.response?.data?.error || "Error al conectar con el servidor.";
 
-      // Lógica para mostrar el link de renovación si la cuenta expiró (Status 403)
-      if (status === 403 && mensajeServidor.toLowerCase().includes('expirado')) {
+      // Si la cuenta está pendiente de pago o expirada, se enlaza a la suscripción.
+      if (
+        status === 403 &&
+        (code === 'PENDING_SUBSCRIPTION' ||
+          code === 'EXPIRED_SUBSCRIPTION' ||
+          mensajeServidor.toLowerCase().includes('expirado'))
+      ) {
         setErrorMessage(
           <span>
-            {mensajeServidor} <Link to="/renovar" className="underline font-bold text-red-600">Renovar aquí</Link>
+            {mensajeServidor}{' '}
+            <Link to="/suscripcion" className="underline font-bold text-red-600">
+              {code === 'PENDING_SUBSCRIPTION' ? 'Completar pago aquí' : 'Renovar aquí'}
+            </Link>
           </span>
         );
       } else {
@@ -97,17 +106,10 @@ const Login = () => {
             </div>
 
             {errorMessage && (
-  <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md mb-6 shadow-sm">
-    <p className="text-sm font-medium">{errorMessage}</p>
-    
-    {/* CAMBIO AQUÍ: Usamos String() para que TypeScript no se queje */}
-    {String(errorMessage).toLowerCase().includes('expirado') && (
-      <Link to="/renovar" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-800 hover:underline">
-        Renovar suscripción aquí &rarr;
-      </Link>
-    )}
-  </div>
-)}
+              <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md mb-6 shadow-sm">
+                <p className="text-sm font-medium">{errorMessage}</p>
+              </div>
+            )}
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
@@ -154,7 +156,7 @@ const Login = () => {
 
             <div className="mt-12 pt-8 border-t border-outline-variant/10 text-center">
               <p className="text-on-surface-variant text-sm">
-                Nuevo en Lumin? <button onClick={() => navigate('/checkout')} className="text-primary font-bold hover:underline">Hazte socio</button>
+                Nuevo en Lumin? <button onClick={() => navigate('/registro')} className="text-primary font-bold hover:underline">Hazte socio</button>
               </p>
             </div>
           </div>
