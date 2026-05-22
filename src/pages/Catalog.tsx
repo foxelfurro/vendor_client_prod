@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   PackagePlus, Search, Library, Loader2, PackageSearch,
-  PlusCircle, QrCode, X, SlidersHorizontal, ChevronLeft, ChevronRight, Pencil
+  PlusCircle, QrCode, X, SlidersHorizontal, ChevronLeft, ChevronRight, Pencil, CheckCircle2
 } from "lucide-react";
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
@@ -62,8 +62,16 @@ const Catalog = () => {
   // ── Fetch ──────────────────────────────────────────────────────────────────
   const fetchCatalog = useCallback(async () => {
     try {
-      const { data } = await api.get('/vendor/explore');
-      setProductos(data);
+      const [{ data: disponibles }, { data: enInventario }] = await Promise.all([
+        api.get('/vendor/explore'),
+        api.get('/vendor/inventory'),
+      ]);
+
+      const yaAgregados = (enInventario as any[])
+        .filter((i) => i.producto_maestro_id)
+        .map((i) => ({ ...i, id: i.producto_maestro_id, ya_agregado: true }));
+
+      setProductos([...disponibles, ...yaAgregados]);
     } catch (error) {
       console.error('Error al cargar el catálogo:', error);
     } finally {
@@ -413,9 +421,7 @@ const Catalog = () => {
                 <div className="text-center space-y-2 max-w-sm">
                   <h3 className="text-xl font-bold text-slate-900">No encontramos esa joya</h3>
                   <p className="text-sm text-slate-500">
-                    {productos.length === 0
-                      ? 'Ya tienes todos los productos en tu inventario. 😎'
-                      : 'No hay coincidencias para los filtros aplicados.'}
+                    No hay coincidencias para los filtros aplicados.
                   </p>
                 </div>
                 {(searchTerm || hasActiveFilters) && (
@@ -722,7 +728,7 @@ const ProductCard = ({
   isAdmin?: boolean;
   onEdit?: (p: any) => void;
 }) => (
-  <Card className="h-full overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-200 border-slate-200 rounded-2xl">
+  <Card className={`h-full overflow-hidden flex flex-col transition-shadow duration-200 border-slate-200 rounded-2xl ${prod.ya_agregado ? 'opacity-50 grayscale' : 'hover:shadow-lg'}`}>
     <div className="aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden group relative">
       {prod.ruta_imagen ? (
         <img
@@ -730,7 +736,7 @@ const ProductCard = ({
           alt={prod.nombre}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+          className={`absolute inset-0 object-cover w-full h-full transition-transform duration-500 ${prod.ya_agregado ? '' : 'group-hover:scale-105'}`}
         />
       ) : (
         <span className="text-slate-400 text-xs flex flex-col items-center z-10">
@@ -765,7 +771,12 @@ const ProductCard = ({
     </CardContent>
 
     <CardFooter className="bg-slate-50 p-3 sm:p-4 border-t border-slate-100 flex-none">
-      {isAdmin && onEdit ? (
+      {prod.ya_agregado ? (
+        <div className="w-full h-9 sm:h-10 flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-400 text-xs sm:text-sm font-bold select-none">
+          <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+          Ya está en tu inventario
+        </div>
+      ) : isAdmin && onEdit ? (
         <Button
           onClick={() => onEdit(prod)}
           variant="outline"
