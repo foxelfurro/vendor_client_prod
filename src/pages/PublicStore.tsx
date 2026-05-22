@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
@@ -28,6 +28,14 @@ export default function PublicStore() {
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const changePage = (page: number) => {
+    setCurrentPage(page);
+    setTimeout(() => {
+      gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -169,7 +177,7 @@ export default function PublicStore() {
             <p className="text-zinc-500 mt-1 text-sm">Esta tienda aún no ha agregado productos a su catálogo público.</p>
           </div>
         ) : (
-          <div className="flex gap-8 items-start">
+          <div className="flex lg:gap-8 items-start">
             {/* Sidebar desktop */}
             <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-28 self-start">
               <ProductFilters
@@ -193,7 +201,7 @@ export default function PublicStore() {
             </div>
 
             {/* Grid y Paginación */}
-            <div className="flex-1 min-w-0">
+            <div ref={gridRef} className="flex-1 min-w-0">
               {paginatedProducts.length > 0 ? (
                 <>
                   {/* Grid adaptado para 2 columnas en móvil */}
@@ -209,16 +217,16 @@ export default function PublicStore() {
 
                   {/* Controles de Paginación */}
                   {totalPages > 1 && (
-                    <div className="mt-12 flex items-center justify-center gap-2">
+                    <div className="mt-12 w-full flex items-center justify-center gap-2">
                       <button
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        onClick={() => changePage(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
-                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all"
+                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0"
                       >
                         <ChevronLeft size={20} />
                       </button>
-                      
-                      <div className="flex items-center gap-1 px-2">
+
+                      <div className="flex items-center gap-1">
                         {getPageNumbers().map((page, idx) =>
                           page === null ? (
                             <span
@@ -230,7 +238,7 @@ export default function PublicStore() {
                           ) : (
                             <button
                               key={page}
-                              onClick={() => setCurrentPage(page)}
+                              onClick={() => changePage(page)}
                               className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-all ${
                                 currentPage === page
                                   ? 'bg-zinc-900 text-white'
@@ -244,9 +252,9 @@ export default function PublicStore() {
                       </div>
 
                       <button
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        onClick={() => changePage(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
-                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all"
+                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0"
                       >
                         <ChevronRight size={20} />
                       </button>
