@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Turnstile } from '@marsidev/react-turnstile';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
+import { TURNSTILE_SITE_KEY } from '../lib/turnstile';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<React.ReactNode>(''); 
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -31,6 +33,11 @@ const Login = () => {
       login(data.user);
       navigate('/dashboard');
     } catch (error: any) {
+      // El token de Turnstile es de un solo uso: se reinicia el widget para que
+      // el siguiente intento tenga un token nuevo y válido.
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
+
       const status = error.response?.status;
       const code = error.response?.data?.code;
       const mensajeServidor = error.response?.data?.error || "Error al conectar con el servidor.";
@@ -135,9 +142,12 @@ const Login = () => {
 
               {/* WIDGET TURNSTILE */}
               <div className="flex justify-center py-2">
-                <Turnstile 
-                  siteKey="0x4AAAAAAC-O9QAaIsNyGcaa" 
+                <Turnstile
+                  ref={turnstileRef}
+                  siteKey={TURNSTILE_SITE_KEY}
                   onSuccess={(token) => setCaptchaToken(token)}
+                  onExpire={() => setCaptchaToken(null)}
+                  onError={() => setCaptchaToken(null)}
                   options={{ theme: 'light' }}
                 />
               </div>

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../lib/api';
 import { UserPlus, Loader2, ArrowRight } from 'lucide-react';
-import { Turnstile } from '@marsidev/react-turnstile';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
+import { TURNSTILE_SITE_KEY } from '../lib/turnstile';
 
 // =============================================================================
 // Paso 1 de 2: Crear la cuenta (sin cobro).
@@ -18,6 +19,7 @@ const Register = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +48,9 @@ const Register = () => {
     } catch (err: any) {
       setError(err.response?.data?.error || 'No pudimos crear tu cuenta. Intenta de nuevo.');
       setProcesando(false);
+      // El token de Turnstile es de un solo uso: se reinicia para el siguiente intento.
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
     }
   };
 
@@ -132,8 +137,11 @@ const Register = () => {
 
             <div className="flex justify-center pt-1">
               <Turnstile
-                siteKey="0x4AAAAAAC-O9QAaIsNyGcaa"
+                ref={turnstileRef}
+                siteKey={TURNSTILE_SITE_KEY}
                 onSuccess={(token: string) => setCaptchaToken(token)}
+                onExpire={() => setCaptchaToken(null)}
+                onError={() => setCaptchaToken(null)}
                 options={{ theme: 'light' }}
               />
             </div>
