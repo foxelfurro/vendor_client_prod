@@ -55,14 +55,21 @@ const TermsOfService = () => {
 
           <section>
             <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">3. Cancelaciones y Reembolsos</h2>
+            <div className="bg-black text-white p-6 rounded-2xl mb-4 shadow-xl shadow-gray-200">
+              <p className="text-sm uppercase tracking-widest opacity-70 mb-2">Garantía de Satisfacción</p>
+              <h3 className="text-2xl font-semibold">Reembolso de 7 días</h3>
+              <p className="mt-3 text-sm opacity-80">
+                Si dentro de los 7 días naturales posteriores a tu primer pago no quedas satisfecho, te devolvemos el 100% del importe. Solicítalo escribiendo a admin@qlatte.com.
+              </p>
+            </div>
             <p className="leading-relaxed text-gray-600 mb-4">
               El Suscriptor podrá cancelar su suscripción en cualquier momento desde el panel de configuración de su cuenta.
             </p>
             <div className="space-y-3 text-gray-600 mb-4">
-              <p><span className="font-medium text-black">Efectividad:</span> La cancelación impedirá el siguiente cargo recurrente, pero no dará derecho al reembolso de la mensualidad ya pagada y en curso, manteniendo el acceso hasta el final del periodo contratado.</p>
+              <p><span className="font-medium text-black">Efectividad:</span> La cancelación detiene de inmediato el siguiente cargo recurrente y el Suscriptor conserva el acceso hasta el final del periodo ya pagado. Pasada la garantía de 7 días, la mensualidad en curso no es reembolsable.</p>
             </div>
             <div className="border-l-4 border-gray-100 pl-4 py-2 italic text-gray-500 text-sm">
-              Conforme a la LFPC, el suscriptor cuenta con 5 días hábiles para revocar su consentimiento inicial, siempre y cuando no se haya utilizado el servicio.
+              Conforme a la LFPC, el suscriptor cuenta con 5 días hábiles para revocar su consentimiento inicial, siempre y cuando no se haya utilizado el servicio. Consulta el detalle completo en nuestra página de <Link to="/devoluciones" className="underline">Devoluciones y Envíos</Link>.
             </div>
           </section>
 

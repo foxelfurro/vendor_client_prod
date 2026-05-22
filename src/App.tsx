@@ -16,6 +16,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PrivacyPolicy from './pages/policy';
 import TermsOfService from './pages/terms';
+import Devoluciones from './pages/Devoluciones';
 import Profile from './pages/Profile';
 import PublicStore from './pages/PublicStore';
 
@@ -53,6 +54,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/devoluciones" element={<Devoluciones />} />
           <Route path="/store/:slug" element={<PublicStore />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
           
