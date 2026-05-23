@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { SlidersHorizontal, Tag, X, ChevronDown, Layers, CheckSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { readableTextOn, type StoreTheme } from '@/lib/personalization';
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────────
 // Estado de filtro unificado para Catálogo Maestro, Mi Inventario y Tienda Pública.
@@ -32,6 +33,10 @@ interface ProductFiltersProps {
   showTipo?: boolean;
   /** Muestra "Solo con stock" y el ordenamiento por stock. Solo Mi Inventario. */
   showStock?: boolean;
+  /** Tema claro/oscuro (personalización de la tienda pública). */
+  theme?: StoreTheme;
+  /** Color de acento para los estados activos (personalización de la tienda). */
+  accentColor?: string;
 }
 
 // ─── Componente ────────────────────────────────────────────────────────────────
@@ -43,6 +48,8 @@ const ProductFilters = ({
   onClose,
   showTipo = false,
   showStock = false,
+  theme = 'light',
+  accentColor,
 }: ProductFiltersProps) => {
 
   // Las categorías se derivan de los productos cargados (campo relacional `categoria`).
@@ -86,6 +93,43 @@ const ProductFilters = ({
       : []),
   ];
 
+  // ─── Tema visual ─────────────────────────────────────────────────────────────
+  const isDark = theme === 'dark';
+  const ui = isDark
+    ? {
+        panel: 'bg-[#1c1c1f] border-white/10',
+        headerBorder: 'border-white/[0.08]',
+        heading: 'text-zinc-100',
+        label: 'text-zinc-400',
+        icon: 'text-zinc-500',
+        item: 'text-zinc-300 hover:bg-white/[0.06] hover:text-zinc-100',
+        itemBorder: 'border-white/10 hover:bg-white/[0.06] text-zinc-300',
+        clear: 'text-zinc-500 hover:text-zinc-200',
+        empty: 'text-zinc-500',
+        dotIdle: 'border-zinc-600',
+      }
+    : {
+        panel: 'bg-white border-slate-200',
+        headerBorder: 'border-slate-100',
+        heading: 'text-slate-900',
+        label: 'text-slate-500',
+        icon: 'text-slate-400',
+        item: 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+        itemBorder: 'border-slate-200 hover:bg-slate-50 text-slate-700',
+        clear: 'text-slate-400 hover:text-slate-700',
+        empty: 'text-slate-400',
+        dotIdle: 'border-slate-300',
+      };
+
+  // Estado activo de los elementos de lista (categoría, orden, tipo).
+  const activeItemBg = accentColor || '#0f172a'; // slate-900 por defecto
+  const activeItemText = accentColor ? readableTextOn(accentColor) : '#ffffff';
+  // Acentos menores (ícono de cabecera y badge "ON"): indigo por defecto.
+  const accentMark = accentColor || '#6366f1';
+  const accentMarkText = accentColor ? readableTextOn(accentColor) : '#ffffff';
+
+  const activeStyle = { background: activeItemBg, color: activeItemText };
+
   return (
     <>
       {/* Overlay móvil */}
@@ -96,19 +140,23 @@ const ProductFilters = ({
       {/* Panel */}
       <aside
         className={`
-          fixed top-0 left-0 h-full w-72 bg-white border-r border-slate-200 z-50 flex flex-col
+          fixed top-0 left-0 h-full w-72 border-r z-50 flex flex-col
           transition-transform duration-300 ease-in-out shadow-xl
           lg:static lg:translate-x-0 lg:shadow-none lg:z-auto lg:h-auto lg:rounded-2xl lg:border
+          ${ui.panel}
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100 flex-shrink-0">
+        <div className={`flex items-center justify-between p-5 border-b flex-shrink-0 ${ui.headerBorder}`}>
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
-            <span className="font-bold text-slate-900 text-sm tracking-wide uppercase">Filtros</span>
+            <SlidersHorizontal className="w-4 h-4" style={{ color: accentMark }} />
+            <span className={`font-bold text-sm tracking-wide uppercase ${ui.heading}`}>Filtros</span>
             {hasActiveFilters && (
-              <span className="bg-indigo-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
+                style={{ background: accentMark, color: accentMarkText }}
+              >
                 ON
               </span>
             )}
@@ -117,12 +165,12 @@ const ProductFilters = ({
             {hasActiveFilters && (
               <button
                 onClick={resetFilters}
-                className="text-xs text-slate-400 hover:text-slate-700 transition-colors underline underline-offset-2"
+                className={`text-xs transition-colors underline underline-offset-2 ${ui.clear}`}
               >
                 Limpiar
               </button>
             )}
-            <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-slate-700 transition-colors">
+            <button onClick={onClose} className={`lg:hidden transition-colors ${ui.clear}`}>
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -135,18 +183,21 @@ const ProductFilters = ({
             <section>
               <button
                 onClick={toggleSoloConStock}
+                style={filters.soloConStock ? activeStyle : undefined}
                 className={`
                   w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all border
-                  ${filters.soloConStock
-                    ? 'bg-slate-900 text-white border-slate-900'
-                    : 'text-slate-700 border-slate-200 hover:bg-slate-50'}
+                  ${filters.soloConStock ? 'border-transparent' : ui.itemBorder}
                 `}
               >
                 <span className="flex items-center gap-2">
                   <CheckSquare size={15} />
                   Solo con stock
                 </span>
-                <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all ${filters.soloConStock ? 'bg-white border-white' : 'border-slate-300'}`} />
+                <span
+                  className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all ${
+                    filters.soloConStock ? 'bg-white border-white' : ui.dotIdle
+                  }`}
+                />
               </button>
             </section>
           )}
@@ -155,28 +206,29 @@ const ProductFilters = ({
           {showTipo && (
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <Layers className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">Tipo de Pieza</span>
+                <Layers className={`w-3.5 h-3.5 ${ui.icon}`} />
+                <span className={`text-[0.65rem] font-bold uppercase tracking-widest ${ui.label}`}>Tipo de Pieza</span>
               </div>
               <div className="space-y-1">
                 {[
                   { value: 'todos' as const, label: 'Todas las piezas' },
                   { value: 'catalogo' as const, label: 'Del catálogo' },
                   { value: 'propias' as const, label: 'Piezas propias' },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setTipo(opt.value)}
-                    className={`
-                      w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all
-                      ${filters.tipo === opt.value
-                        ? 'bg-slate-900 text-white'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}
-                    `}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+                ].map((opt) => {
+                  const active = filters.tipo === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setTipo(opt.value)}
+                      style={active ? activeStyle : undefined}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        active ? '' : ui.item
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
               </div>
             </section>
           )}
@@ -184,26 +236,27 @@ const ProductFilters = ({
           {/* Categoría */}
           <section>
             <div className="flex items-center gap-2 mb-3">
-              <Tag className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">Categoría</span>
+              <Tag className={`w-3.5 h-3.5 ${ui.icon}`} />
+              <span className={`text-[0.65rem] font-bold uppercase tracking-widest ${ui.label}`}>Categoría</span>
             </div>
             <div className="space-y-1">
-              {categorias.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setCategoria(cat)}
-                  className={`
-                    w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all
-                    ${filters.categoria === cat
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}
-                  `}
-                >
-                  {cat}
-                </button>
-              ))}
+              {categorias.map((cat) => {
+                const active = filters.categoria === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setCategoria(cat)}
+                    style={active ? activeStyle : undefined}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      active ? '' : ui.item
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
               {categorias.length === 0 && (
-                <p className="text-xs text-slate-400 italic px-3">Sin categorías disponibles</p>
+                <p className={`text-xs italic px-3 ${ui.empty}`}>Sin categorías disponibles</p>
               )}
             </div>
           </section>
@@ -211,35 +264,40 @@ const ProductFilters = ({
           {/* Ordenar */}
           <section>
             <div className="flex items-center gap-2 mb-3">
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">Ordenar</span>
+              <ChevronDown className={`w-3.5 h-3.5 ${ui.icon}`} />
+              <span className={`text-[0.65rem] font-bold uppercase tracking-widest ${ui.label}`}>Ordenar</span>
             </div>
             <div className="space-y-1">
-              {ordenOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setOrden(opt.value)}
-                  className={`
-                    w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all
-                    ${filters.ordenPrecio === opt.value
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}
-                  `}
-                >
-                  {opt.label}
-                </button>
-              ))}
+              {ordenOptions.map((opt) => {
+                const active = filters.ordenPrecio === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setOrden(opt.value)}
+                    style={active ? activeStyle : undefined}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      active ? '' : ui.item
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           </section>
         </div>
 
         {/* Footer — limpiar */}
         {hasActiveFilters && (
-          <div className="p-4 border-t border-slate-100 flex-shrink-0">
+          <div className={`p-4 border-t flex-shrink-0 ${ui.headerBorder}`}>
             <Button
               onClick={resetFilters}
               variant="outline"
-              className="w-full rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-sm h-10"
+              className={`w-full rounded-xl font-bold text-sm h-10 ${
+                isDark
+                  ? 'border-white/10 bg-transparent text-zinc-300 hover:bg-white/[0.06] hover:text-zinc-100'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
             >
               <X className="w-4 h-4 mr-2" />
               Limpiar filtros

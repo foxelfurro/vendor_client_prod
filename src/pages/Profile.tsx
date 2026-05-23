@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2, Store, CheckCircle2, AlertCircle, Copy, QrCode, X } from 'lucide-react';
+import {
+  User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2, Store, CheckCircle2,
+  AlertCircle, Copy, QrCode, X, Sparkles, Palette, Check, Pipette, ImagePlus,
+  Image as ImageIcon, Trash2, Instagram, Facebook, Music2, LayoutGrid, Square,
+  Sun, Moon,
+} from 'lucide-react';
 import api from '@/lib/api';
 import SubscriptionBanner from '@/pages/SubscriptionBanner';
 import { QRCodeSVG } from 'qrcode.react'; // NUEVO: importar componente QR
+import StorePreview from '@/components/StorePreview';
+import {
+  ACCENT_PALETTE, DEFAULT_PERSONALIZATION, normalizePersonalization, readableTextOn,
+} from '@/lib/personalization';
+import type { StorePersonalization } from '@/lib/personalization';
+import { resizeImageToDataUrl } from '@/lib/image';
 
 const Profile = () => {
   const { user, login } = useAuth();
@@ -24,6 +35,10 @@ const Profile = () => {
   // Estados para funcionalidades extra
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+
+  // Estado de la personalización visual de la tienda
+  const [personalization, setPersonalization] = useState<StorePersonalization>(DEFAULT_PERSONALIZATION);
+  const [imgError, setImgError] = useState('');
 
   // Datos del usuario para mostrar
   const userInfo = {
@@ -47,8 +62,46 @@ const Profile = () => {
         store_slug: user.store_slug || '',
         telefono_digits: digits.replace(/\D/g, '').slice(0, 10) // asegura solo dígitos
       });
+      // Cargar la personalización guardada (o los valores por defecto)
+      setPersonalization(normalizePersonalization(user.personalizacion));
     }
   }, [user]);
+
+  // ── Helpers de personalización ───────────────────────────────────────────
+  const updateP = <K extends keyof StorePersonalization,>(key: K, value: StorePersonalization[K]) => {
+    setPersonalization((prev) => ({ ...prev, [key]: value }));
+    setFormStatus('idle');
+  };
+
+  const updateSocial = (platform: keyof StorePersonalization['social'], value: string) => {
+    setPersonalization((prev) => ({ ...prev, social: { ...prev.social, [platform]: value } }));
+    setFormStatus('idle');
+  };
+
+  // Procesa (redimensiona/comprime) una imagen subida y la guarda como data URL
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: 'logo_url' | 'banner_url'
+  ) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // permite volver a elegir el mismo archivo
+    if (!file) return;
+    setImgError('');
+    try {
+      const dataUrl =
+        field === 'logo_url'
+          ? await resizeImageToDataUrl(file, { maxWidth: 400, maxHeight: 400, format: 'image/jpeg', quality: 0.85 })
+          : await resizeImageToDataUrl(file, { maxWidth: 1400, maxHeight: 480, format: 'image/jpeg', quality: 0.82 });
+      updateP(field, dataUrl);
+    } catch (err: any) {
+      setImgError(err?.message || 'No se pudo procesar la imagen.');
+    }
+  };
+
+  // ¿El color actual NO está en la paleta curada? Entonces es un color personalizado.
+  const isCustomColor = !ACCENT_PALETTE.some(
+    (c) => c.value.toLowerCase() === personalization.accent_color.toLowerCase()
+  );
 
   // Generar slug automáticamente al cambiar el nombre de la tienda
   const handleStoreNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +158,8 @@ const Profile = () => {
     const payload = {
       store_name: formData.store_name,
       store_slug: formData.store_slug,
-      telefono: fullPhone
+      telefono: fullPhone,
+      personalizacion: personalization
     };
 
     try {
@@ -121,7 +175,8 @@ const Profile = () => {
         ...user,
         store_name: response.data.data.store_name,
         store_slug: response.data.data.store_slug,
-        telefono: backendPhone
+        telefono: backendPhone,
+        personalizacion: response.data.data.personalizacion
       });
 
       // 2. Asegurar que nuestro formulario local mantenga solo los 10 dígitos
@@ -130,6 +185,8 @@ const Profile = () => {
         store_slug: response.data.data.store_slug,
         telefono_digits: cleanDigits.replace(/\D/g, '').slice(0, 10)
       });
+      // Sincronizar la personalización con lo que devolvió el backend
+      setPersonalization(normalizePersonalization(response.data.data.personalizacion));
 
       setFormStatus('success');
       setFormMessage(response.data.message || 'Configuración guardada correctamente.');
@@ -359,6 +416,261 @@ const Profile = () => {
             <p className="text-[13px] text-on-surface-variant">
               Solo números, sin espacios ni guiones. Ejemplo: 5512345678
             </p>
+          </div>
+
+          {/* ===================== PERSONALIZACIÓN DE LA TIENDA ===================== */}
+          <div className="pt-6 border-t border-outline-variant/10">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-primary-stitch" />
+              <h3 className="text-sm font-bold text-on-surface">Personalización de la tienda</h3>
+            </div>
+            <p className="text-[13px] text-on-surface-variant mb-6">
+              Dale identidad a tu catálogo público. Estos cambios son solo visuales: tus
+              productos, precios y filtros siguen funcionando igual.
+            </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-8">
+              {/* ── Columna de controles ───────────────────────────────── */}
+              <div className="space-y-6">
+                {/* Color de acento */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-on-surface flex items-center gap-2">
+                    <Palette size={15} className="text-on-surface-variant" />
+                    Color de acento
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {ACCENT_PALETTE.map((c) => {
+                      const active = personalization.accent_color.toLowerCase() === c.value.toLowerCase();
+                      return (
+                        <button
+                          key={c.value}
+                          type="button"
+                          title={c.name}
+                          onClick={() => updateP('accent_color', c.value)}
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${
+                            active ? 'ring-2 ring-offset-2 ring-on-surface' : ''
+                          }`}
+                          style={{ background: c.value }}
+                        >
+                          {active && <Check size={15} style={{ color: readableTextOn(c.value) }} />}
+                        </button>
+                      );
+                    })}
+                    {/* Color personalizado */}
+                    <label
+                      title="Color personalizado"
+                      className={`relative w-9 h-9 rounded-full cursor-pointer flex items-center justify-center transition-transform hover:scale-110 ${
+                        isCustomColor ? 'ring-2 ring-offset-2 ring-on-surface' : ''
+                      }`}
+                      style={{
+                        background: isCustomColor
+                          ? personalization.accent_color
+                          : 'conic-gradient(from 0deg, #ef4444, #eab308, #22c55e, #3b82f6, #a855f7, #ef4444)',
+                      }}
+                    >
+                      <Pipette
+                        size={14}
+                        style={{ color: isCustomColor ? readableTextOn(personalization.accent_color) : '#ffffff' }}
+                      />
+                      <input
+                        type="color"
+                        value={personalization.accent_color}
+                        onChange={(e) => updateP('accent_color', e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                    </label>
+                  </div>
+                  <p className="text-[13px] text-on-surface-variant">
+                    Elige uno de la paleta o crea el tuyo con el último círculo.
+                  </p>
+                </div>
+
+                {/* Foto de perfil / logo */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-on-surface">Foto de perfil / logo</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border border-outline-variant/20 bg-surface-container flex items-center justify-center flex-shrink-0">
+                      {personalization.logo_url ? (
+                        <img src={personalization.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={22} className="text-on-surface-variant" />
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <label className="flex items-center gap-1.5 px-3 py-2 bg-surface-container border border-outline-variant/20 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer">
+                        <ImagePlus size={15} />
+                        {personalization.logo_url ? 'Cambiar' : 'Subir foto'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageUpload(e, 'logo_url')}
+                        />
+                      </label>
+                      {personalization.logo_url && (
+                        <button
+                          type="button"
+                          onClick={() => updateP('logo_url', '')}
+                          className="flex items-center gap-1.5 px-3 py-2 border border-outline-variant/20 rounded-lg text-sm font-medium text-error hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 size={15} />
+                          Quitar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Imagen de portada */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-on-surface">Imagen de portada</label>
+                  <div className="w-full h-24 rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-container flex items-center justify-center">
+                    {personalization.banner_url ? (
+                      <img src={personalization.banner_url} alt="Portada" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[13px] text-on-surface-variant flex items-center gap-1.5">
+                        <ImageIcon size={15} /> Sin portada
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <label className="flex items-center gap-1.5 px-3 py-2 bg-surface-container border border-outline-variant/20 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer">
+                      <ImagePlus size={15} />
+                      {personalization.banner_url ? 'Cambiar portada' : 'Subir portada'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload(e, 'banner_url')}
+                      />
+                    </label>
+                    {personalization.banner_url && (
+                      <button
+                        type="button"
+                        onClick={() => updateP('banner_url', '')}
+                        className="flex items-center gap-1.5 px-3 py-2 border border-outline-variant/20 rounded-lg text-sm font-medium text-error hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 size={15} />
+                        Quitar
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[13px] text-on-surface-variant">
+                    Recomendado: una imagen horizontal y nítida (se ajustará automáticamente).
+                  </p>
+                </div>
+
+                {/* Eslogan */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-on-surface">Eslogan o descripción</label>
+                  <input
+                    type="text"
+                    maxLength={80}
+                    value={personalization.slogan}
+                    onChange={(e) => updateP('slogan', e.target.value)}
+                    placeholder="Ej. Joyería artesanal hecha a mano"
+                    className="w-full px-3 py-2 bg-surface-container border border-outline-variant/10 rounded-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-stitch transition-colors"
+                  />
+                  <p className="text-[13px] text-on-surface-variant">
+                    Texto corto que aparece bajo el nombre de tu tienda ({personalization.slogan.length}/80).
+                  </p>
+                </div>
+
+                {/* Redes sociales */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-on-surface">Redes sociales</label>
+                  <div className="space-y-2">
+                    {([
+                      { key: 'instagram', label: 'Usuario de Instagram', Icon: Instagram },
+                      { key: 'tiktok', label: 'Usuario de TikTok', Icon: Music2 },
+                      { key: 'facebook', label: 'Página de Facebook', Icon: Facebook },
+                    ] as const).map(({ key, label, Icon }) => (
+                      <div key={key} className="flex items-center">
+                        <span className="inline-flex items-center px-2.5 py-2 bg-surface-container border border-outline-variant/10 border-r-0 rounded-l-lg text-on-surface-variant">
+                          <Icon size={16} />
+                        </span>
+                        <input
+                          type="text"
+                          placeholder={label}
+                          value={personalization.social[key]}
+                          onChange={(e) => updateSocial(key, e.target.value)}
+                          className="flex-1 min-w-0 px-3 py-2 bg-surface-container border border-outline-variant/10 rounded-r-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-stitch transition-colors"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[13px] text-on-surface-variant">
+                    Escribe solo tu usuario; se mostrarán como íconos enlazados en tu tienda.
+                  </p>
+                </div>
+
+                {/* Estilo visual */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-on-surface">Forma de las tarjetas</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { value: 'rounded', label: 'Redondeadas', Icon: LayoutGrid },
+                        { value: 'square', label: 'Cuadradas', Icon: Square },
+                      ] as const).map(({ value, label, Icon }) => {
+                        const active = personalization.card_style === value;
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => updateP('card_style', value)}
+                            className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+                              active
+                                ? 'border-on-surface bg-surface-container-high text-on-surface'
+                                : 'border-outline-variant/20 bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                            }`}
+                          >
+                            <Icon size={15} />
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-on-surface">Tema de la tienda</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { value: 'light', label: 'Claro', Icon: Sun },
+                        { value: 'dark', label: 'Oscuro', Icon: Moon },
+                      ] as const).map(({ value, label, Icon }) => {
+                        const active = personalization.theme === value;
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => updateP('theme', value)}
+                            className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+                              active
+                                ? 'border-on-surface bg-surface-container-high text-on-surface'
+                                : 'border-outline-variant/20 bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                            }`}
+                          >
+                            <Icon size={15} />
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {imgError && (
+                  <p className="flex items-center gap-1.5 text-sm text-error">
+                    <AlertCircle className="w-4 h-4" />
+                    {imgError}
+                  </p>
+                )}
+              </div>
+
+              {/* ── Columna de vista previa ────────────────────────────── */}
+              <StorePreview personalization={personalization} storeName={formData.store_name} />
+            </div>
           </div>
 
           {/* Mensajes de estado del formulario */}

@@ -4,13 +4,20 @@ import api from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
-import { Loader2, Store, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Loader2, Store, SlidersHorizontal, ChevronLeft, ChevronRight,
+  Instagram, Facebook, Music2,
+} from 'lucide-react';
+import {
+  normalizePersonalization, readableTextOn, withAlpha, buildSocialUrl,
+} from '@/lib/personalization';
 
 interface StoreData {
-  vendor: { 
-    nombre: string; 
-    store_name?: string; 
-    telefono: string 
+  vendor: {
+    nombre: string;
+    store_name?: string;
+    telefono: string;
+    personalizacion?: unknown;
   };
   products: any[];
 }
@@ -24,7 +31,7 @@ export default function PublicStore() {
   // Filtros
   const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
@@ -106,6 +113,47 @@ export default function PublicStore() {
   // Fallback por si el usuario no ha configurado el store_name aún
   const displayName = data.vendor.store_name || data.vendor.nombre;
 
+  // ── Personalización visual de la tienda ──────────────
+  const p = normalizePersonalization(data.vendor.personalizacion);
+  const isDark = p.theme === 'dark';
+  const accent = p.accent_color;
+  const accentText = readableTextOn(accent);
+
+  const t = isDark
+    ? {
+        pageBg: '#0f0f10',
+        headerBg: 'rgba(20,20,22,0.72)',
+        headerBorder: 'rgba(255,255,255,0.08)',
+        textPrimary: '#f4f4f5',
+        textSecondary: '#a1a1aa',
+        surface: '#1c1c1f',
+        surfaceBorder: 'rgba(255,255,255,0.08)',
+        pageBtnBorder: 'rgba(255,255,255,0.12)',
+        pageBtn: '#a1a1aa',
+        hoverNeutral: 'hover:bg-white/10',
+      }
+    : {
+        pageBg: '#fafafa',
+        headerBg: 'rgba(255,255,255,0.72)',
+        headerBorder: 'rgba(228,228,231,0.6)',
+        textPrimary: '#18181b',
+        textSecondary: '#71717a',
+        surface: '#ffffff',
+        surfaceBorder: '#f4f4f5',
+        pageBtnBorder: '#e4e4e7',
+        pageBtn: '#71717a',
+        hoverNeutral: 'hover:bg-zinc-100',
+      };
+
+  // Enlaces a redes sociales (solo los que la vendedora haya configurado)
+  const socialLinks = ([
+    { key: 'instagram', Icon: Instagram },
+    { key: 'tiktok', Icon: Music2 },
+    { key: 'facebook', Icon: Facebook },
+  ] as const)
+    .map(({ key, Icon }) => ({ key, Icon, url: buildSocialUrl(key, p.social[key]) }))
+    .filter((s) => s.url);
+
   // Paginación inteligente: máximo 7 páginas visibles con elipsis
   const getPageNumbers = (): (number | null)[] => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -120,21 +168,65 @@ export default function PublicStore() {
   };
 
   return (
-    <main className="min-h-screen bg-[#fafafa] pb-20 overflow-x-hidden w-full">
+    <main
+      className="min-h-screen pb-20 overflow-x-hidden w-full"
+      style={{ background: t.pageBg }}
+    >
+      {/* Imagen de portada (banner) — solo si la vendedora la configuró */}
+      {p.banner_url && (
+        <div className="w-full h-40 md:h-60 overflow-hidden">
+          <img src={p.banner_url} alt="" className="w-full h-full object-cover" />
+        </div>
+      )}
+
       {/* Header Minimalista (Efecto cristal) */}
-      <header className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-zinc-200/50">
-        <div className="max-w-7xl px-4 py-4 mx-auto md:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-              {displayName.charAt(0).toUpperCase()}
+      <header
+        className="sticky top-0 z-30 backdrop-blur-xl border-b"
+        style={{ background: t.headerBg, borderColor: t.headerBorder }}
+      >
+        <div className="max-w-7xl px-4 py-4 mx-auto md:px-8 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden flex-shrink-0"
+              style={{ background: accent, color: accentText }}
+            >
+              {p.logo_url ? (
+                <img src={p.logo_url} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                displayName.charAt(0).toUpperCase()
+              )}
             </div>
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight text-zinc-900 leading-tight">
+            <div className="min-w-0">
+              <h1
+                className="text-lg font-semibold tracking-tight leading-tight truncate"
+                style={{ color: t.textPrimary }}
+              >
                 {displayName}
               </h1>
-              <p className="text-xs text-zinc-500 font-medium">Catálogo Oficial</p>
+              <p className="text-xs font-medium truncate" style={{ color: t.textSecondary }}>
+                {p.slogan || 'Catálogo Oficial'}
+              </p>
             </div>
           </div>
+
+          {/* Redes sociales */}
+          {socialLinks.length > 0 && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {socialLinks.map(({ key, url, Icon }) => (
+                <a
+                  key={key}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={key}
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-transform hover:scale-105"
+                  style={{ background: withAlpha(accent, isDark ? 0.22 : 0.1), color: accent }}
+                >
+                  <Icon size={16} />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 
@@ -142,8 +234,10 @@ export default function PublicStore() {
       <section className="max-w-7xl px-4 py-8 mx-auto md:px-8 md:py-10">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-zinc-900">Disponibles ahora</h2>
-            <p className="text-zinc-500 mt-1 text-sm">
+            <h2 className="text-2xl font-bold tracking-tight" style={{ color: t.textPrimary }}>
+              Disponibles ahora
+            </h2>
+            <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>
               {productosFiltrados.length} pieza{productosFiltrados.length === 1 ? '' : 's'} en exhibición.
             </p>
           </div>
@@ -152,17 +246,20 @@ export default function PublicStore() {
           {productos.length > 0 && (
             <button
               onClick={() => setSidebarOpen(true)}
-              className={`
-                lg:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all self-start w-full sm:w-auto
-                ${hasActiveFilters
-                  ? 'bg-zinc-900 text-white shadow-md'
-                  : 'bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50'}
-              `}
+              style={
+                hasActiveFilters
+                  ? { background: accent, color: accentText }
+                  : { background: t.surface, borderColor: t.surfaceBorder, color: t.textSecondary }
+              }
+              className="lg:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all self-start w-full sm:w-auto border shadow-sm"
             >
               <SlidersHorizontal size={16} />
               <span>Filtros</span>
               {hasActiveFilters && (
-                <span className="bg-white text-zinc-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                <span
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
+                  style={{ background: accentText, color: accent }}
+                >
                   ON
                 </span>
               )}
@@ -171,10 +268,15 @@ export default function PublicStore() {
         </div>
 
         {productos.length === 0 ? (
-          <div className="text-center py-24 sm:py-32 bg-white rounded-3xl border border-zinc-100 shadow-sm">
-            <Store className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-zinc-900">Sin productos</h3>
-            <p className="text-zinc-500 mt-1 text-sm">Esta tienda aún no ha agregado productos a su catálogo público.</p>
+          <div
+            className="text-center py-24 sm:py-32 rounded-3xl border shadow-sm"
+            style={{ background: t.surface, borderColor: t.surfaceBorder }}
+          >
+            <Store className="w-12 h-12 mx-auto mb-4" style={{ color: t.textSecondary, opacity: 0.5 }} />
+            <h3 className="text-lg font-medium" style={{ color: t.textPrimary }}>Sin productos</h3>
+            <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>
+              Esta tienda aún no ha agregado productos a su catálogo público.
+            </p>
           </div>
         ) : (
           <div className="flex lg:gap-8 items-start">
@@ -186,6 +288,8 @@ export default function PublicStore() {
                 onChange={setFilters}
                 isOpen={true}
                 onClose={() => {}}
+                theme={p.theme}
+                accentColor={accent}
               />
             </aside>
 
@@ -197,6 +301,8 @@ export default function PublicStore() {
                 onChange={setFilters}
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
+                theme={p.theme}
+                accentColor={accent}
               />
             </div>
 
@@ -211,6 +317,9 @@ export default function PublicStore() {
                         key={product.inventario_id}
                         product={product}
                         vendorPhone={data.vendor.telefono}
+                        cardStyle={p.card_style}
+                        theme={p.theme}
+                        accentColor={accent}
                       />
                     ))}
                   </div>
@@ -221,7 +330,8 @@ export default function PublicStore() {
                       <button
                         onClick={() => changePage(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
-                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0"
+                        style={{ borderColor: t.pageBtnBorder, color: t.pageBtn }}
+                        className={`p-2 rounded-full border disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0 ${t.hoverNeutral}`}
                       >
                         <ChevronLeft size={20} />
                       </button>
@@ -231,7 +341,8 @@ export default function PublicStore() {
                           page === null ? (
                             <span
                               key={`ellipsis-${idx}`}
-                              className="w-8 h-8 flex items-center justify-center text-zinc-400 text-sm select-none"
+                              className="w-8 h-8 flex items-center justify-center text-sm select-none"
+                              style={{ color: t.textSecondary }}
                             >
                               …
                             </span>
@@ -239,10 +350,13 @@ export default function PublicStore() {
                             <button
                               key={page}
                               onClick={() => changePage(page)}
-                              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-all ${
+                              style={
                                 currentPage === page
-                                  ? 'bg-zinc-900 text-white'
-                                  : 'text-zinc-500 hover:bg-zinc-100'
+                                  ? { background: accent, color: accentText }
+                                  : { color: t.textSecondary }
+                              }
+                              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-all ${
+                                currentPage === page ? '' : t.hoverNeutral
                               }`}
                             >
                               {page}
@@ -254,7 +368,8 @@ export default function PublicStore() {
                       <button
                         onClick={() => changePage(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
-                        className="p-2 rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0"
+                        style={{ borderColor: t.pageBtnBorder, color: t.pageBtn }}
+                        className={`p-2 rounded-full border disabled:opacity-50 disabled:pointer-events-none transition-all flex-shrink-0 ${t.hoverNeutral}`}
                       >
                         <ChevronRight size={20} />
                       </button>
@@ -262,10 +377,15 @@ export default function PublicStore() {
                   )}
                 </>
               ) : (
-                <div className="text-center py-20 sm:py-24 bg-white rounded-3xl border border-zinc-100 shadow-sm">
-                  <Store className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-zinc-900">Sin coincidencias</h3>
-                  <p className="text-zinc-500 mt-1 text-sm">No hay piezas para los filtros seleccionados.</p>
+                <div
+                  className="text-center py-20 sm:py-24 rounded-3xl border shadow-sm"
+                  style={{ background: t.surface, borderColor: t.surfaceBorder }}
+                >
+                  <Store className="w-12 h-12 mx-auto mb-4" style={{ color: t.textSecondary, opacity: 0.5 }} />
+                  <h3 className="text-lg font-medium" style={{ color: t.textPrimary }}>Sin coincidencias</h3>
+                  <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>
+                    No hay piezas para los filtros seleccionados.
+                  </p>
                 </div>
               )}
             </div>
