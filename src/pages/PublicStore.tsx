@@ -5,9 +5,10 @@ import { ProductCard } from '@/components/ProductCard';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
 import {
-  Loader2, Store, SlidersHorizontal, ChevronLeft, ChevronRight,
+  Store, SlidersHorizontal, ChevronLeft, ChevronRight,
   Instagram, Facebook, Music2,
 } from 'lucide-react';
+import PageLoader from '@/components/ui/PageLoader';
 import {
   normalizePersonalization, readableTextOn, withAlpha, buildSocialUrl,
 } from '@/lib/personalization';
@@ -91,14 +92,7 @@ export default function PublicStore() {
 
   const hasActiveFilters = filters.categoria !== '' || filters.ordenPrecio !== 'none';
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen space-y-4 bg-[#fafafa]">
-        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin" />
-        <p className="text-sm font-medium text-zinc-500">Cargando catálogo...</p>
-      </div>
-    );
-  }
+  if (loading) return <PageLoader message="Cargando catálogo…" />;
 
   if (error || !data) {
     return (

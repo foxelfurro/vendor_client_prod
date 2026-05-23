@@ -1,5 +1,17 @@
+/**
+ * @file AuthContext.tsx
+ * @description Contexto global de autenticación.
+ *
+ * Al montar la aplicación llama a `GET /auth/me` para rehidratar la sesión
+ * desde la cookie httpOnly. Expone `user`, `login`, `logout` y `loading`
+ * a través del hook `useAuth`.
+ *
+ * @example
+ * const { user, logout } = useAuth();
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../lib/api';
+import api from '@/lib/api';
 
 interface AuthContextType {
   user: any;

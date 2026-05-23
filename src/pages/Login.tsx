@@ -1,9 +1,20 @@
+/**
+ * @file Login.tsx
+ * @description Página de inicio de sesión.
+ *
+ * Incluye validación de captcha Turnstile para proteger contra bots.
+ * Si la cuenta tiene suscripción pendiente o expirada se muestra un
+ * enlace contextual para completar o renovar el pago.
+ */
+
 import React, { useState, useRef } from 'react';
-import api from '../lib/api';
-import { useAuth } from '../context/AuthContext';
+import api from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import PublicFooter from '@/components/PublicFooter';
+import PublicNav from '@/components/PublicNav';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { TURNSTILE_SITE_KEY } from '../lib/turnstile';
+import { TURNSTILE_SITE_KEY } from '@/lib/turnstile';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -65,26 +76,7 @@ const Login = () => {
 
   return (
     <div className="bg-background font-body text-on-surface antialiased selection:bg-primary/20 min-h-screen flex flex-col">
-      {/* Top Navigation - RESTAURADO */}
-      <nav className="bg-zinc-50 dark:bg-zinc-950 font-manrope antialiased tracking-tight docked full-width top-0 bg-zinc-100 dark:bg-zinc-900/50 flat no-shadows">
-        <div className="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-zinc-700 dark:text-zinc-300" data-icon="diamond">diamond</span>
-            <span className="text-xl tracking-tighter text-zinc-800 dark:text-zinc-100 uppercase">
-              <span className="font-black">Qlatte</span> <span className="font-normal opacity-60 mx-2">|</span>
-              <span className="font-normal opacity-80">Lumin</span>
-            </span>
-          </div>
-          <div className="hidden md:flex gap-8">
-            <Link 
-              to="/Support" 
-              className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors underline-offset-4 hover:underline font-manrope text-[11px] tracking-widest uppercase"
-            >
-              Soporte
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <PublicNav />
 
       {/* Main Content Canvas */}
       <main className="flex-grow flex items-center justify-center px-6 py-12">
@@ -173,14 +165,7 @@ const Login = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto text-zinc-600 dark:text-zinc-400 font-manrope text-[11px] tracking-widest uppercase border-t border-outline-variant/10">
-        <div className="flex items-center gap-6">
-          <Link to="/privacy" className="hover:text-zinc-800 transition-colors">Privacidad</Link>
-          <Link to="/terms" className="hover:text-zinc-800 transition-colors">Términos</Link>
-        </div>
-        <div className="text-zinc-400">© 2026 Qlatte Lumin</div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 };

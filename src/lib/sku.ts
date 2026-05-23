@@ -1,8 +1,13 @@
-// Utilidades de coincidencia de SKU.
-// Una joya puede haber cambiado de SKU; el SKU vigente se guarda en `sku` y los
-// anteriores en `skus_anteriores`. La búsqueda debe reconocer ambos para que las
-// vendedoras con etiquetas antiguas encuentren la joya, mostrando siempre el
-// SKU vigente.
+/**
+ * @file sku.ts
+ * @description Utilidades de coincidencia de SKU.
+ *
+ * Una joya puede haber cambiado de SKU a lo largo del tiempo. El SKU vigente
+ * se guarda en `catalogo_maestro.sku` y los anteriores en `skus_anteriores`
+ * (arreglo de texto). La búsqueda y el escáner QR deben reconocer ambos para
+ * que las vendedoras con etiquetas antiguas encuentren la joya. En la interfaz
+ * se muestra SIEMPRE el SKU vigente.
+ */
 
 export interface ConSku {
   sku?: string | null;

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import api from '../lib/api';
+import api from '@/lib/api';
 import { CheckCircle2, Clock, XCircle, Loader2, LogIn, RefreshCw } from 'lucide-react';
 
 // =============================================================================

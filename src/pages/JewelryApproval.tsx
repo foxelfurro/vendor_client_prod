@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../lib/api';
+import api from '@/lib/api';
+import PageLoader from '@/components/ui/PageLoader';
+import AppFooter from '@/components/AppFooter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -262,10 +264,7 @@ const JewelryApproval = () => {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 text-slate-500">
-          <Loader2 className="w-8 h-8 animate-spin mb-3 text-amber-500" />
-          <p>Cargando joyas pendientes…</p>
-        </div>
+        <PageLoader inline message="Cargando joyas pendientes…" />
       ) : items.length === 0 ? (
         <Card className="border border-slate-200 shadow-sm">
           <CardHeader>
@@ -298,6 +297,7 @@ const JewelryApproval = () => {
           </div>
         </div>
       )}
+      <AppFooter />
     </div>
   );
 };

@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../lib/api';
+import api from '@/lib/api';
 import { UserPlus, Loader2, ArrowRight } from 'lucide-react';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { TURNSTILE_SITE_KEY } from '../lib/turnstile';
+import { TURNSTILE_SITE_KEY } from '@/lib/turnstile';
 
 // =============================================================================
 // Paso 1 de 2: Crear la cuenta (sin cobro).

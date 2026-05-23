@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
+import PageLoader from '@/components/ui/PageLoader';
+import AppFooter from '@/components/AppFooter';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,11 +63,13 @@ const Dashboard = () => {
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Estados para la venta (únicos y sin duplicar)
+  // Estados del formulario de venta rápida
   const [searchTerm, setSearchTerm] = useState('');
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [procesando, setProcesando] = useState(false);
+  /** Mensaje de resultado de la venta (éxito o error) para mostrar inline. */
+  const [ventaMsg, setVentaMsg] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
 
   // Lógica de filtrado reactiva
   const resultadosBusqueda = useMemo(() => {
@@ -115,45 +119,47 @@ const Dashboard = () => {
     if (!productoSeleccionado || cantidad < 1) return;
 
     if (!productoActual) {
-      alert("Error interno: No se encontró la información del producto.");
+      setVentaMsg({ tipo: 'error', texto: 'Error interno: no se encontró el producto seleccionado.' });
       return;
     }
 
     if (cantidad > productoActual.stock) {
-      alert(`¡No puedes vender ${cantidad}! Solo tienes ${productoActual.stock} en stock.`);
+      setVentaMsg({ tipo: 'error', texto: `Stock insuficiente. Solo quedan ${productoActual.stock} unidades.` });
       return;
     }
 
     setProcesando(true);
+    setVentaMsg(null);
 
     try {
       await api.post('/sales/register', {
         inventario_id: productoSeleccionado,
-        cantidad: cantidad,
-        precio_unitario: productoActual.precio_personalizado
+        cantidad,
+        precio_unitario: productoActual.precio_personalizado,
       });
 
-      alert("¡Venta registrada con éxito! 💰✨");
-      
+      setVentaMsg({ tipo: 'success', texto: 'Venta registrada correctamente.' });
       setProductoSeleccionado('');
       setSearchTerm('');
       setCantidad(1);
-      
-      const { data: newInventory } = await api.get('/vendor/inventory');
+
+      // Actualiza inventario y estadísticas tras la venta exitosa
+      const [{ data: newInventory }, { data: newStats }] = await Promise.all([
+        api.get('/vendor/inventory'),
+        api.get('/vendor/dashboard-stats'),
+      ]);
       setInventario(newInventory.filter((item: InventoryItem) => item.stock > 0));
-      
-      const { data: newStats } = await api.get('/vendor/dashboard-stats');
       setStats(newStats);
     } catch (error: any) {
-      console.error("🔥 Error al registrar la venta:", error);
-      alert(error.response?.data?.error || "Error al registrar la venta");
+      console.error('Error al registrar la venta:', error);
+      setVentaMsg({ tipo: 'error', texto: error.response?.data?.error || 'Error al registrar la venta.' });
     } finally {
       setProcesando(false);
     }
   };
 
-  if (loading) return <div className="p-10 text-slate-500 flex justify-center w-full">Abriendo la caja...</div>;
-  if (!stats) return <div className="p-10 text-center flex justify-center w-full">Cargando datos de la joyería...</div>;
+  if (loading) return <PageLoader message="Cargando panel de control…" />;
+  if (!stats) return <PageLoader message="Preparando estadísticas…" />;
 
   const kpis = [
     { id: 'ingresos', label: 'Ventas Totales', value: `$${stats.resumen.total_ingresos.toLocaleString('es-MX')}`, icon: DollarSign, trend: '+12.5% vs mes anterior', trendType: 'up' },
@@ -289,14 +295,24 @@ const Dashboard = () => {
                 )}
               </CardContent>
 
-              <CardFooter className="px-6 sm:px-8 pb-8 pt-2">
+              <CardFooter className="px-6 sm:px-8 pb-8 pt-2 flex-col gap-3">
+                {/* Mensaje de resultado inline (reemplaza alert()) */}
+                {ventaMsg && (
+                  <div className={`w-full px-4 py-3 rounded-xl text-sm font-medium border ${
+                    ventaMsg.tipo === 'success'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      : 'bg-red-50 border-red-200 text-red-800'
+                  }`}>
+                    {ventaMsg.texto}
+                  </div>
+                )}
                 <Button
                   type="submit"
                   className="w-full h-14 rounded-xl bg-on-surface hover:bg-on-surface/90 text-surface-container-lowest font-bold text-base shadow-lg transition-all"
                   disabled={procesando || !productoSeleccionado}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
-                  <span className="truncate tracking-wide">{procesando ? 'Procesando...' : 'Cobrar y Registrar'}</span>
+                  <span className="truncate tracking-wide">{procesando ? 'Procesando…' : 'Cobrar y Registrar'}</span>
                 </Button>
               </CardFooter>
             </form>
@@ -421,13 +437,7 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
-      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-600 font-manrope text-xs tracking-widest">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <div className="text-zinc-400">
-            Lumin by Qlatte © 2026
-          </div>
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   );
 };

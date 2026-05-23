@@ -1,3 +1,16 @@
+/**
+ * @file Layout.tsx
+ * @description Shell principal de la zona protegida de la aplicación.
+ *
+ * Renderiza la barra lateral (sidebar) con los links de navegación y el
+ * área de contenido principal donde se insertan las páginas hijas mediante
+ * `<Outlet />`. En móvil, el sidebar se convierte en un drawer que se abre
+ * con el botón de menú de la topbar.
+ *
+ * La lista de links se construye dinámicamente según el rol del usuario:
+ * los administradores ven rutas de /admin adicionales.
+ */
+
 import { useState, useEffect, useMemo } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import api from '../lib/api'; // Asegúrate de que la ruta a tu api.ts sea correcta
+import api from '@/lib/api';
+import AppFooter from '@/components/AppFooter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -281,6 +282,7 @@ return (
         </Card>
 
       </div>
+      <AppFooter />
     </div>
   );
 };

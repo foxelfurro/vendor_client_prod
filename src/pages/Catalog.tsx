@@ -9,6 +9,8 @@ import {
   PackagePlus, Search, Library, Loader2, PackageSearch,
   PlusCircle, QrCode, X, SlidersHorizontal, ChevronLeft, ChevronRight, Pencil, CheckCircle2
 } from "lucide-react";
+import PageLoader from '@/components/ui/PageLoader';
+import AppFooter from '@/components/AppFooter';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
@@ -251,14 +253,7 @@ const Catalog = () => {
     filters.precioMax < 999999;
 
   // ── Loading state ──────────────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
-        <Loader2 className="w-10 h-10 animate-spin mb-4 text-indigo-500" />
-        <p className="text-slate-500 font-medium">Abriendo la bóveda…</p>
-      </div>
-    );
-  }
+  if (loading) return <PageLoader message="Cargando catálogo maestro…" />;
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -706,10 +701,7 @@ const Catalog = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Footer */}
-      <footer className="mt-16 py-8 border-t border-slate-200 bg-slate-50 text-slate-400 font-mono text-xs tracking-widest text-center">
-        Lumin by Qlatte © 2026
-      </footer>
+      <AppFooter />
     </div>
   );
 };

@@ -4,8 +4,9 @@ import api from '@/lib/api';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-// @ts-ignore: No declaration file for 'lucide-react' in this project
 import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera } from "lucide-react";
+import PageLoader from '@/components/ui/PageLoader';
+import AppFooter from '@/components/AppFooter';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
@@ -293,7 +294,7 @@ const Inventory = () => {
     filters.tipo !== 'todos' ||
     filters.soloConStock;
 
-  if (loading) return <div className="p-10 text-center text-slate-500">Contando las piezas...</div>;
+  if (loading) return <PageLoader message="Cargando inventario…" />;
 
   return (
     <div className="bg-background font-body text-on-surface antialiased min-h-screen">
@@ -693,9 +694,7 @@ const Inventory = () => {
 
       </main>
 
-      <footer className="w-full py-8 md:py-12 px-6 mt-16 border-t border-outline-variant/10 bg-surface-container-lowest text-zinc-400 font-manrope text-xs tracking-widest text-center">
-        Lumin by Qlatte © 2026
-      </footer>
+      <AppFooter />
     </div>
   );
 };
