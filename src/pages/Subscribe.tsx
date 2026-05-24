@@ -9,7 +9,7 @@ import { Loader2, Lock, ShieldCheck } from 'lucide-react';
 // Checkout alojado y seguro de Stripe.
 // =============================================================================
 
-const PRECIO = '299.00';
+const PRECIO = '299.99';
 
 const Subscribe = () => {
   const [params] = useSearchParams();
