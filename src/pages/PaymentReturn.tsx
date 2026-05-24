@@ -15,7 +15,10 @@ const PaymentReturn = () => {
   const [params] = useSearchParams();
   // `pago_id` es el id interno del pago (lo añade el backend al success_url
   // del Checkout de Stripe). Con él se consulta /payments/estado/:pagoId.
-  const ref = params.get('pago_id');
+  // Se acepta también `session_id` (el nombre anterior del parámetro) para que
+  // la página siga funcionando aunque el backend y el frontend se desplieguen
+  // en momentos distintos.
+  const ref = params.get('pago_id') ?? params.get('session_id');
 
   const [estado, setEstado] = useState<Estado>('cargando');
   const [metodo, setMetodo] = useState<string | null>(null);
