@@ -1,24 +1,21 @@
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import api from '@/lib/api';
-import { CreditCard, Store, Loader2, Lock, ShieldCheck, Check } from 'lucide-react';
+import { Loader2, Lock, ShieldCheck } from 'lucide-react';
 
 // =============================================================================
 // Paso 2 de 2: Activar la suscripción.
-// Se identifica a la persona con su correo y contraseña, elige forma de pago y
-// se le redirige al Checkout alojado y seguro de Conekta.
+// Se identifica a la persona con su correo y contraseña y se le redirige al
+// Checkout alojado y seguro de Stripe.
 // =============================================================================
 
 const PRECIO = '299.00';
-
-type Modo = 'recurrente' | 'unico';
 
 const Subscribe = () => {
   const [params] = useSearchParams();
 
   const [email, setEmail] = useState(params.get('email') || '');
   const [password, setPassword] = useState('');
-  const [modo, setModo] = useState<Modo>('recurrente');
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,8 +24,8 @@ const Subscribe = () => {
     setError('');
     setProcesando(true);
     try {
-      const { data } = await api.post('/payments/checkout', { email, password, modo });
-      // Redirección a la página de pago segura de Conekta.
+      const { data } = await api.post('/payments/checkout', { email, password });
+      // Redirección a la página de pago segura de Stripe.
       window.location.href = data.url;
     } catch (err: any) {
       setError(err.response?.data?.error || 'No pudimos iniciar el pago. Intenta de nuevo.');
@@ -92,55 +89,6 @@ const Subscribe = () => {
               </div>
             </div>
 
-            {/* Forma de pago */}
-            <div className="space-y-3">
-              <span className={labelClass}>Forma de pago</span>
-
-              <button
-                type="button"
-                onClick={() => setModo('recurrente')}
-                disabled={procesando}
-                className={`w-full text-left p-4 rounded-xl border transition-all flex gap-3 ${
-                  modo === 'recurrente'
-                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                    : 'border-outline-variant/20 hover:border-outline-variant/40'
-                }`}
-              >
-                <CreditCard size={20} className="text-primary flex-shrink-0 mt-0.5" />
-                <span className="flex-1">
-                  <span className="flex items-center gap-2 font-bold text-sm">
-                    Tarjeta — cobro automático
-                    {modo === 'recurrente' && <Check size={15} className="text-primary" />}
-                  </span>
-                  <span className="block text-xs text-on-surface-variant mt-0.5">
-                    Se cobran ${PRECIO} MXN cada mes a tu tarjeta. Cancela cuando quieras.
-                  </span>
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setModo('unico')}
-                disabled={procesando}
-                className={`w-full text-left p-4 rounded-xl border transition-all flex gap-3 ${
-                  modo === 'unico'
-                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                    : 'border-outline-variant/20 hover:border-outline-variant/40'
-                }`}
-              >
-                <Store size={20} className="text-primary flex-shrink-0 mt-0.5" />
-                <span className="flex-1">
-                  <span className="flex items-center gap-2 font-bold text-sm">
-                    Pago único — OXXO, SPEI o tarjeta
-                    {modo === 'unico' && <Check size={15} className="text-primary" />}
-                  </span>
-                  <span className="block text-xs text-on-surface-variant mt-0.5">
-                    Pagas ${PRECIO} MXN por 1 mes. Tú decides cuándo renovar.
-                  </span>
-                </span>
-              </button>
-            </div>
-
             {error && (
               <div className="bg-error/10 border border-error/20 text-error text-sm rounded-lg px-4 py-3">
                 {error}
@@ -166,7 +114,7 @@ const Subscribe = () => {
             </button>
 
             <p className="text-[11px] text-on-surface-variant/70 text-center leading-relaxed">
-              El pago se procesa en la página segura de Conekta. No almacenamos los datos de tu tarjeta.
+              El pago se procesa en la página segura de Stripe. No almacenamos los datos de tu tarjeta.
             </p>
           </form>
         </div>

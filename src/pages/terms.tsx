@@ -27,11 +27,11 @@ const TermsOfService = () => {
             <div className="bg-black text-white p-6 rounded-2xl mb-4 shadow-xl shadow-gray-200">
               <p className="text-sm uppercase tracking-widest opacity-70 mb-2">Tarifa Mensual</p>
               <h3 className="text-3xl font-semibold">$299.00 MXN <span className="text-lg font-normal opacity-70">/ mes</span></h3>
-              <p className="mt-4 text-sm opacity-80 italic">El precio incluye IVA y el cargo se realiza de forma automática cada 30 días naturales vía Conekta.</p>
+              <p className="mt-4 text-sm opacity-80 italic">El precio incluye IVA y el cargo se realiza de forma automática cada 30 días naturales vía Stripe.</p>
             </div>
             <div className="space-y-2 text-gray-600 text-sm mt-4">
               <p><span className="font-medium text-black">Impuestos:</span> El precio mencionado incluye el Impuesto al Valor Agregado (IVA) de conformidad con las leyes fiscales mexicanas.</p>
-              <p><span className="font-medium text-black">Recurrencia:</span> El cargo se realizará de manera automática cada 30 días naturales a través de la plataforma Conekta.</p>
+              <p><span className="font-medium text-black">Recurrencia:</span> El cargo se realizará de manera automática cada 30 días naturales a través de la plataforma Stripe.</p>
               <p><span className="font-medium text-black">Ajuste de Precios:</span> El Prestador se reserva el derecho de modificar la tarifa, notificando al Suscriptor con al menos 30 días de anticipación.</p>
             </div>
           </section>

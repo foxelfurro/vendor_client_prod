@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '@/lib/api';
 
 interface Props {
   userId: string;
@@ -8,6 +9,7 @@ interface Props {
 
 const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
   const navigate = useNavigate();
+  const [procesando, setProcesando] = useState(false);
 
   // 1. Calculamos los días restantes
   const calcularDias = () => {
@@ -24,9 +26,18 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
 
   const estaExpirado = diasRestantes < 0;
 
-  // 3. Al hacer clic, se envía a la página de suscripción / pago.
-  const handleRenovar = () => {
-    navigate('/suscripcion');
+  // 3. Al hacer clic, se abre el Billing Portal de Stripe para gestionar o
+  //    renovar la suscripción (actualizar tarjeta, ver facturas, etc.). Si el
+  //    portal no está disponible, se cae al flujo público de suscripción.
+  const handleRenovar = async () => {
+    if (procesando) return;
+    setProcesando(true);
+    try {
+      const { data } = await api.post('/payments/portal');
+      window.location.href = data.url;
+    } catch {
+      navigate('/suscripcion');
+    }
   };
 
   // 4. Renderizado
@@ -49,13 +60,14 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
 
       <button
         onClick={handleRenovar}
-        className={`px-4 py-2 font-semibold rounded shadow transition-colors ${
-          estaExpirado 
-            ? 'bg-red-600 hover:bg-red-700 text-white' 
+        disabled={procesando}
+        className={`px-4 py-2 font-semibold rounded shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
+          estaExpirado
+            ? 'bg-red-600 hover:bg-red-700 text-white'
             : 'bg-yellow-500 hover:bg-yellow-600 text-white'
         }`}
       >
-        Renovar Ahora
+        {procesando ? 'Abriendo…' : 'Renovar Ahora'}
       </button>
     </div>
   );

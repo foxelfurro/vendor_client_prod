@@ -114,7 +114,7 @@ npm run preview   # previsualizar el build localmente
 
 | Tipo | Rutas | Descripción |
 |---|---|---|
-| Públicas | `/login`, `/registro`, `/suscripcion`, `/store/:slug`, `/support`, `/forgot-password`, `/reset-password`, `/privacy`, `/terms`, `/devoluciones` | Accesibles sin sesión |
+| Públicas | `/login`, `/registro`, `/suscripcion`, `/pago/resultado`, `/store/:slug`, `/support`, `/forgot-password`, `/reset-password`, `/privacy`, `/terms`, `/devoluciones` | Accesibles sin sesión |
 | Protegidas | `/dashboard`, `/catalogo`, `/inventario`, `/caja`, `/perfil` | Requieren JWT válido |
 | Admin | `/admin`, `/admin/aprobaciones` | Requieren `rol === 1` |
 

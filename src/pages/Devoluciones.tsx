@@ -24,7 +24,7 @@ const Devoluciones = () => {
           <section>
             <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">2. Entrega del Servicio</h2>
             <p className="leading-relaxed text-gray-600">
-              La entrega es electrónica e inmediata. En cuanto el procesador de pagos Conekta confirma el pago, tu cuenta se activa automáticamente y puedes acceder con tu correo y contraseña desde cualquier dispositivo con internet. Si pagaste con OXXO o transferencia SPEI, la activación ocurre al confirmarse el pago, generalmente unas horas después.
+              La entrega es electrónica e inmediata. En cuanto el procesador de pagos Stripe confirma el pago, tu cuenta se activa automáticamente y puedes acceder con tu correo y contraseña desde cualquier dispositivo con internet. Si pagaste con OXXO o transferencia SPEI, la activación ocurre al confirmarse el pago, generalmente unas horas después.
             </p>
           </section>
 
@@ -38,7 +38,7 @@ const Devoluciones = () => {
               </p>
             </div>
             <p className="leading-relaxed text-gray-600">
-              Para solicitarlo, escríbenos a <span className="font-medium text-black">admin@qlatte.com</span> dentro de ese periodo, indicando el correo con el que te registraste. El reembolso se procesa por la misma vía de pago mediante Conekta y puede tardar de 5 a 10 días hábiles en reflejarse, según tu banco.
+              Para solicitarlo, escríbenos a <span className="font-medium text-black">admin@qlatte.com</span> dentro de ese periodo, indicando el correo con el que te registraste. El reembolso se procesa por la misma vía de pago mediante Stripe y puede tardar de 5 a 10 días hábiles en reflejarse, según tu banco.
             </p>
           </section>
 

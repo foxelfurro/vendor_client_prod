@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { CheckCircle2, Clock, XCircle, Loader2, LogIn, RefreshCw } from 'lucide-react';
 
 // =============================================================================
-// Página de retorno tras el Checkout de Conekta.
+// Página de retorno tras el Checkout de Stripe.
 // Consulta el estado del pago (que confirma el webhook) y lo muestra.
 // =============================================================================
 
@@ -13,7 +13,9 @@ type Estado = 'cargando' | 'pagado' | 'pendiente' | 'fallido' | 'expirado' | 'er
 const PaymentReturn = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const ref = params.get('ref');
+  // `pago_id` es el id interno del pago (lo añade el backend al success_url
+  // del Checkout de Stripe). Con él se consulta /payments/estado/:pagoId.
+  const ref = params.get('pago_id');
 
   const [estado, setEstado] = useState<Estado>('cargando');
   const [metodo, setMetodo] = useState<string | null>(null);
@@ -113,9 +115,9 @@ const PaymentReturn = () => {
         <h1 className="text-2xl font-headline font-extrabold">Pago en proceso</h1>
         <p className="text-on-surface-variant text-sm leading-relaxed">
           {esOxxo
-            ? 'Genera tu ficha y paga en cualquier tienda OXXO. Tu cuenta se activará automáticamente cuando OXXO confirme el pago (puede tardar varias horas).'
+            ? 'Genera tu ficha y paga en cualquier tienda OXXO. Tu cuenta se activará automáticamente cuando se confirme el pago (puede tardar varias horas).'
             : esSpei
-            ? 'Realiza la transferencia SPEI con los datos que te dio Conekta. Tu cuenta se activará automáticamente al recibir el pago.'
+            ? 'Realiza la transferencia SPEI con los datos que te proporcionó Stripe. Tu cuenta se activará automáticamente al recibir el pago.'
             : 'Estamos esperando la confirmación de tu pago. Tu cuenta se activará automáticamente en cuanto se confirme.'}
         </p>
         <p className="text-xs text-on-surface-variant/70">

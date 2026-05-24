@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
           <section className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
             <h2 className="text-xl font-medium mb-4 text-black">3. Datos Financieros y Bancarios</h2>
             <p className="leading-relaxed text-gray-600">
-              Se hace constar que <span className="font-medium text-black">Lumin no almacena, procesa ni tiene acceso a datos de tarjetas de crédito, débito o cuentas bancarias</span>. Todas las transacciones financieras son gestionadas externamente por el procesador de pagos <span className="font-medium text-black">Conekta</span>, quien cumple con los estándares internacionales de seguridad PCI-DSS.
+              Se hace constar que <span className="font-medium text-black">Lumin no almacena, procesa ni tiene acceso a datos de tarjetas de crédito, débito o cuentas bancarias</span>. Todas las transacciones financieras son gestionadas externamente por el procesador de pagos <span className="font-medium text-black">Stripe</span>, quien cumple con los estándares internacionales de seguridad PCI-DSS.
             </p>
           </section>
 
