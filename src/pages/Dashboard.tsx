@@ -2,23 +2,25 @@ import { useEffect, useState, useMemo } from 'react';
 import PageLoader from '@/components/ui/PageLoader';
 import AppFooter from '@/components/AppFooter';
 import api from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
-import { 
-  DollarSign, 
-  Package, 
-  AlertTriangle, 
-  TrendingUp, 
-  Layers, 
-  Coins, 
+import QrScanner from '@/components/QrScanner';
+import { matchSku } from '@/lib/sku';
+import {
+  DollarSign,
+  Package,
+  AlertTriangle,
+  TrendingUp,
+  Layers,
+  Coins,
   ShoppingCart,
   BadgeDollarSign,
   ArrowRight,
   Users,
   Clock3,
-  Search
+  Search,
+  QrCode
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -26,6 +28,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 interface InventoryItem {
   inventario_id: number;
   sku: string;
+  skus_anteriores?: string[];
   nombre: string;
   stock: number;
   precio_personalizado: number;
@@ -68,6 +71,7 @@ const Dashboard = () => {
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [procesando, setProcesando] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   /** Mensaje de resultado de la venta (éxito o error) para mostrar inline. */
   const [ventaMsg, setVentaMsg] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
 
@@ -158,6 +162,32 @@ const Dashboard = () => {
     }
   };
 
+  // El escáner QR selecciona la joya en el formulario; la cantidad y el cobro
+  // se confirman manualmente.
+  const handleQrScan = (decodedText: string) => {
+    setShowScanner(false);
+    const cleanUrl = decodedText.trim().replace(/\/$/, '');
+    const partes = cleanUrl.split('/');
+    const posibleSku1 = partes[partes.length - 1];
+    const posibleSku2 = partes[partes.length - 2];
+
+    const joya = inventario.find(
+      (p) => matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+    );
+
+    if (joya) {
+      setProductoSeleccionado(String(joya.inventario_id));
+      setSearchTerm(`${joya.nombre} (${joya.sku || 'S/N'})`);
+      setVentaMsg(null);
+    } else {
+      setProductoSeleccionado('');
+      setVentaMsg({
+        tipo: 'error',
+        texto: 'No se encontró ninguna joya con ese código en tu inventario disponible.',
+      });
+    }
+  };
+
   if (loading) return <PageLoader message="Cargando panel de control…" />;
   if (!stats) return <PageLoader message="Preparando estadísticas…" />;
 
@@ -200,50 +230,47 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
         
         {/* Tarjeta de Nueva Venta */}
-        <div className="max-w-4xl mx-auto w-full">
-          <Card className="shadow-[0_16px_48px_rgba(45,52,53,0.06)] border-outline-variant/10 bg-surface-container-lowest overflow-hidden rounded-2xl">
-            <CardHeader className="border-b border-outline-variant/10 pb-6 px-6 sm:px-8">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-surface-container border border-outline-variant/30 text-emerald-500 shadow-sm flex-shrink-0">
-                  <BadgeDollarSign size={28} strokeWidth={1.5} />
-                </div>
-                <div className="space-y-1">
-                  <CardTitle className="text-xl md:text-2xl font-headline font-bold text-on-surface tracking-tight">
-                    Nueva Venta
-                  </CardTitle>
-                  <CardDescription className="text-on-surface-variant text-sm">
-                    Busca por SKU o nombre para registrar la salida.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] overflow-hidden">
+          {/* Encabezado */}
+          <div className="flex items-center gap-4 px-6 md:px-8 py-6 border-b border-outline-variant/10">
+            <div className="p-3 rounded-xl bg-surface-container border border-outline-variant/30 text-emerald-500 shadow-sm flex-shrink-0">
+              <BadgeDollarSign size={26} strokeWidth={1.5} />
+            </div>
+            <div className="space-y-0.5 min-w-0">
+              <h2 className="text-xl md:text-2xl font-headline font-bold text-on-surface tracking-tight">
+                Nueva Venta
+              </h2>
+              <p className="text-on-surface-variant text-sm">
+                Busca o escanea una joya para registrar la salida.
+              </p>
+            </div>
+          </div>
 
-            <form onSubmit={handleVender}>
-              <CardContent className="space-y-6 pt-8 px-6 sm:px-8">
-                {inventario.length === 0 ? (
-                  <div className="text-center text-error py-6 font-medium bg-error/10 rounded-xl border border-error/20">
-                    No tienes productos con stock.
-                  </div>
-                ) : (
-                  <>
-                    {/* Buscador por SKU / Nombre */}
-                    <div className="space-y-3 relative">
-                      <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
-                        Buscar Joya (Nombre o SKU)
-                      </label>
-                      <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
-                        <Input
-                          type="text"
-                          placeholder="Escribe el SKU o nombre..."
-                          className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-on-surface focus:ring-2 focus:ring-primary-stitch outline-none transition-all"
-                          value={searchTerm}
-                          onChange={(e) => {
-                            setSearchTerm(e.target.value);
-                            if (e.target.value === "") setProductoSeleccionado("");
-                          }}
-                        />
-                      </div>
+          <form onSubmit={handleVender} className="p-6 md:p-8 space-y-6">
+            {inventario.length === 0 ? (
+              <div className="text-center text-error py-6 font-medium bg-error/10 rounded-xl border border-error/20">
+                No tienes productos con stock.
+              </div>
+            ) : (
+              <>
+                {/* Buscador por SKU / Nombre + escáner QR */}
+                <div className="space-y-3">
+                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
+                    Buscar Joya (Nombre o SKU)
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1 min-w-0">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+                      <Input
+                        type="text"
+                        placeholder="Escribe el SKU o nombre..."
+                        className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-on-surface focus:ring-2 focus:ring-primary-stitch outline-none transition-all"
+                        value={searchTerm}
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          if (e.target.value === "") setProductoSeleccionado("");
+                        }}
+                      />
 
                       {/* Lista de sugerencias */}
                       {searchTerm && !productoSeleccionado && resultadosBusqueda.length > 0 && (
@@ -269,54 +296,66 @@ const Dashboard = () => {
                       )}
                     </div>
 
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
-                        Cantidad
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        required
-                        value={cantidad}
-                        onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                        className="flex h-12 w-full rounded-xl border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface transition-all shadow-sm hover:border-outline-variant/50"
-                      />
-                    </div>
+                    {/* Botón de escaneo QR */}
+                    <button
+                      type="button"
+                      onClick={() => setShowScanner(true)}
+                      aria-label="Escanear código QR"
+                      className="flex-shrink-0 flex items-center gap-2 px-4 py-3.5 rounded-xl bg-surface-container border border-outline-variant/30 text-on-surface font-bold hover:bg-surface-container-high hover:border-primary-stitch transition-all"
+                    >
+                      <QrCode size={20} className="text-primary-stitch" />
+                      <span className="hidden sm:inline">Escanear</span>
+                    </button>
+                  </div>
+                </div>
 
-                    {productoActual && (
-                      <div className="bg-surface-container-low p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center mt-8 border border-outline-variant/20 shadow-inner gap-2">
-                        <span className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">Total a cobrar</span>
-                        <span className="text-3xl font-headline font-extrabold text-on-surface">
-                          ${total.toLocaleString('es-MX')}
-                        </span>
-                      </div>
-                    )}
-                  </>
-                )}
-              </CardContent>
+                {/* Cantidad */}
+                <div className="space-y-3">
+                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
+                    Cantidad
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={cantidad}
+                    onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
+                    className="flex h-12 w-full rounded-xl border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface transition-all shadow-sm hover:border-outline-variant/50"
+                  />
+                </div>
 
-              <CardFooter className="px-6 sm:px-8 pb-8 pt-2 flex-col gap-3">
-                {/* Mensaje de resultado inline (reemplaza alert()) */}
-                {ventaMsg && (
-                  <div className={`w-full px-4 py-3 rounded-xl text-sm font-medium border ${
-                    ventaMsg.tipo === 'success'
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : 'bg-red-50 border-red-200 text-red-800'
-                  }`}>
-                    {ventaMsg.texto}
+                {/* Total a cobrar */}
+                {productoActual && (
+                  <div className="bg-surface-container-low p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center border border-outline-variant/20 shadow-inner gap-2">
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">Total a cobrar</span>
+                    <span className="text-3xl font-headline font-extrabold text-on-surface">
+                      ${total.toLocaleString('es-MX')}
+                    </span>
                   </div>
                 )}
-                <Button
-                  type="submit"
-                  className="w-full h-14 rounded-xl bg-on-surface hover:bg-on-surface/90 text-surface-container-lowest font-bold text-base shadow-lg transition-all"
-                  disabled={procesando || !productoSeleccionado}
-                >
-                  <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
-                  <span className="truncate tracking-wide">{procesando ? 'Procesando…' : 'Cobrar y Registrar'}</span>
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+              </>
+            )}
+
+            {/* Mensaje de resultado inline */}
+            {ventaMsg && (
+              <div className={`w-full px-4 py-3 rounded-xl text-sm font-medium border ${
+                ventaMsg.tipo === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}>
+                {ventaMsg.texto}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full h-14 rounded-xl bg-on-surface hover:bg-on-surface/90 text-surface-container-lowest font-bold text-base shadow-lg transition-all"
+              disabled={procesando || !productoSeleccionado}
+            >
+              <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="truncate tracking-wide">{procesando ? 'Procesando…' : 'Cobrar y Registrar'}</span>
+            </Button>
+          </form>
         </div>
 
         {/* KPI Grid */}
@@ -437,6 +476,17 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Escáner QR (modal a pantalla completa) */}
+      {showScanner && (
+        <QrScanner
+          title="Escanear venta"
+          subtitle="Escanea una joya para seleccionarla en el formulario."
+          onScan={handleQrScan}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+
       <AppFooter />
     </div>
   );

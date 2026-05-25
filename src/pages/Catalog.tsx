@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import PageLoader from '@/components/ui/PageLoader';
 import AppFooter from '@/components/AppFooter';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
 import { matchSku, skuIncluye } from '@/lib/sku';
@@ -149,44 +149,25 @@ const Catalog = () => {
   };
 
   // ── Escáner QR ─────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!showScanner) return;
+  // El escáner llama a esto al detectar un QR: cierra el escáner y abre la
+  // ficha de la joya encontrada en el catálogo.
+  const handleQrScan = (decodedText: string) => {
+    setShowScanner(false);
+    const cleanUrl = decodedText.trim().replace(/\/$/, '');
+    const partes = cleanUrl.split('/');
+    const posibleSku1 = partes[partes.length - 1];
+    const posibleSku2 = partes[partes.length - 2];
 
-    const scanner = new Html5QrcodeScanner(
-      'catalog-reader',
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false
+    const joyaEncontrada = productos.find((p: any) =>
+      matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
     );
 
-    scanner.render(
-      async (decodedText) => {
-        const cleanUrl = decodedText.trim().replace(/\/$/, '');
-        const partes = cleanUrl.split('/');
-        const posibleSku1 = partes[partes.length - 1];
-        const posibleSku2 = partes[partes.length - 2];
-
-        try {
-          const joyaEncontrada = productos.find((p: any) =>
-            matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
-          );
-
-          await scanner.clear();
-          setShowScanner(false);
-
-          if (joyaEncontrada) {
-            abrirModal(joyaEncontrada);
-          } else {
-            alert(`El código ${posibleSku1} no se encontró en el catálogo.`);
-          }
-        } catch {
-          alert('Hubo un error al procesar el código QR.');
-        }
-      },
-      () => {}
-    );
-
-    return () => { scanner.clear().catch(() => {}); };
-  }, [showScanner, productos, abrirModal]);
+    if (joyaEncontrada) {
+      abrirModal(joyaEncontrada);
+    } else {
+      alert(`El código ${posibleSku1} no se encontró en el catálogo.`);
+    }
+  };
 
   // ── Filtrado + ordenamiento (memoizado) ────────────────────────────────────
   const productosFiltrados = useMemo(() => {
@@ -351,26 +332,14 @@ const Catalog = () => {
           </div>
         </div>
 
-        {/* Escáner QR */}
+        {/* Escáner QR (modal a pantalla completa) */}
         {showScanner && (
-          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm mb-6 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Escáner de Catálogo</h3>
-              <button
-                onClick={() => setShowScanner(false)}
-                className="text-slate-400 hover:text-red-500 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div
-              id="catalog-reader"
-              className="w-full max-w-sm mx-auto overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50"
-            />
-            <p className="text-xs text-slate-500 text-center mt-3 font-medium">
-              Apunta la cámara al código QR de la etiqueta.
-            </p>
-          </div>
+          <QrScanner
+            title="Escáner de catálogo"
+            subtitle="Escanea una joya para abrir su ficha."
+            onScan={handleQrScan}
+            onClose={() => setShowScanner(false)}
+          />
         )}
 
         {/* ── Layout: Sidebar + Grid ────────────────────────────────────────── */}

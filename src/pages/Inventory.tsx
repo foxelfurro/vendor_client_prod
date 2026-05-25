@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera } from "lucide-react";
 import PageLoader from '@/components/ui/PageLoader';
 import AppFooter from '@/components/AppFooter';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
 import { matchSku, skuIncluye } from '@/lib/sku';
@@ -152,91 +152,80 @@ const Inventory = () => {
     }
   }, [location]);
 
-  // --- LÓGICA DEL ESCÁNER AUTOMÁTICO ---
-  useEffect(() => {
-    if (!showScanner) return;
+  // --- LÓGICA DEL ESCÁNER QR ---
+  // Procesa el texto decodificado del QR: suma stock si la joya ya está en el
+  // inventario, o la agrega desde el catálogo maestro si es nueva.
+  const procesarQr = async (decodedText: string) => {
+    const cleanUrl = decodedText.trim().replace(/\/$/, "");
+    const partes = cleanUrl.split("/");
+    const posibleSku1 = partes[partes.length - 1];
+    const posibleSku2 = partes[partes.length - 2];
 
-    const scanner = new Html5QrcodeScanner(
-      "inventory-reader",
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false
-    );
+    try {
+      const joyaEnMiInventario = inventario.find((p) =>
+        matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+      );
 
-    scanner.render(
-      async (decodedText) => {
-        const cleanUrl = decodedText.trim().replace(/\/$/, "");
-        const partes = cleanUrl.split("/");
-        const posibleSku1 = partes[partes.length - 1];
-        const posibleSku2 = partes[partes.length - 2];
-
-        try {
-          const joyaEnMiInventario = inventario.find((p: any) =>
-            matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
-          );
-
-          if (joyaEnMiInventario) {
-            await scanner.clear();
-            setShowScanner(false);
-
-            const sumarStock = window.prompt(
-              `¡Ya tienes ${joyaEnMiInventario.nombre} en tu inventario!\nTienes ${joyaEnMiInventario.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`,
-              "1"
-            );
-
-            if (sumarStock) {
-              const nuevoStockTotal = joyaEnMiInventario.stock + parseInt(sumarStock);
-              await handleUpdateItem(joyaEnMiInventario.inventario_id, { stock: nuevoStockTotal });
-            }
+      if (joyaEnMiInventario) {
+        const sumarStock = window.prompt(
+          `¡Ya tienes ${joyaEnMiInventario.nombre} en tu inventario!\nTienes ${joyaEnMiInventario.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`,
+          "1"
+        );
+        if (sumarStock) {
+          const sumar = parseInt(sumarStock);
+          if (!Number.isInteger(sumar) || sumar <= 0) {
+            alert("Cantidad no válida.");
             return;
           }
-
-          const { data: catalogo } = await api.get("/vendor/explore");
-          const joyaNueva = catalogo.find((p: any) =>
-            matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
-          );
-
-          if (joyaNueva) {
-            await scanner.clear();
-            setShowScanner(false);
-
-            const stockInput = window.prompt(
-              `¡Joya nueva detectada: ${joyaNueva.nombre}!\n¿Cuántas piezas físicas vas a registrar?`,
-              "1"
-            );
-            if (!stockInput) return;
-
-            const precioSugerido = joyaNueva.precio_sugerido || 0;
-            const precioInput = window.prompt(
-              "¿A qué precio la vas a vender?",
-              precioSugerido.toString()
-            );
-            if (!precioInput) return;
-
-            await api.post("/vendor/inventory", {
-              producto_maestro_id: joyaNueva.id,
-              stock: parseInt(stockInput),
-              precio_personalizado: parseFloat(precioInput),
-            });
-
-            alert("✅ ¡Joya guardada en tu inventario con éxito!");
-            fetchInventory();
-          } else {
-            await scanner.clear();
-            setShowScanner(false);
-            alert(`El código ${posibleSku1} no existe en la base de datos maestra.`);
-          }
-        } catch (error) {
-          console.error("Error al procesar el código QR:", error);
-          alert("Hubo un error de conexión al procesar el código QR.");
+          await handleUpdateItem(joyaEnMiInventario.inventario_id, {
+            stock: joyaEnMiInventario.stock + sumar,
+          });
         }
-      },
-      () => {}
-    );
+        return;
+      }
 
-    return () => {
-      scanner.clear().catch(() => {});
-    };
-  }, [showScanner, inventario]);
+      const { data: catalogo } = await api.get("/vendor/explore");
+      const joyaNueva = (catalogo as any[]).find((p) =>
+        matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+      );
+
+      if (joyaNueva) {
+        const stockInput = window.prompt(
+          `¡Joya nueva detectada: ${joyaNueva.nombre}!\n¿Cuántas piezas físicas vas a registrar?`,
+          "1"
+        );
+        if (!stockInput) return;
+
+        const precioSugerido = joyaNueva.precio_sugerido || 0;
+        const precioInput = window.prompt(
+          "¿A qué precio la vas a vender?",
+          precioSugerido.toString()
+        );
+        if (!precioInput) return;
+
+        await api.post("/vendor/inventory", {
+          producto_maestro_id: joyaNueva.id,
+          stock: parseInt(stockInput),
+          precio_personalizado: parseFloat(precioInput),
+        });
+
+        alert("✅ ¡Joya guardada en tu inventario con éxito!");
+        fetchInventory();
+      } else {
+        alert(`El código ${posibleSku1} no existe en la base de datos maestra.`);
+      }
+    } catch (error) {
+      console.error("Error al procesar el código QR:", error);
+      alert("Hubo un error de conexión al procesar el código QR.");
+    }
+  };
+
+  // El escáner llama a esto al detectar un QR: primero cierra el modal (para
+  // liberar la cámara) y, en el siguiente tick, procesa el código.
+  const handleQrScan = (decodedText: string) => {
+    setShowScanner(false);
+    setTimeout(() => procesarQr(decodedText), 0);
+  };
 
   const inventarioFiltrado = useMemo(() => {
     const q = searchTerm.toLowerCase();
@@ -364,18 +353,14 @@ const Inventory = () => {
           </button>
         </div>
 
-        {/* QR Scanner Container */}
+        {/* Escáner QR (modal a pantalla completa) */}
         {showScanner && (
-          <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 shadow-[0_32px_64px_-16px_rgba(45,52,53,0.06)]">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-headline font-bold tracking-tight text-on-surface">Escáner de SKU</h3>
-              <button onClick={() => setShowScanner(false)} className="text-outline-variant hover:text-error transition-colors">
-                <X size={24} />
-              </button>
-            </div>
-            <div id="inventory-reader" className="w-full max-w-lg mx-auto overflow-hidden rounded-xl border-2 border-dashed border-outline-variant/30 bg-surface-container-low"></div>
-            <p className="text-xs text-on-surface-variant text-center mt-4 tracking-wide">Apunta con la cámara al código QR de la etiqueta de la joya.</p>
-          </div>
+          <QrScanner
+            title="Escáner de inventario"
+            subtitle="Escanea una joya para sumar stock o agregarla."
+            onScan={handleQrScan}
+            onClose={() => setShowScanner(false)}
+          />
         )}
 
         {/* Layout: Filtros + Grid */}
