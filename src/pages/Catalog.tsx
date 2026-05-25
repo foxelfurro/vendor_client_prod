@@ -95,7 +95,9 @@ const Catalog = () => {
   const abrirModal = useCallback((producto: any) => {
     setProductoSeleccionado(producto);
     setFormStock('1');
-    setFormPrecio(producto.precio_sugerido.toString());
+    // precio_sugerido puede venir nulo desde el catálogo: se evita el crash de
+    // .toString() sobre null y se deja el campo vacío para que lo capture.
+    setFormPrecio(producto.precio_sugerido != null ? String(producto.precio_sugerido) : '');
     setIsModalOpen(true);
   }, []);
 

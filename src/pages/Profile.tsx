@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import api from '@/lib/api';
 import SubscriptionBanner from '@/pages/SubscriptionBanner';
-import { QRCodeSVG } from 'qrcode.react'; // NUEVO: importar componente QR
+import { QRCodeCanvas } from 'qrcode.react'; // Canvas: permite descargar el QR como PNG
 import StorePreview from '@/components/StorePreview';
 import {
   ACCENT_PALETTE, DEFAULT_PERSONALIZATION, normalizePersonalization, readableTextOn,
@@ -718,7 +718,7 @@ const Profile = () => {
               <X size={20} />
             </button>
             <h3 className="text-lg font-bold mb-4 text-on-surface">Código QR de tu tienda</h3>
-            <QRCodeSVG value={storeLink} size={200} className="mx-auto mb-4" />
+            <QRCodeCanvas value={storeLink} size={200} className="mx-auto mb-4" />
             <p className="text-sm text-on-surface-variant break-all">{storeLink}</p>
             <p className="text-xs text-on-surface-variant mt-2">Escanea para ver tu catálogo</p>
             <div className="mt-4 flex justify-center gap-3">
