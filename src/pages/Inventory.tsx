@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '@/lib/api';
+import { uploadImage } from '@/lib/uploadImage';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -52,7 +53,8 @@ const Inventory = () => {
   const [customSku, setCustomSku] = useState("");
   const [customStock, setCustomStock] = useState("1");
   const [customPrecio, setCustomPrecio] = useState("");
-  const [customImagen, setCustomImagen] = useState<string | null>(null); // Base64 String
+  const [customImagenFile, setCustomImagenFile] = useState<File | null>(null);
+  const [customImagenPreview, setCustomImagenPreview] = useState<string | null>(null);
   const [guardandoCustom, setGuardandoCustom] = useState(false);
 
   const fetchInventory = async () => {
@@ -98,15 +100,12 @@ const Inventory = () => {
     }
   };
 
-  // Convertir foto capturada a String Base64
   const handleCaptureImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCustomImagen(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (customImagenPreview) URL.revokeObjectURL(customImagenPreview);
+      setCustomImagenFile(file);
+      setCustomImagenPreview(URL.createObjectURL(file));
     }
   };
 
@@ -116,26 +115,33 @@ const Inventory = () => {
 
     setGuardandoCustom(true);
     try {
+      let imagen_url: string | undefined;
+      if (customImagenFile) {
+        imagen_url = await uploadImage(customImagenFile);
+      }
+
       const { data } = await api.post('/vendor/inventory/custom', {
         nombre: customNombre,
         sku: customSku.toUpperCase(),
         stock: parseInt(customStock),
         precio_personalizado: parseFloat(customPrecio),
-        imagen_custom: customImagen
+        imagen_url,
       });
 
       alert(data?.message || "¡Pieza propia agregada a tu vitrina! ✨");
       setIsCustomModalOpen(false);
-      
+
       setCustomNombre("");
       setCustomSku("");
       setCustomStock("1");
       setCustomPrecio("");
-      setCustomImagen(null);
-      
+      if (customImagenPreview) URL.revokeObjectURL(customImagenPreview);
+      setCustomImagenFile(null);
+      setCustomImagenPreview(null);
+
       fetchInventory();
     } catch (error: any) {
-      alert(error.response?.data?.error || "Hubo un error al guardar tu pieza.");
+      alert(error.response?.data?.error || error?.message || "Hubo un error al guardar tu pieza.");
     } finally {
       setGuardandoCustom(false);
     }
@@ -559,12 +565,16 @@ const Inventory = () => {
                 
                 {/* Captura de Foto Nivel Componente */}
                 <div className="col-span-2 flex flex-col items-center gap-3 mb-2">
-                  {customImagen ? (
+                  {customImagenPreview ? (
                     <div className="relative w-32 h-32 rounded-2xl overflow-hidden border border-outline-variant/20 shadow-sm group">
-                      <img src={customImagen} alt="Preview" className="w-full h-full object-cover" />
-                      <button 
+                      <img src={customImagenPreview} alt="Preview" className="w-full h-full object-cover" />
+                      <button
                         type="button"
-                        onClick={() => setCustomImagen(null)} 
+                        onClick={() => {
+                          URL.revokeObjectURL(customImagenPreview);
+                          setCustomImagenFile(null);
+                          setCustomImagenPreview(null);
+                        }}
                         className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <X size={24} />
@@ -574,11 +584,11 @@ const Inventory = () => {
                     <label className="w-32 h-32 flex flex-col items-center justify-center bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-2xl cursor-pointer hover:border-primary-stitch transition-colors text-on-surface-variant hover:text-primary-stitch">
                       <Camera size={32} className="mb-2 opacity-50" />
                       <span className="text-[10px] font-bold uppercase tracking-widest text-center px-2">Añadir Foto</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        capture="environment" 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        capture="environment"
+                        className="hidden"
                         onChange={handleCaptureImage}
                       />
                     </label>

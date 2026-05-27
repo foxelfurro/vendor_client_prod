@@ -15,7 +15,7 @@ import {
   ACCENT_PALETTE, DEFAULT_PERSONALIZATION, normalizePersonalization, readableTextOn,
 } from '@/lib/personalization';
 import type { StorePersonalization } from '@/lib/personalization';
-import { resizeImageToDataUrl } from '@/lib/image';
+import { uploadImage } from '@/lib/uploadImage';
 
 const Profile = () => {
   const { user, login } = useAuth();
@@ -40,6 +40,7 @@ const Profile = () => {
   // Estado de la personalización visual de la tienda
   const [personalization, setPersonalization] = useState<StorePersonalization>(DEFAULT_PERSONALIZATION);
   const [imgError, setImgError] = useState('');
+  const [imgUploading, setImgUploading] = useState<'logo_url' | 'banner_url' | null>(null);
 
   // Datos del usuario para mostrar
   const userInfo = {
@@ -79,23 +80,22 @@ const Profile = () => {
     setFormStatus('idle');
   };
 
-  // Procesa (redimensiona/comprime) una imagen subida y la guarda como data URL
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     field: 'logo_url' | 'banner_url'
   ) => {
     const file = e.target.files?.[0];
-    e.target.value = ''; // permite volver a elegir el mismo archivo
+    e.target.value = '';
     if (!file) return;
     setImgError('');
+    setImgUploading(field);
     try {
-      const dataUrl =
-        field === 'logo_url'
-          ? await resizeImageToDataUrl(file, { maxWidth: 400, maxHeight: 400, format: 'image/jpeg', quality: 0.85 })
-          : await resizeImageToDataUrl(file, { maxWidth: 1400, maxHeight: 480, format: 'image/jpeg', quality: 0.82 });
-      updateP(field, dataUrl);
+      const url = await uploadImage(file);
+      updateP(field, url);
     } catch (err: any) {
-      setImgError(err?.message || 'No se pudo procesar la imagen.');
+      setImgError(err?.message || 'No se pudo subir la imagen.');
+    } finally {
+      setImgUploading(null);
     }
   };
 
@@ -499,12 +499,13 @@ const Profile = () => {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <label className="flex items-center gap-1.5 px-3 py-2 bg-surface-container border border-outline-variant/20 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer">
-                        <ImagePlus size={15} />
-                        {personalization.logo_url ? 'Cambiar' : 'Subir foto'}
+                        {imgUploading === 'logo_url' ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} />}
+                        {imgUploading === 'logo_url' ? 'Subiendo...' : personalization.logo_url ? 'Cambiar' : 'Subir foto'}
                         <input
                           type="file"
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp"
                           className="hidden"
+                          disabled={imgUploading !== null}
                           onChange={(e) => handleImageUpload(e, 'logo_url')}
                         />
                       </label>
@@ -536,12 +537,13 @@ const Profile = () => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <label className="flex items-center gap-1.5 px-3 py-2 bg-surface-container border border-outline-variant/20 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer">
-                      <ImagePlus size={15} />
-                      {personalization.banner_url ? 'Cambiar portada' : 'Subir portada'}
+                      {imgUploading === 'banner_url' ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} />}
+                      {imgUploading === 'banner_url' ? 'Subiendo...' : personalization.banner_url ? 'Cambiar portada' : 'Subir portada'}
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         className="hidden"
+                        disabled={imgUploading !== null}
                         onChange={(e) => handleImageUpload(e, 'banner_url')}
                       />
                     </label>
