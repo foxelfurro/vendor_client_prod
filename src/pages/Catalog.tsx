@@ -20,6 +20,14 @@ import { useAuth } from '@/context/AuthContext';
 // ─── Constantes ────────────────────────────────────────────────────────────────
 const ITEMS_PER_PAGE = 30;
 
+// Respuesta paginada del backend para admin en /vendor/explore.
+interface ServerPagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
 // ─── Componente ────────────────────────────────────────────────────────────────
 const Catalog = () => {
   const navigate = useNavigate();
@@ -32,6 +40,10 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Paginación servidor — solo admin. El servidor decide qué slice devolver
+  // y nunca materializa toda la tabla en memoria (necesario para Render 512MB).
+  const [serverPagination, setServerPagination] = useState<ServerPagination | null>(null);
 
   // Escáner QR
   const [showScanner, setShowScanner] = useState(false);
@@ -62,28 +74,65 @@ const Catalog = () => {
   }, [searchTerm]);
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
+  //
+  // Dos rutas distintas según el rol:
+  //
+  // • Admin → paginación + búsqueda + filtros en SERVIDOR. Solo se carga la
+  //   página actual (≤ ITEMS_PER_PAGE filas). El servidor jamás materializa
+  //   las 5k+ filas en memoria, evitando el OOM en Render (512MB).
+  //
+  // • Vendedora → comportamiento original. El backend ya acota la lista por
+  //   marca + "no-en-mi-inventario", así que la lista es pequeña y se filtra/
+  //   pagina en cliente. Se fusiona con /vendor/inventory para mostrar el badge
+  //   "Ya está en tu inventario".
   const fetchCatalog = useCallback(async () => {
     try {
-      const [{ data: disponibles }, { data: enInventario }] = await Promise.all([
-        api.get('/vendor/explore'),
-        api.get('/vendor/inventory'),
-      ]);
+      if (isAdmin) {
+        const params = new URLSearchParams();
+        params.set('page', String(currentPage));
+        params.set('limit', String(ITEMS_PER_PAGE));
 
-      const yaAgregados = (enInventario as any[])
-        .filter((i) => i.producto_maestro_id)
-        .map((i) => ({ ...i, id: i.producto_maestro_id, ya_agregado: true }));
+        if (debouncedSearch) params.set('search', debouncedSearch);
 
-      setProductos([...disponibles, ...yaAgregados]);
+        // Solo enviamos categoria_id cuando ya tenemos el catálogo de categorías
+        // resuelto (categorias se carga en su propio useEffect). Si aún no ha
+        // llegado, el filtro de categoría queda inactivo hasta el siguiente render.
+        if (filters.categoria && categorias.length > 0) {
+          const cat = categorias.find((c) => c.nombre === filters.categoria);
+          if (cat) params.set('categoria_id', String(cat.id));
+        }
+        if (filters.ordenPrecio === 'asc' || filters.ordenPrecio === 'desc') {
+          params.set('orden_precio', filters.ordenPrecio);
+        }
+        if (filters.precioMin > 0) params.set('precio_min', String(filters.precioMin));
+        if (filters.precioMax < 999999) params.set('precio_max', String(filters.precioMax));
+
+        const { data } = await api.get(`/vendor/explore?${params.toString()}`);
+        setProductos(data.data);
+        setServerPagination(data.pagination);
+      } else {
+        const [{ data: disponibles }, { data: enInventario }] = await Promise.all([
+          api.get('/vendor/explore'),
+          api.get('/vendor/inventory'),
+        ]);
+
+        const yaAgregados = (enInventario as any[])
+          .filter((i) => i.producto_maestro_id)
+          .map((i) => ({ ...i, id: i.producto_maestro_id, ya_agregado: true }));
+
+        setProductos([...disponibles, ...yaAgregados]);
+      }
     } catch (error) {
       console.error('Error al cargar el catálogo:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAdmin, currentPage, debouncedSearch, filters, categorias]);
 
   useEffect(() => { fetchCatalog(); }, [fetchCatalog]);
 
-  // Categorías para el selector de edición (solo admin)
+  // Categorías: el admin las necesita para el selector de edición Y para
+  // traducir nombre → id al enviar el filtro al servidor.
   useEffect(() => {
     if (!isAdmin) return;
     api.get('/admin/categorias')
@@ -151,26 +200,52 @@ const Catalog = () => {
   // ── Escáner QR ─────────────────────────────────────────────────────────────
   // El escáner llama a esto al detectar un QR: cierra el escáner y abre la
   // ficha de la joya encontrada en el catálogo.
-  const handleQrScan = (decodedText: string) => {
+  //
+  // Para vendedora: la lista completa está cargada en cliente, basta con un find.
+  // Para admin: solo está la página actual, así que si no está localmente
+  // disparamos una búsqueda al servidor con el SKU.
+  const handleQrScan = async (decodedText: string) => {
     setShowScanner(false);
     const cleanUrl = decodedText.trim().replace(/\/$/, '');
     const partes = cleanUrl.split('/');
     const posibleSku1 = partes[partes.length - 1];
     const posibleSku2 = partes[partes.length - 2];
 
-    const joyaEncontrada = productos.find((p: any) =>
+    const joyaLocal = productos.find((p: any) =>
       matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
     );
 
-    if (joyaEncontrada) {
-      abrirModal(joyaEncontrada);
-    } else {
-      alert(`El código ${posibleSku1} no se encontró en el catálogo.`);
+    if (joyaLocal) {
+      abrirModal(joyaLocal);
+      return;
     }
+
+    if (isAdmin) {
+      // Fallback: pedir al backend la joya por SKU (1 sola fila, sin filtros).
+      try {
+        const params = new URLSearchParams({ page: '1', limit: '5', search: posibleSku1 });
+        const { data } = await api.get(`/vendor/explore?${params.toString()}`);
+        const remoto = (data?.data ?? []).find((p: any) =>
+          matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+        );
+        if (remoto) {
+          abrirEdicion(remoto);
+          return;
+        }
+      } catch (err) {
+        console.error('Error buscando joya por QR:', err);
+      }
+    }
+
+    alert(`El código ${posibleSku1} no se encontró en el catálogo.`);
   };
 
-  // ── Filtrado + ordenamiento (memoizado) ────────────────────────────────────
+  // ── Filtrado + ordenamiento ─────────────────────────────────────────────────
+  // Para admin el servidor ya devolvió la página exacta (filtrada/ordenada en SQL);
+  // pasarla por otro filtro cliente solo escondería resultados válidos.
   const productosFiltrados = useMemo(() => {
+    if (isAdmin) return productos;
+
     let result = productos.filter((item) => {
       const q = debouncedSearch.toLowerCase();
       const matchSearch =
@@ -199,16 +274,38 @@ const Catalog = () => {
     }
 
     return result;
-  }, [productos, debouncedSearch, filters]);
+  }, [productos, debouncedSearch, filters, isAdmin]);
 
   // ── Reset página cuando cambia búsqueda/filtros ───────────────────────────
+  // Aplica a ambos roles: para admin además fuerza un nuevo fetch con page=1.
   useEffect(() => { setCurrentPage(1); }, [debouncedSearch, filters]);
 
+  // ── Productos para el sidebar de filtros ───────────────────────────────────
+  // ProductFilters deriva el listado de categorías de `productos[].categoria`.
+  // Como admin solo tiene la página actual cargada, le pasamos un arreglo
+  // sintético que cubre TODAS las categorías disponibles. Vendedora usa la
+  // lista real, donde el set ya es completo.
+  const productosParaFiltros = useMemo(() => {
+    if (!isAdmin) return productos;
+    return categorias.map((c) => ({ categoria: c.nombre }));
+  }, [isAdmin, productos, categorias]);
+
   // ── Paginación ─────────────────────────────────────────────────────────────
-  const totalPages = Math.max(1, Math.ceil(productosFiltrados.length / ITEMS_PER_PAGE));
+  // Admin: el servidor manda los totales reales; el grid ya viene paginado.
+  // Vendedora: paginación cliente sobre la lista filtrada local.
+  const totalResultados = isAdmin
+    ? (serverPagination?.total ?? productos.length)
+    : productosFiltrados.length;
+
+  const totalPages = isAdmin
+    ? Math.max(1, serverPagination?.totalPages ?? 1)
+    : Math.max(1, Math.ceil(productosFiltrados.length / ITEMS_PER_PAGE));
+
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const pageStart = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
-  const productosMostrados = productosFiltrados.slice(pageStart, pageStart + ITEMS_PER_PAGE);
+  const productosMostrados = isAdmin
+    ? productos
+    : productosFiltrados.slice(pageStart, pageStart + ITEMS_PER_PAGE);
 
   const goToPage = useCallback((p: number) => {
     setCurrentPage(Math.max(1, Math.min(p, totalPages)));
@@ -267,7 +364,7 @@ const Catalog = () => {
               <span>
                 Joyas disponibles{' '}
                 <span className="text-indigo-600 font-bold">
-                  ({productosFiltrados.length.toLocaleString('es-MX')})
+                  ({totalResultados.toLocaleString('es-MX')})
                 </span>
               </span>
             </h2>
@@ -356,7 +453,7 @@ const Catalog = () => {
           {/* Sidebar desktop — sticky, fuera del flujo del grid */}
           <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-6 self-start">
             <ProductFilters
-              productos={productos}
+              productos={productosParaFiltros}
               filters={filters}
               onChange={setFilters}
               isOpen={true}
@@ -367,7 +464,7 @@ const Catalog = () => {
           {/* Sidebar móvil — drawer gestionado por ProductFilters */}
           <div className="lg:hidden">
             <ProductFilters
-              productos={productos}
+              productos={productosParaFiltros}
               filters={filters}
               onChange={setFilters}
               isOpen={sidebarOpen}
@@ -433,11 +530,11 @@ const Catalog = () => {
                     <p className="text-xs text-slate-500 order-2 sm:order-1">
                       Mostrando{' '}
                       <span className="font-semibold text-slate-700">
-                        {pageStart + 1}–{Math.min(pageStart + ITEMS_PER_PAGE, productosFiltrados.length)}
+                        {pageStart + 1}–{Math.min(pageStart + ITEMS_PER_PAGE, totalResultados)}
                       </span>{' '}
                       de{' '}
                       <span className="font-semibold text-slate-700">
-                        {productosFiltrados.length.toLocaleString('es-MX')}
+                        {totalResultados.toLocaleString('es-MX')}
                       </span>{' '}
                       resultados
                     </p>
