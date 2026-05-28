@@ -175,7 +175,7 @@ const FeatureCard = ({
 
 const Landing = () => {
   return (
-    <div className="bg-background font-body text-on-surface antialiased selection:bg-primary/20 min-h-screen flex flex-col">
+    <div className="bg-background font-body text-on-surface antialiased selection:bg-primary/20 min-h-dvh flex flex-col">
       <PublicNav />
 
       <main className="flex-grow">
