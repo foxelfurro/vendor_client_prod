@@ -245,7 +245,7 @@ const Landing = () => {
               <div className="relative">
                 <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-surface-container to-surface-container-high blur-2xl opacity-60" />
                 {/* REEMPLAZAR: captura principal del Dashboard en celular. */}
-                <PhoneFrame src="" alt="Vista principal de Lumin en celular" />
+                <PhoneFrame src="https://cdn.qlatte.com/uploads/capturas/IMG_2173.png" alt="Vista principal de Lumin en celular" />
               </div>
             </div>
           </div>
