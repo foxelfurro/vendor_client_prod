@@ -19,6 +19,7 @@ import TermsOfService from './pages/terms';
 import Devoluciones from './pages/Devoluciones';
 import Profile from './pages/Profile';
 import PublicStore from './pages/PublicStore';
+import Landing from './pages/Landing';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -56,7 +57,7 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/devoluciones" element={<Devoluciones />} />
           <Route path="/store/:slug" element={<PublicStore />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Landing />} />
           
           <Route path="/login" element={<Login />} />
           <Route path="/support" element={<SupportPage />} />
@@ -104,8 +105,8 @@ function App() {
             />
           </Route>
 
-          {/* CATCH-ALL: Si escriben una URL que no existe, van al Login */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          {/* CATCH-ALL: Si escriben una URL que no existe, van al Landing */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
