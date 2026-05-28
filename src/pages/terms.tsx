@@ -26,7 +26,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-medium mb-4 text-black border-b border-gray-100 pb-2">2. Suscripción y Pago</h2>
             <div className="bg-black text-white p-6 rounded-2xl mb-4 shadow-xl shadow-gray-200">
               <p className="text-sm uppercase tracking-widest opacity-70 mb-2">Tarifa Mensual</p>
-              <h3 className="text-3xl font-semibold">$299.00 MXN <span className="text-lg font-normal opacity-70">/ mes</span></h3>
+              <h3 className="text-3xl font-semibold">$299.99 MXN <span className="text-lg font-normal opacity-70">/ mes</span></h3>
               <p className="mt-4 text-sm opacity-80 italic">El precio incluye IVA y el cargo se realiza de forma automática cada 30 días naturales vía Stripe.</p>
             </div>
             <div className="space-y-2 text-gray-600 text-sm mt-4">
