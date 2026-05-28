@@ -15,8 +15,8 @@ api.interceptors.response.use(
       const currentPath = window.location.pathname;
       
       const publicRoutes = [
-        '/'
-        '/devoluciones'
+        '/',
+        '/devoluciones',
         '/login',
         '/checkout',
         '/registro',
