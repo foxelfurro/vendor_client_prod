@@ -80,8 +80,8 @@ const Register = () => {
           <span className="text-on-surface-variant/50">2. Suscripción</span>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg overflow-hidden">
-          <form onSubmit={handleSubmit} className="px-7 py-7 space-y-4">
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg">
+          <form onSubmit={handleSubmit} className="px-4 py-7 sm:px-7 space-y-4">
             <div>
               <label className={labelClass}>Nombre comercial</label>
               <input
@@ -135,14 +135,14 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="flex justify-center pt-1">
+            <div className="w-full pt-1">
               <Turnstile
                 ref={turnstileRef}
                 siteKey={TURNSTILE_SITE_KEY}
                 onSuccess={(token: string) => setCaptchaToken(token)}
                 onExpire={() => setCaptchaToken(null)}
                 onError={() => setCaptchaToken(null)}
-                options={{ theme: 'light' }}
+                options={{ theme: 'light', size: 'flexible' }}
               />
             </div>
 

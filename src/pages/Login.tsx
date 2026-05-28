@@ -80,7 +80,7 @@ const Login = () => {
 
       {/* Main Content Canvas */}
       <main className="flex-grow flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-[1100px] grid md:grid-cols-2 bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(45,52,53,0.06)] border border-outline-variant/10">
+        <div className="w-full max-w-[1100px] grid md:grid-cols-2 bg-surface-container-lowest rounded-xl md:overflow-hidden shadow-[0_32px_64px_-16px_rgba(45,52,53,0.06)] border border-outline-variant/10">
 
           {/* Left Side: Editorial */}
           <div className="relative hidden md:block overflow-hidden bg-surface-container">
@@ -98,7 +98,7 @@ const Login = () => {
           </div>
 
           {/* Right Side: Form */}
-          <div className="p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest">
+          <div className="p-4 sm:p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest rounded-xl md:rounded-none">
             <div className="mb-10">
               <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Inicia Sesión</h1>
               <p className="text-on-surface-variant text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
@@ -133,14 +133,14 @@ const Login = () => {
               </div>
 
               {/* WIDGET TURNSTILE */}
-              <div className="flex justify-center py-2">
+              <div className="w-full py-2">
                 <Turnstile
                   ref={turnstileRef}
                   siteKey={TURNSTILE_SITE_KEY}
                   onSuccess={(token) => setCaptchaToken(token)}
                   onExpire={() => setCaptchaToken(null)}
                   onError={() => setCaptchaToken(null)}
-                  options={{ theme: 'light' }}
+                  options={{ theme: 'light', size: 'flexible' }}
                 />
               </div>
 
