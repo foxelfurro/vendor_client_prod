@@ -38,13 +38,13 @@ const FEATURES = [
     icon: Boxes,
     title: 'Catálogo Maestro compartido',
     body:
-      'Accede a un universo de joyería ya curado. Agrega piezas a tu inventario en segundos, sin teclear ni una sola descripción.',
+      'Accede a un universo de joyería ya agregado. selecciona y agrega piezas a tu inventario en segundos, sin teclear ni una sola descripción.',
   },
   {
     icon: Store,
     title: 'Tu tienda online en un link',
     body:
-      'Cada socia recibe una tienda pública lista para compartir por WhatsApp o Instagram. Sin código, sin diseñador.',
+      'Cada socia recibe una tienda pública, lista para compartir por WhatsApp o Instagram. Sin código, sin diseñador.',
   },
   {
     icon: ShoppingBag,
