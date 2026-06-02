@@ -90,20 +90,19 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const getColors = () => {
+  const getButtonColor = () => {
     switch (alert?.type) {
       case 'success':
-        return { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-900' };
+        return 'bg-green-600 hover:bg-green-700';
       case 'error':
-        return { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-900' };
+        return 'bg-red-600 hover:bg-red-700';
       case 'warning':
-        return { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-900' };
+        return 'bg-amber-600 hover:bg-amber-700';
       default:
-        return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-900' };
+        return 'bg-blue-600 hover:bg-blue-700';
     }
   };
 
-  const colors = getColors();
   const isConfirm = alert?.type === 'confirm';
 
   return (
@@ -140,13 +139,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     onClick={handleConfirm}
                     className={cn(
                       'px-4 py-2.5 rounded-lg font-semibold text-sm text-white transition-all',
-                      alert.type === 'error'
-                        ? 'bg-red-600 hover:bg-red-700'
-                        : alert.type === 'success'
-                        ? 'bg-green-600 hover:bg-green-700'
-                        : alert.type === 'warning'
-                        ? 'bg-amber-600 hover:bg-amber-700'
-                        : 'bg-primary-stitch hover:bg-primary-stitch/90'
+                      getButtonColor()
                     )}
                   >
                     {alert.confirmText || 'Aceptar'}
