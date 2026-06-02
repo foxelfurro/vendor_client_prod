@@ -80,26 +80,26 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const getIcon = () => {
     switch (alert?.type) {
       case 'success':
-        return <CheckCircle className="w-6 h-6 text-green-600" />;
+        return <CheckCircle className="w-5 h-5 text-tertiary flex-shrink-0" />;
       case 'error':
-        return <XCircle className="w-6 h-6 text-red-600" />;
+        return <XCircle className="w-5 h-5 text-error flex-shrink-0" />;
       case 'warning':
-        return <AlertCircle className="w-6 h-6 text-amber-600" />;
+        return <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />;
       default:
-        return <Info className="w-6 h-6 text-blue-600" />;
+        return <Info className="w-5 h-5 text-primary-stitch flex-shrink-0" />;
     }
   };
 
   const getButtonColor = () => {
     switch (alert?.type) {
       case 'success':
-        return 'bg-green-600 hover:bg-green-700';
+        return 'bg-tertiary hover:bg-tertiary/90 text-white';
       case 'error':
-        return 'bg-red-600 hover:bg-red-700';
+        return 'bg-error hover:bg-error/90 text-white';
       case 'warning':
-        return 'bg-amber-600 hover:bg-amber-700';
+        return 'bg-orange-600 hover:bg-orange-700 text-white';
       default:
-        return 'bg-blue-600 hover:bg-blue-700';
+        return 'bg-primary-stitch hover:bg-primary-stitch/90 text-white';
     }
   };
 
@@ -112,42 +112,48 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       </AlertContext.Provider>
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent className="animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-sm">
-          {alert && (
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 mt-0.5">{getIcon()}</div>
-              <div className="flex-1 min-w-0">
-                <AlertDialogHeader className="p-0 space-y-1 mb-4">
-                  <AlertDialogTitle className="text-lg font-bold text-on-surface">
-                    {alert.title}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-sm text-on-surface-variant leading-relaxed">
-                    {alert.message}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
+        <AlertDialogContent className="max-w-sm bg-surface-container-lowest border border-outline-variant/20 shadow-lg rounded-3xl p-0 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="p-6 sm:p-8 space-y-5">
+            {alert && (
+              <>
+                {/* Encabezado con icono */}
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-0.5">
+                    {getIcon()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <AlertDialogHeader className="p-0 space-y-1">
+                      <AlertDialogTitle className="text-lg font-bold text-on-surface">
+                        {alert.title}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-sm text-on-surface-variant leading-relaxed">
+                        {alert.message}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                  </div>
+                </div>
 
-                <div className="flex gap-2 justify-end pt-4 border-t border-outline-variant/10">
+                {/* Botones */}
+                <div className="flex gap-2 justify-end pt-2">
                   {isConfirm && (
                     <AlertDialogCancel
-                      onClick={handleCancel}
-                      className="px-4 py-2.5 rounded-lg font-semibold text-sm text-on-surface hover:bg-surface-container border border-outline-variant/20 transition-all"
+                      className="px-5 py-2.5 rounded-xl font-semibold text-sm bg-surface-container border border-outline-variant/20 text-on-surface hover:bg-surface-container-high transition-all"
                     >
                       {alert.cancelText || 'Cancelar'}
                     </AlertDialogCancel>
                   )}
                   <AlertDialogAction
-                    onClick={handleConfirm}
                     className={cn(
-                      'px-4 py-2.5 rounded-lg font-semibold text-sm text-white transition-all',
+                      'px-5 py-2.5 rounded-xl font-semibold text-sm transition-all',
                       getButtonColor()
                     )}
                   >
                     {alert.confirmText || 'Aceptar'}
                   </AlertDialogAction>
                 </div>
-              </div>
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </>
