@@ -137,12 +137,14 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 <div className="flex gap-2 justify-end pt-2">
                   {isConfirm && (
                     <AlertDialogCancel
+                      onClick={handleCancel}
                       className="px-5 py-2.5 rounded-xl font-semibold text-sm bg-surface-container border border-outline-variant/20 text-on-surface hover:bg-surface-container-high transition-all"
                     >
                       {alert.cancelText || 'Cancelar'}
                     </AlertDialogCancel>
                   )}
                   <AlertDialogAction
+                    onClick={handleConfirm}
                     className={cn(
                       'px-5 py-2.5 rounded-xl font-semibold text-sm transition-all',
                       getButtonColor()
@@ -160,6 +162,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAlert = () => {
   const context = useContext(AlertContext);
   if (!context) {

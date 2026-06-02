@@ -14,6 +14,7 @@ export interface ProductFilterState {
   soloConStock: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const DEFAULT_PRODUCT_FILTERS: ProductFilterState = {
   categoria: '',
   precioMin: 0,
@@ -24,7 +25,7 @@ export const DEFAULT_PRODUCT_FILTERS: ProductFilterState = {
 };
 
 interface ProductFiltersProps {
-  productos: any[];
+  productos: { categoria?: string }[];
   filters: ProductFilterState;
   onChange: (filters: ProductFilterState) => void;
   isOpen: boolean;

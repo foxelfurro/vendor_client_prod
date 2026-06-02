@@ -154,8 +154,9 @@ const Dashboard = () => {
       ]);
       setInventario(newInventory.filter((item: InventoryItem) => item.stock > 0));
       setStats(newStats);
-    } catch (error: any) {
-      console.error('Error al registrar la venta:', error);
+    } catch (err) {
+      console.error('Error al registrar la venta:', err);
+      const error = err as { response?: { data?: { error?: string } } };
       setVentaMsg({ tipo: 'error', texto: error.response?.data?.error || 'Error al registrar la venta.' });
     } finally {
       setProcesando(false);
@@ -455,7 +456,7 @@ const Dashboard = () => {
                     <XAxis dataKey="mes" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
                     <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
                     <Tooltip 
-                      formatter={(value: any, name: any) => {
+                      formatter={(value: number | string, name: string) => {
                         if (typeof value === 'number') {
                           return [`$${value.toLocaleString('es-MX')}`, 'Ventas'];
                         }

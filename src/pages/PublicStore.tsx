@@ -12,6 +12,7 @@ import PageLoader from '@/components/ui/PageLoader';
 import {
   normalizePersonalization, readableTextOn, withAlpha, buildSocialUrl,
 } from '@/lib/personalization';
+import type { CatalogProduct } from '@/lib/types';
 
 interface StoreData {
   vendor: {
@@ -20,7 +21,7 @@ interface StoreData {
     telefono: string;
     personalizacion?: unknown;
   };
-  products: any[];
+  products: CatalogProduct[];
 }
 
 export default function PublicStore() {
@@ -50,7 +51,7 @@ export default function PublicStore() {
       try {
         const response = await api.get(`/store/${slug}`);
         setData(response.data);
-      } catch (err: any) {
+      } catch {
         setError('No pudimos encontrar esta tienda o no está disponible.');
       } finally {
         setLoading(false);
@@ -59,11 +60,11 @@ export default function PublicStore() {
     if (slug) fetchCatalog();
   }, [slug]);
 
-  const productos = data?.products ?? [];
+  const productos = useMemo(() => data?.products ?? [], [data]);
 
   // ── Filtrado + ordenamiento ──────────────────────────
   const productosFiltrados = useMemo(() => {
-    const precioDe = (p: any) => Number(p.precio_personalizado ?? p.precio_sugerido ?? 0);
+    const precioDe = (p: CatalogProduct) => Number(p.precio_personalizado ?? p.precio_sugerido ?? 0);
 
     let result = productos.filter((p) => {
       return !filters.categoria || p.categoria === filters.categoria;

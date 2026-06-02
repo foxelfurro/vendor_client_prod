@@ -12,18 +12,20 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '@/lib/api';
+import type { User } from '@/lib/types';
 
 interface AuthContextType {
-  user: any;
-  login: (userData?: any) => Promise<void>; // 1. ACTUALIZADO: Ahora es una promesa
+  user: User | null;
+  login: (userData?: User) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const { data } = await api.get('/auth/me');
         setUser(data);
-      } catch (error: any) {
+      } catch {
         console.error("Sesión inválida o expirada");
         setUser(null);
       } finally {
@@ -42,9 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initAuth();
   }, []);
 
-  // 2. ¡AQUÍ ESTÁ LA MAGIA! 🪄
-  // Modificamos el login para que siempre traiga el perfil completo de inmediato
-  const login = async (userData?: any) => {
+  const login = async (userData?: User) => {
     // A) Ponemos los datos básicos inmediatos para que React no truene y sepa que estás logueado
     if (userData) setUser(userData);
     
@@ -74,6 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

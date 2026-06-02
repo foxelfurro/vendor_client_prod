@@ -70,8 +70,8 @@ export function normalizePersonalization(raw: unknown): StorePersonalization {
   if (!raw || typeof raw !== 'object') {
     return { ...d, social: { ...d.social } };
   }
-  const r = raw as Record<string, any>;
-  const social = (r.social && typeof r.social === 'object' ? r.social : {}) as Record<string, any>;
+  const r = raw as Record<string, unknown>;
+  const social = (r.social && typeof r.social === 'object' ? r.social : {}) as Record<string, unknown>;
 
   return {
     accent_color: isHexColor(r.accent_color) ? r.accent_color : d.accent_color,

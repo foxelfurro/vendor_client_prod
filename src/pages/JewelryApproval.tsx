@@ -64,7 +64,8 @@ const PendingCard = ({
     try {
       await guardarCambios();
       alert('Cambios guardados correctamente.');
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
       alert(error.response?.data?.message || 'No se pudieron guardar los cambios.');
     } finally {
       setBusy(null);
@@ -83,7 +84,8 @@ const PendingCard = ({
       await api.post(`/admin/catalogo/${item.id}/aprobar`);
       alert('Joya aprobada y publicada en el catálogo maestro.');
       onResolved(item.id);
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
       alert(error.response?.data?.message || 'No se pudo aprobar la joya.');
     } finally {
       setBusy(null);
@@ -97,7 +99,8 @@ const PendingCard = ({
       await api.delete(`/admin/catalogo/${item.id}`);
       alert('Joya rechazada y eliminada.');
       onResolved(item.id);
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
       alert(error.response?.data?.message || 'No se pudo rechazar la joya.');
     } finally {
       setBusy(null);

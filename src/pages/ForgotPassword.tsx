@@ -30,9 +30,10 @@ const ForgotPassword = () => {
     try {
       const { data } = await api.post('/auth/forgot-password', { email });
       setMensaje(data.message || 'Te hemos enviado un enlace al correo.');
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
       setError(
-        err.response?.data?.error || 'Ocurrió un error al intentar enviar el correo.',
+        error.response?.data?.error || 'Ocurrió un error al intentar enviar el correo.',
       );
     } finally {
       setCargando(false);

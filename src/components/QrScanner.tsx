@@ -151,10 +151,10 @@ const QrScanner = ({
         }
         setEstado('escaneando');
         rafRef.current = requestAnimationFrame(tick);
-      } catch (err: any) {
+      } catch (err) {
         if (!activo) return;
         setEstado('error');
-        const nombre = err?.name;
+        const nombre = (err as { name?: string })?.name;
         if (nombre === 'NotAllowedError' || nombre === 'SecurityError') {
           setErrorMsg('Permiso de cámara denegado. Habilítalo en los ajustes de tu navegador e inténtalo de nuevo.');
         } else if (nombre === 'NotFoundError' || nombre === 'OverconstrainedError') {

@@ -80,8 +80,9 @@ const Inventory = () => {
           item.inventario_id === inventarioId ? { ...item, ...camposActualizados } : item
         )
       );
-    } catch (error: any) {
-      console.error("Error al actualizar la joya:", error);
+    } catch (err) {
+      console.error("Error al actualizar la joya:", err);
+      const error = err as { response?: { data?: { error?: string } } };
       await showAlert({
         type: 'error',
         title: 'Error al actualizar',
@@ -111,8 +112,9 @@ const Inventory = () => {
         title: '¡Listo!',
         message: 'Joya eliminada correctamente de tu vitrina.'
       });
-    } catch (error: any) {
-      console.error("Error al eliminar la joya:", error);
+    } catch (err) {
+      console.error("Error al eliminar la joya:", err);
+      const error = err as { response?: { data?: { error?: string } } };
       const errorMessage = error.response?.data?.error || 'No se pudo eliminar la joya del inventario.';
       await showAlert({
         type: 'error',
@@ -167,7 +169,8 @@ const Inventory = () => {
       setCustomImagenPreview(null);
 
       fetchInventory();
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } }; message?: string };
       await showAlert({
         type: 'error',
         title: 'Error al crear la pieza',
@@ -231,7 +234,7 @@ const Inventory = () => {
       }
 
       const { data: catalogo } = await api.get("/vendor/explore");
-      const joyaNueva = (catalogo as any[]).find((p) =>
+      const joyaNueva = (catalogo as { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number }[]).find((p) =>
         matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
       );
 
@@ -329,8 +332,9 @@ const Inventory = () => {
       }
     }, { root: null, rootMargin: "100px", threshold: 0.1 });
 
-    if (loaderRef.current) observer.observe(loaderRef.current);
-    return () => { if (loaderRef.current) observer.unobserve(loaderRef.current); };
+    const node = loaderRef.current;
+    if (node) observer.observe(node);
+    return () => { if (node) observer.unobserve(node); };
   }, [inventarioFiltrado.length]);
 
   const joyasMostradas = inventarioFiltrado.slice(0, visibleCount);

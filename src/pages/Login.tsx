@@ -43,7 +43,8 @@ const Login = () => {
       });
       login(data.user);
       navigate('/dashboard');
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { status?: number; data?: { code?: string; error?: string } } };
       // El token de Turnstile es de un solo uso: se reinicia el widget para que
       // el siguiente intento tenga un token nuevo y válido.
       turnstileRef.current?.reset();

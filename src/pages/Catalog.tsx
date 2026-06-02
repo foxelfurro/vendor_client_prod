@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
+import type { CatalogProduct } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ const Catalog = () => {
   const { user } = useAuth();
   const isAdmin = String(user?.rol) === '1' || user?.rol === 'admin';
 
-  const [productos, setProductos] = useState<any[]>([]);
+  const [productos, setProductos] = useState<CatalogProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,14 +55,14 @@ const Catalog = () => {
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<CatalogProduct | null>(null);
   const [formStock, setFormStock] = useState('1');
   const [formPrecio, setFormPrecio] = useState('');
   const [guardando, setGuardando] = useState(false);
 
   // Edición de joya — SKU y categoría (solo admin)
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editProducto, setEditProducto] = useState<any>(null);
+  const [editProducto, setEditProducto] = useState<CatalogProduct | null>(null);
   const [editSku, setEditSku] = useState('');
   const [editCategoriaId, setEditCategoriaId] = useState<number>(0);
   const [guardandoEdit, setGuardandoEdit] = useState(false);
@@ -116,9 +117,9 @@ const Catalog = () => {
           api.get('/vendor/inventory'),
         ]);
 
-        const yaAgregados = (enInventario as any[])
+        const yaAgregados = (enInventario as CatalogProduct[])
           .filter((i) => i.producto_maestro_id)
-          .map((i) => ({ ...i, id: i.producto_maestro_id, ya_agregado: true }));
+          .map((i) => ({ ...i, id: i.producto_maestro_id!, ya_agregado: true }));
 
         setProductos([...disponibles, ...yaAgregados]);
       }
@@ -141,7 +142,7 @@ const Catalog = () => {
   }, [isAdmin]);
 
   // ── Modal ──────────────────────────────────────────────────────────────────
-  const abrirModal = useCallback((producto: any) => {
+  const abrirModal = useCallback((producto: CatalogProduct) => {
     setProductoSeleccionado(producto);
     setFormStock('1');
     // precio_sugerido puede venir nulo desde el catálogo: se evita el crash de
@@ -151,7 +152,7 @@ const Catalog = () => {
   }, []);
 
   // ── Edición de joya (solo admin) ───────────────────────────────────────────
-  const abrirEdicion = useCallback((producto: any) => {
+  const abrirEdicion = useCallback((producto: CatalogProduct) => {
     setEditProducto(producto);
     setEditSku(producto.sku ?? '');
     setEditCategoriaId(producto.categoria_id ?? 0);
@@ -170,7 +171,8 @@ const Catalog = () => {
       alert('Joya actualizada correctamente.');
       setIsEditOpen(false);
       fetchCatalog();
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
       alert(error.response?.data?.message || 'No se pudo actualizar la joya.');
     } finally {
       setGuardandoEdit(false);
@@ -190,7 +192,8 @@ const Catalog = () => {
       alert('¡Producto agregado a tu inventario con éxito! 💎');
       setIsModalOpen(false);
       fetchCatalog();
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
       alert(error.response?.data?.error || 'Hubo un error al agregar el producto');
     } finally {
       setGuardando(false);
@@ -211,7 +214,7 @@ const Catalog = () => {
     const posibleSku1 = partes[partes.length - 1];
     const posibleSku2 = partes[partes.length - 2];
 
-    const joyaLocal = productos.find((p: any) =>
+    const joyaLocal = productos.find((p) =>
       matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
     );
 
@@ -225,7 +228,7 @@ const Catalog = () => {
       try {
         const params = new URLSearchParams({ page: '1', limit: '5', search: posibleSku1 });
         const { data } = await api.get(`/vendor/explore?${params.toString()}`);
-        const remoto = (data?.data ?? []).find((p: any) =>
+        const remoto = (data?.data ?? [] as CatalogProduct[]).find((p: CatalogProduct) =>
           matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
         );
         if (remoto) {
@@ -783,10 +786,10 @@ const ProductCard = ({
   isAdmin = false,
   onEdit,
 }: {
-  prod: any;
-  onAgregar: (p: any) => void;
+  prod: CatalogProduct;
+  onAgregar: (p: CatalogProduct) => void;
   isAdmin?: boolean;
-  onEdit?: (p: any) => void;
+  onEdit?: (p: CatalogProduct) => void;
 }) => (
   <Card className={`h-full overflow-hidden flex flex-col transition-shadow duration-200 border-slate-200 rounded-2xl ${prod.ya_agregado ? 'opacity-50 grayscale' : 'hover:shadow-lg'}`}>
     <div className="aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden group relative">
@@ -870,7 +873,7 @@ const PaginatorBtn = ({
   onClick: () => void;
   disabled?: boolean;
   active?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }) => (
   <button
     onClick={onClick}

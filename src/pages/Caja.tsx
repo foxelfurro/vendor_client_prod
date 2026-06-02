@@ -92,8 +92,9 @@ const Caja = () => {
       // Refresca el inventario para mostrar el stock actualizado
       const { data } = await api.get('/vendor/inventory');
       setInventario(data.filter((item: InventoryItem) => item.stock > 0));
-    } catch (error: any) {
-      console.error('Error al registrar la venta:', error);
+    } catch (err) {
+      console.error('Error al registrar la venta:', err);
+      const error = err as { response?: { data?: { error?: string } } };
       setMensaje({
         tipo: 'error',
         texto: error.response?.data?.error || 'Error al registrar la venta.',

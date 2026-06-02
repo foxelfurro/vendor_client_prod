@@ -70,7 +70,8 @@ const AdminDashboard = () => {
       
       // Reseteamos el formulario
       setUserForm({ nombre: '', email: '', password: '', rol_id: 2 });
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
       alert("Error al crear usuario: " + (error.response?.data?.message || "Error de conexión"));
     } finally {
       setIsLoading(false);
@@ -87,7 +88,8 @@ const AdminDashboard = () => {
         sku: '', nombre: '', descripcion: '', precio_sugerido: '',
         ruta_imagen: '', categoria_id: categorias[0]?.id ?? 0, marca_id: 1
       });
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
       alert("Error al registrar joya: " + (error.response?.data?.message || "Error de conexión"));
     }
   };

@@ -45,8 +45,9 @@ const Register = () => {
       });
       // Cuenta creada: se continúa al cobro de la suscripción.
       navigate(`/suscripcion?email=${encodeURIComponent(email.trim().toLowerCase())}`);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'No pudimos crear tu cuenta. Intenta de nuevo.');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'No pudimos crear tu cuenta. Intenta de nuevo.');
       setProcesando(false);
       // El token de Turnstile es de un solo uso: se reinicia para el siguiente intento.
       turnstileRef.current?.reset();

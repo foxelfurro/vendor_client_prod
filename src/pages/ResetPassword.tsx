@@ -44,8 +44,9 @@ const ResetPassword = () => {
       setMensaje(data.message || 'Contraseña actualizada correctamente.');
       // Redirige al login tras 3 segundos para confirmar visualmente el éxito
       setTimeout(() => navigate('/login'), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al restablecer la contraseña.');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'Error al restablecer la contraseña.');
     } finally {
       setCargando(false);
     }

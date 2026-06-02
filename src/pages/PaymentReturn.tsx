@@ -20,7 +20,7 @@ const PaymentReturn = () => {
   // en momentos distintos.
   const ref = params.get('pago_id') ?? params.get('session_id');
 
-  const [estado, setEstado] = useState<Estado>('cargando');
+  const [estado, setEstado] = useState<Estado>(() => (ref ? 'cargando' : 'error'));
   const [metodo, setMetodo] = useState<string | null>(null);
 
   const consultar = useCallback(async (): Promise<Estado | 'seguir'> => {
@@ -40,10 +40,7 @@ const PaymentReturn = () => {
   }, [ref]);
 
   useEffect(() => {
-    if (!ref) {
-      setEstado('error');
-      return;
-    }
+    if (!ref) return;
     let cancelado = false;
     let intentos = 0;
     const MAX_INTENTOS = 12; // ~36 segundos

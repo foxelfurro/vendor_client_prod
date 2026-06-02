@@ -27,8 +27,9 @@ const Subscribe = () => {
       const { data } = await api.post('/payments/checkout', { email, password });
       // Redirección a la página de pago segura de Stripe.
       window.location.href = data.url;
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'No pudimos iniciar el pago. Intenta de nuevo.');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'No pudimos iniciar el pago. Intenta de nuevo.');
       setProcesando(false);
     }
   };

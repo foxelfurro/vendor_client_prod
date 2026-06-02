@@ -92,8 +92,9 @@ const Profile = () => {
     try {
       const url = await uploadImage(file);
       updateP(field, url);
-    } catch (err: any) {
-      setImgError(err?.message || 'No se pudo subir la imagen.');
+    } catch (err) {
+      const error = err as { message?: string };
+      setImgError(error?.message || 'No se pudo subir la imagen.');
     } finally {
       setImgUploading(null);
     }
@@ -140,7 +141,8 @@ const Profile = () => {
         type: 'success',
         text: response.data.message || 'Te hemos enviado un correo con el enlace seguro.'
       });
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string; message?: string } } };
       setPassMessage({
         type: 'error',
         text: error.response?.data?.error || error.response?.data?.message || 'Ocurrió un error al enviar el correo.'
@@ -191,7 +193,8 @@ const Profile = () => {
 
       setFormStatus('success');
       setFormMessage(response.data.message || 'Configuración guardada correctamente.');
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string; message?: string } } };
       setFormStatus('error');
       setFormMessage(
         error?.response?.data?.error ||
