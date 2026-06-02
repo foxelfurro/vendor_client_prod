@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { AlertProvider } from './contexts/AlertContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Catalog from './pages/Catalog';
@@ -47,8 +48,9 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
+      <AlertProvider>
+        <Router>
+          <Routes>
           {/* --- 1. RUTAS PÚBLICAS (Accesibles para todos) --- */}
 
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -108,7 +110,8 @@ function App() {
           {/* CATCH-ALL: Si escriben una URL que no existe, van al Landing */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </Router>
+        </Router>
+      </AlertProvider>
     </AuthProvider>
   );
 }

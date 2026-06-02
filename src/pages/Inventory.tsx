@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '@/lib/api';
 import { uploadImage } from '@/lib/uploadImage';
+import { useAlert } from '@/contexts/AlertContext';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -33,6 +34,7 @@ interface InventoryItem {
 
 const Inventory = () => {
   const location = useLocation();
+  const { showAlert, showConfirm } = useAlert();
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
@@ -78,25 +80,45 @@ const Inventory = () => {
           item.inventario_id === inventarioId ? { ...item, ...camposActualizados } : item
         )
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al actualizar la joya:", error);
-      alert("No se pudieron guardar los cambios.");
+      await showAlert({
+        type: 'error',
+        title: 'Error al actualizar',
+        message: error.response?.data?.error || 'No se pudieron guardar los cambios.'
+      });
     } finally {
       setUpdatingId(null);
     }
   };
 
   const handleDeleteItem = async (inventarioId: number, nombreJoya: string) => {
-    const confirmar = window.confirm(`¿Seguro que quieres eliminar "${nombreJoya}" de tu vitrina? Esta acción removerá el stock público.`);
-    if (!confirmar) return;
+    const confirmed = await showConfirm({
+      type: 'confirm',
+      title: 'Eliminar joya de tu vitrina',
+      message: `¿Seguro que quieres eliminar "${nombreJoya}" de tu vitrina? Esta acción removerá el stock público.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    });
+
+    if (!confirmed) return;
 
     try {
       await api.delete(`/vendor/inventory/${inventarioId}`);
       setInventario((prev) => prev.filter((item) => item.inventario_id !== inventarioId));
-      alert("Joya eliminada correctamente.");
-    } catch (error) {
+      await showAlert({
+        type: 'success',
+        title: '¡Listo!',
+        message: 'Joya eliminada correctamente de tu vitrina.'
+      });
+    } catch (error: any) {
       console.error("Error al eliminar la joya:", error);
-      alert("No se pudo eliminar la joya del inventario.");
+      const errorMessage = error.response?.data?.error || 'No se pudo eliminar la joya del inventario.';
+      await showAlert({
+        type: 'error',
+        title: 'Error al eliminar',
+        message: errorMessage
+      });
     }
   };
 
@@ -128,7 +150,12 @@ const Inventory = () => {
         imagen_url,
       });
 
-      alert(data?.message || "¡Pieza propia agregada a tu vitrina! ✨");
+      await showAlert({
+        type: 'success',
+        title: '¡Pieza creada!',
+        message: data?.message || "¡Pieza propia agregada a tu vitrina! ✨"
+      });
+
       setIsCustomModalOpen(false);
 
       setCustomNombre("");
@@ -141,7 +168,11 @@ const Inventory = () => {
 
       fetchInventory();
     } catch (error: any) {
-      alert(error.response?.data?.error || error?.message || "Hubo un error al guardar tu pieza.");
+      await showAlert({
+        type: 'error',
+        title: 'Error al crear la pieza',
+        message: error.response?.data?.error || error?.message || "Hubo un error al guardar tu pieza."
+      });
     } finally {
       setGuardandoCustom(false);
     }
@@ -180,11 +211,20 @@ const Inventory = () => {
         if (sumarStock) {
           const sumar = parseInt(sumarStock);
           if (!Number.isInteger(sumar) || sumar <= 0) {
-            alert("Cantidad no válida.");
+            await showAlert({
+              type: 'error',
+              title: 'Cantidad no válida',
+              message: 'Por favor ingresa un número mayor a 0.'
+            });
             return;
           }
           await handleUpdateItem(joyaEnMiInventario.inventario_id, {
             stock: joyaEnMiInventario.stock + sumar,
+          });
+          await showAlert({
+            type: 'success',
+            title: 'Stock actualizado',
+            message: `Se sumaron ${sumar} piezas a ${joyaEnMiInventario.nombre}.`
           });
         }
         return;
@@ -215,14 +255,26 @@ const Inventory = () => {
           precio_personalizado: parseFloat(precioInput),
         });
 
-        alert("✅ ¡Joya guardada en tu inventario con éxito!");
+        await showAlert({
+          type: 'success',
+          title: '¡Joya guardada!',
+          message: 'La joya se agregó a tu inventario correctamente.'
+        });
         fetchInventory();
       } else {
-        alert(`El código ${posibleSku1} no existe en la base de datos maestra.`);
+        await showAlert({
+          type: 'warning',
+          title: 'Código no encontrado',
+          message: `El código ${posibleSku1} no existe en la base de datos maestra.`
+        });
       }
     } catch (error) {
       console.error("Error al procesar el código QR:", error);
-      alert("Hubo un error de conexión al procesar el código QR.");
+      await showAlert({
+        type: 'error',
+        title: 'Error de conexión',
+        message: 'Hubo un error al procesar el código QR.'
+      });
     }
   };
 
