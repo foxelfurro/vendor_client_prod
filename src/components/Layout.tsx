@@ -26,10 +26,12 @@ import {
   UserCircle
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useAlert } from '@/context/AlertContext';
 import { cn } from '@/lib/utils';
 
 const Layout = () => {
   const { user, logout } = useAuth();
+  const { showConfirm } = useAlert();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -78,7 +80,14 @@ const Layout = () => {
 
   // 5. Cierre de sesión seguro
   const handleLogout = async () => {
-    if (!window.confirm('¿Estás seguro de cerrar sesión?')) return;
+    const confirmed = await showConfirm({
+      type: 'confirm',
+      title: 'Cerrar sesión',
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      confirmText: 'Cerrar sesión',
+      cancelText: 'Cancelar',
+    });
+    if (!confirmed) return;
     setIsLoggingOut(true);
     try {
       await logout();
