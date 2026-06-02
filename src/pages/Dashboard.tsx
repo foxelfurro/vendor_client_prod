@@ -408,12 +408,16 @@ const Dashboard = () => {
                 stats.ultimas_ventas.map((venta) => (
                   <div key={venta.id} className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between group pb-6 border-b border-outline-variant/10 last:border-b-0 last:pb-0">
                     <div className="flex gap-4 items-center flex-1 min-w-0">
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container border border-outline-variant/10 flex-shrink-0">
-                        <img 
-                          src={venta.imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=150&auto=format&fit=crop"} 
-                          alt={venta.producto_nombre} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                        />
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container border border-outline-variant/10 flex-shrink-0 flex items-center justify-center">
+                        {venta.imagen ? (
+                          <img
+                            src={venta.imagen}
+                            alt={venta.producto_nombre}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <Package size={24} className="text-on-surface-variant/40" />
+                        )}
                       </div>
                       <div className="flex-1 space-y-1 min-w-0">
                         <span className="text-[0.65rem] uppercase font-bold tracking-widest text-tertiary block truncate">
