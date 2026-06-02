@@ -456,11 +456,11 @@ const Dashboard = () => {
                     <XAxis dataKey="mes" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
                     <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
                     <Tooltip 
-                      formatter={(value: number | string, name: string) => {
+                      formatter={(value, name) => {
                         if (typeof value === 'number') {
                           return [`$${value.toLocaleString('es-MX')}`, 'Ventas'];
                         }
-                        return [value, name];
+                        return [`${value}`, `${name}`];
                       }}
                       contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}
                     />

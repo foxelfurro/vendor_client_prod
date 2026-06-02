@@ -155,6 +155,7 @@ const Profile = () => {
   // Enviar configuración de la tienda
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setFormStatus('loading');
 
     const fullPhone = `${formData.telefono_digits}`;

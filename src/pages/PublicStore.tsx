@@ -12,7 +12,7 @@ import PageLoader from '@/components/ui/PageLoader';
 import {
   normalizePersonalization, readableTextOn, withAlpha, buildSocialUrl,
 } from '@/lib/personalization';
-import type { CatalogProduct } from '@/lib/types';
+import type { StoreProduct } from '@/lib/types';
 
 interface StoreData {
   vendor: {
@@ -21,7 +21,7 @@ interface StoreData {
     telefono: string;
     personalizacion?: unknown;
   };
-  products: CatalogProduct[];
+  products: StoreProduct[];
 }
 
 export default function PublicStore() {
@@ -64,7 +64,7 @@ export default function PublicStore() {
 
   // ── Filtrado + ordenamiento ──────────────────────────
   const productosFiltrados = useMemo(() => {
-    const precioDe = (p: CatalogProduct) => Number(p.precio_personalizado ?? p.precio_sugerido ?? 0);
+    const precioDe = (p: StoreProduct) => Number(p.precio_personalizado ?? p.precio_sugerido ?? 0);
 
     let result = productos.filter((p) => {
       return !filters.categoria || p.categoria === filters.categoria;

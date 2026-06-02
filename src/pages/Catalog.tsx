@@ -259,7 +259,7 @@ const Catalog = () => {
       const matchCategoria =
         !filters.categoria || item.categoria === filters.categoria;
 
-      const precio = parseFloat(item.precio_sugerido) || 0;
+      const precio = Number(item.precio_sugerido ?? 0);
       const minOk = filters.precioMin === 0 || precio >= filters.precioMin;
       const maxOk = filters.precioMax === 999999 || precio <= filters.precioMax;
 
@@ -269,11 +269,11 @@ const Catalog = () => {
     if (filters.ordenPrecio === 'asc') {
       result = result
         .slice()
-        .sort((a, b) => parseFloat(a.precio_sugerido) - parseFloat(b.precio_sugerido));
+        .sort((a, b) => Number(a.precio_sugerido ?? 0) - Number(b.precio_sugerido ?? 0));
     } else if (filters.ordenPrecio === 'desc') {
       result = result
         .slice()
-        .sort((a, b) => parseFloat(b.precio_sugerido) - parseFloat(a.precio_sugerido));
+        .sort((a, b) => Number(b.precio_sugerido ?? 0) - Number(a.precio_sugerido ?? 0));
     }
 
     return result;
@@ -719,7 +719,7 @@ const Catalog = () => {
                 onChange={(e) => setEditSku(e.target.value)}
                 className="h-11 bg-slate-50 border border-slate-200 rounded-xl font-mono"
               />
-              {editProducto?.skus_anteriores?.length > 0 && (
+              {editProducto?.skus_anteriores && editProducto.skus_anteriores.length > 0 && (
                 <p className="text-[11px] text-slate-400">
                   SKU anteriores: {editProducto.skus_anteriores.join(', ')}
                 </p>
