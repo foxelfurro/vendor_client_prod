@@ -15,6 +15,25 @@ export interface ConSku {
 }
 
 /**
+ * Extrae candidatos de SKU desde el texto escaneado por el QR.
+ * Cubre tres casos:
+ *   1. El texto ES directamente el SKU ("526453/10")
+ *   2. El texto es una URL y el SKU es el último segmento ("…/526453")
+ *   3. El SKU contiene "/" y quedó partido en los dos últimos segmentos ("…/526453/10")
+ */
+export function extractSkuCandidates(decodedText: string): string[] {
+  const clean = decodedText.trim().replace(/\/$/, '');
+  const parts = clean.split('/');
+  const last = parts[parts.length - 1];
+  const secondLast = parts[parts.length - 2];
+  const candidates: string[] = [];
+  if (last) candidates.push(last);
+  if (secondLast) candidates.push(secondLast);
+  if (secondLast && last) candidates.push(`${secondLast}/${last}`);
+  return candidates;
+}
+
+/**
  * Coincidencia EXACTA contra el SKU vigente o cualquier SKU anterior.
  * Útil para el escáner QR.
  */

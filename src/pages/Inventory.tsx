@@ -12,7 +12,7 @@ import AppFooter from '@/components/AppFooter';
 import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
-import { matchSku, skuIncluye } from '@/lib/sku';
+import { matchSku, skuIncluye, extractSkuCandidates } from '@/lib/sku';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -196,14 +196,11 @@ const Inventory = () => {
   // Procesa el texto decodificado del QR: suma stock si la joya ya está en el
   // inventario, o la agrega desde el catálogo maestro si es nueva.
   const procesarQr = async (decodedText: string) => {
-    const cleanUrl = decodedText.trim().replace(/\/$/, "");
-    const partes = cleanUrl.split("/");
-    const posibleSku1 = partes[partes.length - 1];
-    const posibleSku2 = partes[partes.length - 2];
+    const candidates = extractSkuCandidates(decodedText);
 
     try {
       const joyaEnMiInventario = inventario.find((p) =>
-        matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+        candidates.some((sku) => matchSku(p, sku))
       );
 
       if (joyaEnMiInventario) {
@@ -235,7 +232,7 @@ const Inventory = () => {
 
       const { data: catalogo } = await api.get("/vendor/explore");
       const joyaNueva = (catalogo as { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number }[]).find((p) =>
-        matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+        candidates.some((sku) => matchSku(p, sku))
       );
 
       if (joyaNueva) {
@@ -268,7 +265,7 @@ const Inventory = () => {
         await showAlert({
           type: 'warning',
           title: 'Código no encontrado',
-          message: `El código ${posibleSku1} no existe en la base de datos maestra.`
+          message: `El código ${candidates[0]} no existe en la base de datos maestra.`
         });
       }
     } catch (error) {

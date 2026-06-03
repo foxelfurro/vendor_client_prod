@@ -15,7 +15,7 @@ import AppFooter from '@/components/AppFooter';
 import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
-import { matchSku, skuIncluye } from '@/lib/sku';
+import { matchSku, skuIncluye, extractSkuCandidates } from '@/lib/sku';
 import { useAuth } from '@/context/AuthContext';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
@@ -209,13 +209,10 @@ const Catalog = () => {
   // disparamos una búsqueda al servidor con el SKU.
   const handleQrScan = async (decodedText: string) => {
     setShowScanner(false);
-    const cleanUrl = decodedText.trim().replace(/\/$/, '');
-    const partes = cleanUrl.split('/');
-    const posibleSku1 = partes[partes.length - 1];
-    const posibleSku2 = partes[partes.length - 2];
+    const candidates = extractSkuCandidates(decodedText);
 
     const joyaLocal = productos.find((p) =>
-      matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+      candidates.some((sku) => matchSku(p, sku))
     );
 
     if (joyaLocal) {
@@ -226,10 +223,10 @@ const Catalog = () => {
     if (isAdmin) {
       // Fallback: pedir al backend la joya por SKU (1 sola fila, sin filtros).
       try {
-        const params = new URLSearchParams({ page: '1', limit: '5', search: posibleSku1 });
+        const params = new URLSearchParams({ page: '1', limit: '5', search: candidates[0] });
         const { data } = await api.get(`/vendor/explore?${params.toString()}`);
         const remoto = (data?.data ?? [] as CatalogProduct[]).find((p: CatalogProduct) =>
-          matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+          candidates.some((sku) => matchSku(p, sku))
         );
         if (remoto) {
           abrirEdicion(remoto);
@@ -240,7 +237,7 @@ const Catalog = () => {
       }
     }
 
-    alert(`El código ${posibleSku1} no se encontró en el catálogo.`);
+    alert(`El código ${candidates[0]} no se encontró en el catálogo.`);
   };
 
   // ── Filtrado + ordenamiento ─────────────────────────────────────────────────

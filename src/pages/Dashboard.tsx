@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import QrScanner from '@/components/QrScanner';
-import { matchSku } from '@/lib/sku';
+import { matchSku, extractSkuCandidates } from '@/lib/sku';
 import {
   DollarSign,
   Package,
@@ -167,13 +167,10 @@ const Dashboard = () => {
   // se confirman manualmente.
   const handleQrScan = (decodedText: string) => {
     setShowScanner(false);
-    const cleanUrl = decodedText.trim().replace(/\/$/, '');
-    const partes = cleanUrl.split('/');
-    const posibleSku1 = partes[partes.length - 1];
-    const posibleSku2 = partes[partes.length - 2];
+    const candidates = extractSkuCandidates(decodedText);
 
     const joya = inventario.find(
-      (p) => matchSku(p, posibleSku1) || matchSku(p, posibleSku2)
+      (p) => candidates.some((sku) => matchSku(p, sku))
     );
 
     if (joya) {
