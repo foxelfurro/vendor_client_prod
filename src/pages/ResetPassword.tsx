@@ -53,50 +53,45 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col">
+    <div className="bg-[#1A1C2C] font-body text-white antialiased min-h-screen flex flex-col">
       <PublicNav />
 
-      {/* Contenido centrado */}
-      <main className="flex-grow flex items-center justify-center px-6 py-12">
+      <main className="flex-grow flex items-center justify-center px-5 py-12">
         <div className="w-full max-w-md space-y-8">
-          {/* Encabezado de sección */}
           <div className="space-y-2">
-            <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold text-primary-stitch opacity-80">
+            <span className="text-[0.6rem] tracking-[0.35em] uppercase font-bold text-[#7B4CFF]">
               Seguridad
             </span>
-            <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight">
+            <h1 className="text-3xl font-headline font-bold text-white tracking-tight">
               Nueva contraseña
             </h1>
-            <p className="text-on-surface-variant text-sm tracking-wide">
+            <p className="text-[#A0A3B1] text-sm tracking-wide">
               Crea tu nueva credencial de acceso a la plataforma.
             </p>
           </div>
 
-          {/* Tarjeta del formulario */}
-          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] p-8 space-y-6">
+          <div className="bg-[#20223A] rounded-2xl border border-[#2E3050] p-7 space-y-6">
 
-            {/* Confirmación de éxito — oculta el formulario */}
             {mensaje ? (
-              <div className="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 p-4 rounded-md shadow-sm text-sm font-medium text-center">
+              <div className="bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#C4B5FD] p-4 rounded-xl text-sm font-medium text-center">
                 {mensaje}
                 <br />
-                <span className="text-xs text-emerald-600 mt-1 block">Redirigiendo al inicio de sesión…</span>
+                <span className="text-xs text-[#C4B5FD]/70 mt-1 block">Redirigiendo al inicio de sesión…</span>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Error */}
                 {error && (
-                  <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md shadow-sm">
+                  <div className="bg-[#FFD600]/10 border border-[#FFD600]/30 text-[#FFD600] p-4 rounded-xl">
                     <p className="text-sm font-medium">{error}</p>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1">
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1] ml-1">
                     Nueva contraseña
                   </label>
                   <input
-                    className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all disabled:opacity-50"
+                    className="w-full bg-[#1A1C2C] border border-[#2E3050] rounded-xl px-4 py-3.5 text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all disabled:opacity-50 placeholder:text-[#A0A3B1]/40"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -107,11 +102,11 @@ const ResetPassword = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1">
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1] ml-1">
                     Confirmar contraseña
                   </label>
                   <input
-                    className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all disabled:opacity-50"
+                    className="w-full bg-[#1A1C2C] border border-[#2E3050] rounded-xl px-4 py-3.5 text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all disabled:opacity-50 placeholder:text-[#A0A3B1]/40"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -124,18 +119,17 @@ const ResetPassword = () => {
                 <button
                   type="submit"
                   disabled={cargando}
-                  className="w-full bg-primary hover:bg-primary-dim text-on-primary font-bold py-4 rounded-xl shadow-lg transition-all duration-300 flex justify-center items-center disabled:opacity-50"
+                  className="w-full bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white font-bold py-4 rounded-xl shadow-lg shadow-[#7B4CFF]/25 transition-all active:scale-[0.98] flex justify-center items-center disabled:opacity-50"
                 >
                   {cargando ? 'Guardando…' : 'Establecer nueva contraseña'}
                 </button>
               </form>
             )}
 
-            {/* Enlace de regreso */}
             <div className="pt-2 text-center">
               <button
                 onClick={() => navigate('/login')}
-                className="text-[0.65rem] uppercase font-bold text-on-surface-variant/60 hover:text-primary transition-colors tracking-widest"
+                className="text-[0.65rem] uppercase font-bold text-[#A0A3B1]/60 hover:text-[#7B4CFF] transition-colors tracking-widest"
               >
                 ← Volver al inicio de sesión
               </button>

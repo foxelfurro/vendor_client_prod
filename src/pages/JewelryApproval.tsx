@@ -110,14 +110,14 @@ const PendingCard = ({
   const disabled = busy !== null;
 
   return (
-    <Card className="border border-slate-200 shadow-sm overflow-hidden">
+    <Card className="bg-[#20223A] border-[#2E3050] shadow-sm overflow-hidden">
       <div className="grid md:grid-cols-[200px,1fr]">
         {/* Vista previa de la imagen */}
-        <div className="aspect-square md:aspect-auto bg-slate-100 flex items-center justify-center overflow-hidden">
+        <div className="aspect-square md:aspect-auto bg-[#252840] flex items-center justify-center overflow-hidden">
           {form.ruta_imagen ? (
             <img src={form.ruta_imagen} alt={form.nombre} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-slate-400 text-xs">Sin imagen</span>
+            <span className="text-[#A0A3B1] text-xs">Sin imagen</span>
           )}
         </div>
 
@@ -125,8 +125,8 @@ const PendingCard = ({
         <div className="p-5 space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[0.65rem] uppercase tracking-widest font-bold text-amber-600">Pendiente</p>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[0.65rem] uppercase tracking-widest font-bold text-[#FFD600]">Pendiente</p>
+              <p className="text-xs text-[#A0A3B1] mt-0.5">
                 Creada por {item.creador_nombre || 'vendedora desconocida'}
                 {item.creador_email ? ` · ${item.creador_email}` : ''}
               </p>
@@ -135,22 +135,25 @@ const PendingCard = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1 col-span-2">
-              <label className="text-xs font-medium text-slate-600">Nombre</label>
+              <label className="block text-[0.6rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Nombre</label>
               <Input
+                className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                 value={form.nombre}
                 onChange={(e) => setForm({ ...form, nombre: e.target.value })}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-600">SKU</label>
+              <label className="block text-[0.6rem] uppercase font-bold tracking-widest text-[#A0A3B1]">SKU</label>
               <Input
+                className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                 value={form.sku}
                 onChange={(e) => setForm({ ...form, sku: e.target.value })}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-600">Precio sugerido ($)</label>
+              <label className="block text-[0.6rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Precio sugerido ($)</label>
               <Input
+                className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                 type="number"
                 step="0.01"
                 value={form.precio_sugerido}
@@ -158,32 +161,33 @@ const PendingCard = ({
               />
             </div>
             <div className="space-y-1 col-span-2">
-              <label className="text-xs font-medium text-slate-600">Categoría</label>
+              <label className="block text-[0.6rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Categoría</label>
               <select
-                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
+                className="flex h-10 w-full rounded-xl border border-[#2E3050] bg-[#1A1C2C] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all"
                 value={form.categoria_id}
                 onChange={(e) => setForm({ ...form, categoria_id: Number(e.target.value) })}
               >
-                <option value={0}>— Sin asignar —</option>
+                <option value={0} className="bg-[#20223A]">— Sin asignar —</option>
                 {categorias.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                  <option key={cat.id} value={cat.id} className="bg-[#20223A]">{cat.nombre}</option>
                 ))}
               </select>
               {!form.categoria_id && (
-                <p className="text-[11px] text-amber-600">Asigna una categoría para poder aprobar la joya.</p>
+                <p className="text-[11px] text-[#FFD600]">Asigna una categoría para poder aprobar la joya.</p>
               )}
             </div>
             <div className="space-y-1 col-span-2">
-              <label className="text-xs font-medium text-slate-600">URL de la imagen</label>
+              <label className="block text-[0.6rem] uppercase font-bold tracking-widest text-[#A0A3B1]">URL de la imagen</label>
               <Input
+                className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                 value={form.ruta_imagen}
                 onChange={(e) => setForm({ ...form, ruta_imagen: e.target.value })}
               />
             </div>
             <div className="space-y-1 col-span-2">
-              <label className="text-xs font-medium text-slate-600">Descripción</label>
+              <label className="block text-[0.6rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Descripción</label>
               <textarea
-                className="flex min-h-[60px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
+                className="flex min-h-[60px] w-full rounded-xl border border-[#2E3050] bg-[#1A1C2C] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent resize-none placeholder:text-[#A0A3B1]/40"
                 value={form.descripcion}
                 onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
               />
@@ -195,7 +199,7 @@ const PendingCard = ({
               onClick={handleGuardar}
               disabled={disabled}
               variant="outline"
-              className="flex-1 h-10 rounded-xl font-bold"
+              className="flex-1 h-10 rounded-xl font-bold border-[#2E3050] text-[#A0A3B1] hover:bg-[#252840] hover:text-white"
             >
               {busy === 'guardar' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-1.5" />}
               Guardar
@@ -203,7 +207,7 @@ const PendingCard = ({
             <Button
               onClick={handleAprobar}
               disabled={disabled}
-              className="flex-1 h-10 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="flex-1 h-10 rounded-xl font-bold bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white shadow-md shadow-[#7B4CFF]/25"
             >
               {busy === 'aprobar' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1.5" />}
               Aprobar
@@ -212,7 +216,7 @@ const PendingCard = ({
               onClick={handleRechazar}
               disabled={disabled}
               variant="outline"
-              className="flex-1 h-10 rounded-xl font-bold border-red-200 text-red-600 hover:bg-red-50"
+              className="flex-1 h-10 rounded-xl font-bold border-[#FFD600]/30 text-[#FFD600] hover:bg-[#FFD600]/10"
             >
               {busy === 'rechazar' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
               Rechazar
@@ -253,14 +257,14 @@ const JewelryApproval = () => {
   };
 
   return (
-    <div className="p-6 sm:p-8 bg-slate-50 min-h-screen">
+    <div className="p-5 sm:p-8 bg-[#1A1C2C] min-h-screen">
       <div className="mb-8 flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-amber-100 text-amber-600">
+        <div className="p-2.5 rounded-xl bg-[#7B4CFF]/15 text-[#7B4CFF]">
           <ShieldCheck className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Aprobación de Joyas</h1>
-          <p className="text-slate-500 mt-1 text-sm">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Aprobación de Joyas</h1>
+          <p className="text-[#A0A3B1] mt-1 text-sm">
             Revisa, asigna categoría y publica las joyas propias creadas por las vendedoras.
           </p>
         </div>
@@ -269,23 +273,23 @@ const JewelryApproval = () => {
       {loading ? (
         <PageLoader inline message="Cargando joyas pendientes…" />
       ) : items.length === 0 ? (
-        <Card className="border border-slate-200 shadow-sm">
+        <Card className="bg-[#20223A] border-[#2E3050] shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Inbox className="h-5 w-5 text-slate-400" />
+            <CardTitle className="flex items-center gap-2 text-lg text-white">
+              <Inbox className="h-5 w-5 text-[#A0A3B1]" />
               Todo al día
             </CardTitle>
-            <CardDescription>No hay joyas pendientes de aprobación en este momento.</CardDescription>
+            <CardDescription className="text-[#A0A3B1]">No hay joyas pendientes de aprobación en este momento.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={fetchData} variant="outline" className="rounded-xl font-bold">
+            <Button onClick={fetchData} variant="outline" className="rounded-xl font-bold border-[#2E3050] text-[#A0A3B1] hover:bg-[#252840] hover:text-white">
               Actualizar
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-5">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-[#A0A3B1]">
             {items.length} joya{items.length === 1 ? '' : 's'} esperando revisión.
           </p>
           <div className="grid gap-5 xl:grid-cols-2">

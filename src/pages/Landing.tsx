@@ -130,14 +130,13 @@ const SHOWCASE = [
 
 const PhoneFrame = ({ src, alt }: { src?: string; alt: string }) => (
   <div className="relative mx-auto w-[260px] sm:w-[300px]">
-    {/* Marco del teléfono */}
-    <div className="relative aspect-[9/19] rounded-[2.75rem] bg-on-surface p-2 shadow-[0_40px_80px_-20px_rgba(45,52,53,0.25)]">
-      <div className="absolute left-1/2 top-2 -translate-x-1/2 w-24 h-5 bg-on-surface rounded-b-2xl z-10" />
-      <div className="relative h-full w-full overflow-hidden rounded-[2.25rem] bg-surface-container">
+    <div className="relative aspect-[9/19] rounded-[2.75rem] bg-[#2E3050] p-2 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]">
+      <div className="absolute left-1/2 top-2 -translate-x-1/2 w-24 h-5 bg-[#2E3050] rounded-b-2xl z-10" />
+      <div className="relative h-full w-full overflow-hidden rounded-[2.25rem] bg-[#1A1C2C]">
         {src ? (
           <img src={src} alt={alt} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-surface-container-low to-surface-container-high text-on-surface-variant">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-[#1A1C2C] to-[#252840] text-[#A0A3B1]">
             <Smartphone size={32} className="opacity-40" />
             <span className="text-[0.6rem] uppercase tracking-[0.25em] font-bold opacity-50 text-center px-6">
               Espacio para captura
@@ -158,14 +157,14 @@ const FeatureCard = ({
   title: string;
   body: string;
 }) => (
-  <div className="group rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 sm:p-7 transition-all hover:border-outline-variant/40 hover:shadow-[0_20px_40px_-20px_rgba(45,52,53,0.12)]">
-    <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-surface-container p-3 text-primary-stitch transition-transform group-hover:-translate-y-0.5">
+  <div className="group rounded-2xl border border-[#2E3050] bg-[#20223A] p-6 sm:p-7 transition-all hover:border-[#7B4CFF]/30 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.3)]">
+    <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-[#7B4CFF]/15 p-3 text-[#7B4CFF] transition-transform group-hover:-translate-y-0.5">
       <Icon size={20} strokeWidth={2} />
     </div>
-    <h3 className="mb-2 text-lg font-headline font-bold tracking-tight text-on-surface">
+    <h3 className="mb-2 text-lg font-headline font-bold tracking-tight text-white">
       {title}
     </h3>
-    <p className="text-sm leading-relaxed text-on-surface-variant">{body}</p>
+    <p className="text-sm leading-relaxed text-[#A0A3B1]">{body}</p>
   </div>
 );
 
@@ -175,7 +174,7 @@ const FeatureCard = ({
 
 const Landing = () => {
   return (
-    <div className="bg-background font-body text-on-surface antialiased selection:bg-primary/20 min-h-dvh flex flex-col">
+    <div className="bg-[#1A1C2C] font-body text-white antialiased min-h-dvh flex flex-col">
       <PublicNav />
 
       <main className="flex-grow">
@@ -183,35 +182,34 @@ const Landing = () => {
         {/*  HERO                                                              */}
         {/* ================================================================= */}
         <section className="relative overflow-hidden">
-          {/* Fondo sutil */}
           <div
-            className="pointer-events-none absolute inset-0 -z-10 opacity-[0.04]"
+            className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06]"
             style={{
               backgroundImage:
-                'radial-gradient(circle at 1px 1px, #2d3435 1px, transparent 0)',
+                'radial-gradient(circle at 1px 1px, #7B4CFF 1px, transparent 0)',
               backgroundSize: '32px 32px',
             }}
             aria-hidden
           />
 
-          <div className="mx-auto max-w-screen-2xl px-6 sm:px-8 pt-16 sm:pt-24 pb-20 sm:pb-28">
+          <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 pt-14 sm:pt-22 pb-18 sm:pb-26">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
               {/* Copy */}
               <div className="text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-lowest px-3 py-1.5 mb-6">
-                  <Sparkles size={12} className="text-primary-stitch" />
-                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-on-surface-variant">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#7B4CFF]/30 bg-[#7B4CFF]/10 px-3 py-1.5 mb-6">
+                  <Sparkles size={12} className="text-[#7B4CFF]" />
+                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-[#A0A3B1]">
                     Plataforma para vendedoras de joyería
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-on-surface mb-6">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-white mb-6">
                   Tu joyería,
                   <br />
-                  <span className="text-primary-stitch">organizada y vendiendo.</span>
+                  <span className="text-[#7B4CFF]">organizada y vendiendo.</span>
                 </h1>
 
-                <p className="text-base sm:text-lg leading-relaxed text-on-surface-variant max-w-xl mx-auto lg:mx-0 mb-10">
+                <p className="text-base sm:text-lg leading-relaxed text-[#A0A3B1] max-w-xl mx-auto lg:mx-0 mb-10">
                   Lumin reúne tu inventario, catálogo, tienda online y caja en un
                   solo lugar. Diseñada para que vendas más sin pelearte con
                   hojas de cálculo ni capturas manuales.
@@ -220,31 +218,27 @@ const Landing = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center lg:justify-start">
                   <Link
                     to="/registro"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-on-surface px-7 py-4 text-sm font-bold text-surface-container-lowest shadow-lg transition-all hover:bg-on-surface/90"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#7B4CFF] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#7B4CFF]/25 transition-all hover:bg-[#6B3CEF] active:scale-[0.98]"
                   >
                     Hazte socia
-                    <ArrowRight
-                      size={16}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                   </Link>
                   <Link
                     to="/login"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-7 py-4 text-sm font-bold text-on-surface transition-all hover:border-outline-variant/80"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#2E3050] bg-[#20223A] px-7 py-4 text-sm font-bold text-white transition-all hover:border-[#7B4CFF]/40"
                   >
                     Ya soy socia · Iniciar sesión
                   </Link>
                 </div>
 
-                <p className="mt-6 text-xs text-on-surface-variant/70 text-center lg:text-left">
+                <p className="mt-6 text-xs text-[#A0A3B1]/70 text-center lg:text-left">
                   Sin permanencia. Cancela cuando quieras.
                 </p>
               </div>
 
               {/* Captura de pantalla hero */}
               <div className="relative">
-                <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-surface-container to-surface-container-high blur-2xl opacity-60" />
-                {/* REEMPLAZAR: captura principal del Dashboard en celular. */}
+                <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-[#7B4CFF]/20 to-[#20223A] blur-2xl opacity-60" />
                 <PhoneFrame src="https://cdn.qlatte.com/uploads/capturas/IMG_2173.png" alt="Vista principal de Lumin en celular" />
               </div>
             </div>
@@ -254,8 +248,8 @@ const Landing = () => {
         {/* ================================================================= */}
         {/*  TIRA DE BENEFICIOS RÁPIDOS                                        */}
         {/* ================================================================= */}
-        <section className="border-y border-outline-variant/15 bg-surface-container-lowest">
-          <div className="mx-auto max-w-screen-2xl px-6 sm:px-8 py-8">
+        <section className="border-y border-[#2E3050] bg-[#20223A]">
+          <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 py-8">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {[
                 { icon: ShieldCheck, label: 'Pagos seguros con Stripe' },
@@ -263,14 +257,9 @@ const Landing = () => {
                 { icon: Tag, label: 'Sin costo de configuración' },
                 { icon: CheckCircle2, label: 'Soporte humano en español' },
               ].map(({ icon: Icon, label }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-3 justify-center lg:justify-start"
-                >
-                  <Icon size={18} className="text-primary-stitch shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-on-surface-variant">
-                    {label}
-                  </span>
+                <div key={label} className="flex items-center gap-3 justify-center lg:justify-start">
+                  <Icon size={18} className="text-[#7B4CFF] shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-[#A0A3B1]">{label}</span>
                 </div>
               ))}
             </div>
@@ -281,15 +270,15 @@ const Landing = () => {
         {/*  FEATURES PRINCIPALES                                              */}
         {/* ================================================================= */}
         <section id="funcionalidades" className="py-20 sm:py-28">
-          <div className="mx-auto max-w-screen-2xl px-6 sm:px-8">
+          <div className="mx-auto max-w-screen-2xl px-5 sm:px-8">
             <div className="max-w-2xl mx-auto text-center mb-14 sm:mb-20">
-              <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-primary-stitch">
+              <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
                 Todo en uno
               </span>
-              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-on-surface">
+              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-white">
                 Construida para cómo vendes hoy.
               </h2>
-              <p className="mt-5 text-base sm:text-lg text-on-surface-variant leading-relaxed">
+              <p className="mt-5 text-base sm:text-lg text-[#A0A3B1] leading-relaxed">
                 Cada función fue diseñada con vendedoras reales. Sin curva de
                 aprendizaje, sin manuales de 80 páginas.
               </p>
@@ -306,8 +295,8 @@ const Landing = () => {
         {/* ================================================================= */}
         {/*  SHOWCASE ALTERNADO                                                */}
         {/* ================================================================= */}
-        <section className="py-20 sm:py-28 bg-surface-container-lowest border-y border-outline-variant/10">
-          <div className="mx-auto max-w-screen-2xl px-6 sm:px-8 space-y-24 sm:space-y-32">
+        <section className="py-20 sm:py-28 bg-[#20223A] border-y border-[#2E3050]">
+          <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 space-y-24 sm:space-y-32">
             {SHOWCASE.map((item) => (
               <div
                 key={item.title}
@@ -317,23 +306,20 @@ const Landing = () => {
               >
                 {/* Texto */}
                 <div>
-                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-primary-stitch">
+                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
                     {item.eyebrow}
                   </span>
-                  <h3 className="mt-3 text-3xl sm:text-4xl font-headline font-extrabold tracking-tight text-on-surface">
+                  <h3 className="mt-3 text-3xl sm:text-4xl font-headline font-extrabold tracking-tight text-white">
                     {item.title}
                   </h3>
-                  <p className="mt-5 text-base text-on-surface-variant leading-relaxed">
+                  <p className="mt-5 text-base text-[#A0A3B1] leading-relaxed">
                     {item.body}
                   </p>
                   <ul className="mt-8 space-y-3">
                     {item.bullets.map((b) => (
                       <li key={b} className="flex items-start gap-3">
-                        <CheckCircle2
-                          size={18}
-                          className="text-primary-stitch shrink-0 mt-0.5"
-                        />
-                        <span className="text-sm text-on-surface">{b}</span>
+                        <CheckCircle2 size={18} className="text-[#7B4CFF] shrink-0 mt-0.5" />
+                        <span className="text-sm text-white">{b}</span>
                       </li>
                     ))}
                   </ul>
@@ -341,7 +327,7 @@ const Landing = () => {
 
                 {/* Captura */}
                 <div className="relative">
-                  <div className="absolute -inset-6 -z-10 rounded-[3rem] bg-gradient-to-br from-surface-container to-surface-container-high blur-2xl opacity-50" />
+                  <div className="absolute -inset-6 -z-10 rounded-[3rem] bg-gradient-to-br from-[#7B4CFF]/10 to-[#20223A] blur-2xl opacity-60" />
                   <PhoneFrame src={item.image} alt={item.title} />
                 </div>
               </div>
@@ -353,36 +339,33 @@ const Landing = () => {
         {/*  PRICING                                                           */}
         {/* ================================================================= */}
         <section id="precio" className="py-20 sm:py-28">
-          <div className="mx-auto max-w-3xl px-6 sm:px-8 text-center">
-            <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-primary-stitch">
+          <div className="mx-auto max-w-3xl px-5 sm:px-8 text-center">
+            <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
               Precio honesto
             </span>
-            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-on-surface">
+            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-white">
               Una sola suscripción. Todo incluido.
             </h2>
-            <p className="mt-5 text-base sm:text-lg text-on-surface-variant">
+            <p className="mt-5 text-base sm:text-lg text-[#A0A3B1]">
               Sin niveles confusos. Sin upsells. Sin sorpresas en tu recibo.
             </p>
 
-            <div className="mt-12 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8 sm:p-12 shadow-[0_32px_64px_-24px_rgba(45,52,53,0.12)] text-left">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-outline-variant/15">
+            <div className="mt-12 rounded-3xl border border-[#2E3050] bg-[#20223A] p-8 sm:p-12 shadow-lg shadow-black/20 text-left">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-[#2E3050]">
                 <div>
-                  <h3 className="text-2xl font-headline font-extrabold tracking-tight">
+                  <h3 className="text-2xl font-headline font-extrabold tracking-tight text-white">
                     Lumin · Acceso completo
                   </h3>
-                  <p className="mt-2 text-sm text-on-surface-variant">
-                    Cuenta de socia con todas las funciones, actualizaciones
-                    incluidas.
+                  <p className="mt-2 text-sm text-[#A0A3B1]">
+                    Cuenta de socia con todas las funciones, actualizaciones incluidas.
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
                   <div className="flex items-baseline gap-2 sm:justify-end">
-                    <span className="text-5xl font-headline font-extrabold tracking-tighter text-on-surface">
+                    <span className="text-5xl font-headline font-extrabold tracking-tighter text-[#FFD600]">
                       $299.99
                     </span>
-                    <span className="text-sm font-bold text-on-surface-variant">
-                      MXN / mes
-                    </span>
+                    <span className="text-sm font-bold text-[#A0A3B1]">MXN / mes</span>
                   </div>
                 </div>
               </div>
@@ -397,11 +380,8 @@ const Landing = () => {
                   'Actualizaciones para siempre',
                 ].map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <CheckCircle2
-                      size={18}
-                      className="text-primary-stitch shrink-0 mt-0.5"
-                    />
-                    <span className="text-sm text-on-surface">{feature}</span>
+                    <CheckCircle2 size={18} className="text-[#7B4CFF] shrink-0 mt-0.5" />
+                    <span className="text-sm text-white">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -409,15 +389,12 @@ const Landing = () => {
               <div className="mt-10">
                 <Link
                   to="/registro"
-                  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-on-surface px-7 py-4 text-sm font-bold text-surface-container-lowest shadow-lg transition-all hover:bg-on-surface/90"
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#7B4CFF] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#7B4CFF]/25 transition-all hover:bg-[#6B3CEF] active:scale-[0.98]"
                 >
                   Comenzar ahora
-                  <ArrowRight
-                    size={16}
-                    className="transition-transform group-hover:translate-x-1"
-                  />
+                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                 </Link>
-                <p className="mt-4 text-center text-xs text-on-surface-variant/70">
+                <p className="mt-4 text-center text-xs text-[#A0A3B1]/70">
                   Cancela cuando quieras desde tu perfil.
                 </p>
               </div>
@@ -429,10 +406,10 @@ const Landing = () => {
         {/*  CTA FINAL DUAL (NUEVAS vs EXISTENTES)                             */}
         {/* ================================================================= */}
         <section className="pb-24">
-          <div className="mx-auto max-w-screen-2xl px-6 sm:px-8">
+          <div className="mx-auto max-w-screen-2xl px-5 sm:px-8">
             <div className="grid md:grid-cols-2 gap-5 sm:gap-6">
               {/* Para nuevas */}
-              <div className="rounded-3xl bg-on-surface p-10 sm:p-12 text-surface-container-lowest">
+              <div className="rounded-3xl bg-[#7B4CFF] p-10 sm:p-12 text-white shadow-xl shadow-[#7B4CFF]/20">
                 <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] opacity-60">
                   Nueva en Lumin
                 </span>
@@ -445,37 +422,31 @@ const Landing = () => {
                 </p>
                 <Link
                   to="/registro"
-                  className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-surface-container-lowest px-6 py-3.5 text-sm font-bold text-on-surface transition-all hover:bg-surface-container"
+                  className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-white/10 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-white/20"
                 >
                   Hazte socia
-                  <ArrowRight
-                    size={16}
-                    className="transition-transform group-hover:translate-x-1"
-                  />
+                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
 
               {/* Para existentes */}
-              <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-10 sm:p-12">
-                <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-primary-stitch">
+              <div className="rounded-3xl border border-[#2E3050] bg-[#20223A] p-10 sm:p-12">
+                <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
                   Ya eres socia
                 </span>
-                <h3 className="mt-3 text-3xl font-headline font-extrabold tracking-tight text-on-surface">
+                <h3 className="mt-3 text-3xl font-headline font-extrabold tracking-tight text-white">
                   Tu negocio te está esperando.
                 </h3>
-                <p className="mt-4 text-sm text-on-surface-variant leading-relaxed">
+                <p className="mt-4 text-sm text-[#A0A3B1] leading-relaxed">
                   Entra a tu panel para revisar inventario, ventas y novedades
                   del catálogo maestro.
                 </p>
                 <Link
                   to="/login"
-                  className="mt-8 group inline-flex items-center gap-2 rounded-xl border border-outline-variant/40 px-6 py-3.5 text-sm font-bold text-on-surface transition-all hover:border-outline-variant/80"
+                  className="mt-8 group inline-flex items-center gap-2 rounded-xl border border-[#2E3050] px-6 py-3.5 text-sm font-bold text-white transition-all hover:border-[#7B4CFF]/60"
                 >
                   Iniciar sesión
-                  <ArrowRight
-                    size={16}
-                    className="transition-transform group-hover:translate-x-1"
-                  />
+                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
             </div>
