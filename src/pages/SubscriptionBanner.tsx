@@ -44,8 +44,8 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
   return (
     <div className={`p-4 mb-6 rounded-xl border-l-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${
       estaExpirado
-        ? 'bg-[#FFD600]/10 border-[#FFD600] text-[#FFD600]'
-        : 'bg-[#7B4CFF]/10 border-[#7B4CFF]/60 text-[#C4B5FD]'
+        ? 'bg-[--lumin-warn-bg] border-[--lumin-warn] text-[--lumin-warn]'
+        : 'bg-[#7B4CFF]/10 border-[#7B4CFF]/60 text-[#7B4CFF] dark:text-[#C4B5FD]'
     }`}>
       <div>
         <h3 className="font-bold text-base">
@@ -63,7 +63,7 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
         disabled={procesando}
         className={`shrink-0 px-4 py-2 font-bold rounded-xl shadow transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
           estaExpirado
-            ? 'bg-[#FFD600] text-[#1A1C2C] hover:bg-[#FFD600]/90'
+            ? 'bg-[#FFD600] text-gray-900 hover:bg-[#FFD600]/90'
             : 'bg-[#7B4CFF] text-white hover:bg-[#6B3CEF] shadow-[#7B4CFF]/25'
         }`}
       >

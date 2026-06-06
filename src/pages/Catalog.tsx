@@ -17,6 +17,7 @@ import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFil
 import type { ProductFilterState } from '@/components/ProductFilters';
 import { matchSku, skuIncluye, extractSkuCandidates } from '@/lib/sku';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 const ITEMS_PER_PAGE = 30;
@@ -33,6 +34,7 @@ interface ServerPagination {
 const Catalog = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const isAdmin = String(user?.rol) === '1' || user?.rol === 'admin';
 
   const [productos, setProductos] = useState<CatalogProduct[]>([]);
@@ -341,25 +343,25 @@ const Catalog = () => {
      * IMPORTANTE: no usar overflow-hidden aquí; dejar que el body/root sea
      * el scroll container para que el sidebar sticky funcione correctamente.
      */
-    <div className="bg-[#1A1C2C] min-h-screen font-body text-white">
+    <div className="bg-[--lumin-bg] min-h-screen font-body text-[--lumin-text]">
 
       {/* ── Contenido principal ────────────────────────────────────────────── */}
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
         {/* Cabecera */}
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-white">Catálogo Maestro</h1>
-          <p className="text-sm text-[#A0A3B1]">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-[--lumin-text]">Catálogo Maestro</h1>
+          <p className="text-sm text-[--lumin-muted]">
             Explora las joyas de la marca y agrégalas a tu vitrina personal.
           </p>
         </div>
 
         {/* Barra de búsqueda y acciones */}
-        <div className="mb-6 bg-[#20223A] p-4 rounded-xl border border-[#2E3050]">
+        <div className="mb-6 bg-[--lumin-surface] p-4 rounded-xl border border-[--lumin-border]">
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
 
             {/* Título con contador */}
-            <h2 className="font-semibold text-white flex items-center gap-2 flex-shrink-0">
+            <h2 className="font-semibold text-[--lumin-text] flex items-center gap-2 flex-shrink-0">
               <Library className="w-5 h-5 text-[#7B4CFF]" />
               <span>
                 Joyas disponibles{' '}
@@ -378,14 +380,14 @@ const Catalog = () => {
                 className={`
                   lg:hidden flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-all h-10 flex-shrink-0
                   ${hasActiveFilters
-                    ? 'bg-[#7B4CFF] text-white shadow-md shadow-[#7B4CFF]/20'
-                    : 'bg-[#252840] border border-[#2E3050] text-[#A0A3B1] hover:bg-[#2E3050]'}
+                    ? 'bg-[#7B4CFF] text-[--lumin-text] shadow-md shadow-[#7B4CFF]/20'
+                    : 'bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-muted] hover:bg-[#2E3050]'}
                 `}
               >
                 <SlidersHorizontal size={16} />
                 <span>Filtros</span>
                 {hasActiveFilters && (
-                  <span className="bg-white/20 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                  <span className="bg-white/20 text-[--lumin-text] text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
                     ON
                   </span>
                 )}
@@ -393,18 +395,18 @@ const Catalog = () => {
 
               {/* Búsqueda */}
               <div className="relative flex-1 sm:w-72 min-w-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A0A3B1] pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[--lumin-muted] pointer-events-none" />
                 <Input
                   type="text"
                   placeholder="Buscar por nombre o SKU…"
-                  className="pl-9 bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 rounded-xl h-10 w-full focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                  className="pl-9 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 rounded-xl h-10 w-full focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A0A3B1] hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[--lumin-muted] hover:text-[--lumin-text]"
                   >
                     <X size={14} />
                   </button>
@@ -416,8 +418,8 @@ const Catalog = () => {
                 onClick={() => setShowScanner(!showScanner)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold h-10 text-sm transition-all flex-shrink-0 ${
                   showScanner
-                    ? 'bg-[#FFD600]/10 text-[#FFD600] border border-[#FFD600]/30 hover:bg-[#FFD600]/15'
-                    : 'bg-[#252840] border border-[#2E3050] text-[#A0A3B1] hover:bg-[#2E3050]'
+                    ? 'bg-[--lumin-warn-bg] text-[--lumin-warn] border border-[--lumin-warn-bd] hover:bg-[--lumin-warn-bg]'
+                    : 'bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-muted] hover:bg-[#2E3050]'
                 }`}
               >
                 {showScanner ? <X size={16} /> : <QrCode size={16} />}
@@ -458,6 +460,7 @@ const Catalog = () => {
               onChange={setFilters}
               isOpen={true}
               onClose={() => {}}
+              theme={isDark ? 'dark' : 'light'}
             />
           </aside>
 
@@ -469,6 +472,7 @@ const Catalog = () => {
               onChange={setFilters}
               isOpen={sidebarOpen}
               onClose={() => setSidebarOpen(false)}
+              theme={isDark ? 'dark' : 'light'}
             />
           </div>
 
@@ -477,13 +481,13 @@ const Catalog = () => {
 
             {/* Estado vacío */}
             {productosFiltrados.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 px-4 text-[#A0A3B1] space-y-6 bg-[#20223A] rounded-2xl border border-[#2E3050] animate-in fade-in zoom-in-95 duration-300">
-                <div className="bg-[#252840] p-6 rounded-full border border-[#2E3050]">
+              <div className="flex flex-col items-center justify-center py-20 px-4 text-[--lumin-muted] space-y-6 bg-[--lumin-surface] rounded-2xl border border-[--lumin-border] animate-in fade-in zoom-in-95 duration-300">
+                <div className="bg-[--lumin-hover] p-6 rounded-full border border-[--lumin-border]">
                   <PackageSearch size={48} className="text-[#7B4CFF]" strokeWidth={1.5} />
                 </div>
                 <div className="text-center space-y-2 max-w-sm">
-                  <h3 className="text-xl font-bold text-white">No encontramos esa joya</h3>
-                  <p className="text-sm text-[#A0A3B1]">
+                  <h3 className="text-xl font-bold text-[--lumin-text]">No encontramos esa joya</h3>
+                  <p className="text-sm text-[--lumin-muted]">
                     No hay coincidencias para los filtros aplicados.
                   </p>
                 </div>
@@ -491,14 +495,14 @@ const Catalog = () => {
                   <div className="flex flex-col gap-3 w-full max-w-xs">
                     <button
                       onClick={() => { setFilters(DEFAULT_PRODUCT_FILTERS); setSearchTerm(''); }}
-                      className="w-full flex items-center justify-center gap-2 bg-[#252840] border border-[#2E3050] text-[#A0A3B1] font-bold py-3 px-4 rounded-xl hover:bg-[#2E3050] hover:text-white transition-all text-sm"
+                      className="w-full flex items-center justify-center gap-2 bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-muted] font-bold py-3 px-4 rounded-xl hover:bg-[#2E3050] hover:text-[--lumin-text] transition-all text-sm"
                     >
                       Limpiar filtros
                     </button>
                     {searchTerm && (
                       <button
                         onClick={() => navigate('/inventario', { state: { openCustom: true } })}
-                        className="w-full flex items-center justify-center gap-2 bg-[#7B4CFF] text-white font-bold py-3 px-4 rounded-xl hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 transition-all text-sm"
+                        className="w-full flex items-center justify-center gap-2 bg-[#7B4CFF] text-[--lumin-text] font-bold py-3 px-4 rounded-xl hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 transition-all text-sm"
                       >
                         <PlusCircle size={16} />
                         Agregar Joya Propia
@@ -527,13 +531,13 @@ const Catalog = () => {
                   <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
 
                     {/* Info */}
-                    <p className="text-xs text-[#A0A3B1] order-2 sm:order-1">
+                    <p className="text-xs text-[--lumin-muted] order-2 sm:order-1">
                       Mostrando{' '}
-                      <span className="font-semibold text-white">
+                      <span className="font-semibold text-[--lumin-text]">
                         {pageStart + 1}–{Math.min(pageStart + ITEMS_PER_PAGE, totalResultados)}
                       </span>{' '}
                       de{' '}
-                      <span className="font-semibold text-white">
+                      <span className="font-semibold text-[--lumin-text]">
                         {totalResultados.toLocaleString('es-MX')}
                       </span>{' '}
                       resultados
@@ -553,7 +557,7 @@ const Catalog = () => {
                         <>
                           <PaginatorBtn onClick={() => goToPage(1)}>1</PaginatorBtn>
                           {pageRange[0] > 2 && (
-                            <span className="px-1 text-[#A0A3B1] text-sm select-none">…</span>
+                            <span className="px-1 text-[--lumin-muted] text-sm select-none">…</span>
                           )}
                         </>
                       )}
@@ -571,7 +575,7 @@ const Catalog = () => {
                       {pageRange[pageRange.length - 1] < totalPages && (
                         <>
                           {pageRange[pageRange.length - 1] < totalPages - 1 && (
-                            <span className="px-1 text-[#A0A3B1] text-sm select-none">…</span>
+                            <span className="px-1 text-[--lumin-muted] text-sm select-none">…</span>
                           )}
                           <PaginatorBtn onClick={() => goToPage(totalPages)}>
                             {totalPages}
@@ -597,29 +601,29 @@ const Catalog = () => {
 
       {/* ── Modal agregar ─────────────────────────────────────────────────────── */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[480px] bg-[#20223A] border border-[#2E3050] shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0 mx-4">
-          <div className="bg-[#1A1C2C] p-6 border-b border-[#2E3050]">
+        <DialogContent className="sm:max-w-[480px] bg-[--lumin-surface] border border-[--lumin-border] shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0 mx-4">
+          <div className="bg-[--lumin-bg] p-6 border-b border-[--lumin-border]">
             <DialogHeader className="space-y-1">
               <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-[#7B4CFF] text-left block">
                 Nueva Incorporación
               </span>
-              <DialogTitle className="text-2xl font-extrabold tracking-tighter text-white text-left">
+              <DialogTitle className="text-2xl font-extrabold tracking-tighter text-[--lumin-text] text-left">
                 Añadir a Inventario
               </DialogTitle>
-              <DialogDescription className="text-[#A0A3B1] text-sm leading-relaxed text-left">
+              <DialogDescription className="text-[--lumin-muted] text-sm leading-relaxed text-left">
                 Configura los detalles para{' '}
-                <span className="font-bold text-white">{productoSeleccionado?.nombre}</span>.
+                <span className="font-bold text-[--lumin-text]">{productoSeleccionado?.nombre}</span>.
               </DialogDescription>
             </DialogHeader>
           </div>
 
           <form onSubmit={handleConfirmarAgregar} className="p-6 space-y-6">
             <div className="space-y-2">
-              <label htmlFor="stock" className="text-[0.7rem] font-bold uppercase tracking-widest text-[#A0A3B1] block">
+              <label htmlFor="stock" className="text-[0.7rem] font-bold uppercase tracking-widest text-[--lumin-muted] block">
                 Piezas Físicas Disponibles
               </label>
               <div className="relative">
-                <PackagePlus className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0A3B1] w-5 h-5" />
+                <PackagePlus className="absolute left-4 top-1/2 -translate-y-1/2 text-[--lumin-muted] w-5 h-5" />
                 <Input
                   id="stock"
                   type="number"
@@ -628,17 +632,17 @@ const Catalog = () => {
                   value={formStock}
                   onChange={(e) => setFormStock(e.target.value)}
                   placeholder="Ej. 5"
-                  className="pl-12 h-12 bg-[#1A1C2C] border-[#2E3050] text-white rounded-xl text-base font-bold focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                  className="pl-12 h-12 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] rounded-xl text-base font-bold focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="precio" className="text-[0.7rem] font-bold uppercase tracking-widest text-[#A0A3B1] block">
+              <label htmlFor="precio" className="text-[0.7rem] font-bold uppercase tracking-widest text-[--lumin-muted] block">
                 Precio de Venta (MXN)
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0A3B1] font-bold">$</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[--lumin-muted] font-bold">$</span>
                 <Input
                   id="precio"
                   type="number"
@@ -648,14 +652,14 @@ const Catalog = () => {
                   value={formPrecio}
                   onChange={(e) => setFormPrecio(e.target.value)}
                   placeholder="Ej. 1500"
-                  className="pl-9 h-12 bg-[#1A1C2C] border-[#2E3050] text-white rounded-xl text-base font-bold focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                  className="pl-9 h-12 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] rounded-xl text-base font-bold focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                 />
               </div>
               <div className="flex items-center gap-3 mt-2 bg-[#7B4CFF]/10 p-3 rounded-xl border border-[#7B4CFF]/20">
                 <div className="w-2 h-2 rounded-full bg-[#7B4CFF] animate-pulse flex-shrink-0" />
                 <p className="text-xs text-[#C4B5FD] font-medium">
                   Precio sugerido:{' '}
-                  <span className="font-bold text-white">${productoSeleccionado?.precio_sugerido}</span>
+                  <span className="font-bold text-[--lumin-text]">${productoSeleccionado?.precio_sugerido}</span>
                 </p>
               </div>
             </div>
@@ -666,14 +670,14 @@ const Catalog = () => {
                 variant="outline"
                 onClick={() => setIsModalOpen(false)}
                 disabled={guardando}
-                className="w-full sm:w-1/2 h-11 rounded-xl font-bold border-[#2E3050] text-[#A0A3B1] hover:bg-[#252840] hover:text-white"
+                className="w-full sm:w-1/2 h-11 rounded-xl font-bold border-[--lumin-border] text-[--lumin-muted] hover:bg-[--lumin-hover] hover:text-[--lumin-text]"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={guardando}
-                className="w-full sm:w-1/2 h-11 bg-[#7B4CFF] text-white hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 rounded-xl font-bold flex items-center justify-center gap-2 border-0"
+                className="w-full sm:w-1/2 h-11 bg-[#7B4CFF] text-[--lumin-text] hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 rounded-xl font-bold flex items-center justify-center gap-2 border-0"
               >
                 {guardando ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /><span>Guardando…</span></>
@@ -688,25 +692,25 @@ const Catalog = () => {
 
       {/* ── Modal editar joya — SKU y categoría (solo admin) ──────────────────── */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[440px] bg-[#20223A] border border-[#2E3050] shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0 mx-4">
-          <div className="bg-[#1A1C2C] p-6 border-b border-[#2E3050]">
+        <DialogContent className="sm:max-w-[440px] bg-[--lumin-surface] border border-[--lumin-border] shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0 mx-4">
+          <div className="bg-[--lumin-bg] p-6 border-b border-[--lumin-border]">
             <DialogHeader className="space-y-1">
               <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-[#7B4CFF] text-left block">
                 Edición de Catálogo
               </span>
-              <DialogTitle className="text-2xl font-extrabold tracking-tighter text-white text-left">
+              <DialogTitle className="text-2xl font-extrabold tracking-tighter text-[--lumin-text] text-left">
                 Editar Joya
               </DialogTitle>
-              <DialogDescription className="text-[#A0A3B1] text-sm leading-relaxed text-left">
+              <DialogDescription className="text-[--lumin-muted] text-sm leading-relaxed text-left">
                 Actualiza el SKU y la categoría de{' '}
-                <span className="font-bold text-white">{editProducto?.nombre}</span>.
+                <span className="font-bold text-[--lumin-text]">{editProducto?.nombre}</span>.
               </DialogDescription>
             </DialogHeader>
           </div>
 
           <form onSubmit={handleGuardarEdicion} className="p-6 space-y-5">
             <div className="space-y-2">
-              <label htmlFor="edit-sku" className="text-[0.7rem] font-bold uppercase tracking-widest text-[#A0A3B1] block">
+              <label htmlFor="edit-sku" className="text-[0.7rem] font-bold uppercase tracking-widest text-[--lumin-muted] block">
                 SKU
               </label>
               <Input
@@ -714,31 +718,31 @@ const Catalog = () => {
                 required
                 value={editSku}
                 onChange={(e) => setEditSku(e.target.value)}
-                className="h-11 bg-[#1A1C2C] border-[#2E3050] text-white rounded-xl font-mono focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                className="h-11 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] rounded-xl font-mono focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
               />
               {editProducto?.skus_anteriores && editProducto.skus_anteriores.length > 0 && (
-                <p className="text-[11px] text-[#A0A3B1]">
+                <p className="text-[11px] text-[--lumin-muted]">
                   SKU anteriores: {editProducto.skus_anteriores.join(', ')}
                 </p>
               )}
-              <p className="text-[11px] text-[#A0A3B1]">
+              <p className="text-[11px] text-[--lumin-muted]">
                 Al cambiar el SKU, el anterior se archiva y la búsqueda lo seguirá reconociendo.
               </p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="edit-cat" className="text-[0.7rem] font-bold uppercase tracking-widest text-[#A0A3B1] block">
+              <label htmlFor="edit-cat" className="text-[0.7rem] font-bold uppercase tracking-widest text-[--lumin-muted] block">
                 Categoría
               </label>
               <select
                 id="edit-cat"
-                className="flex h-11 w-full rounded-xl border border-[#2E3050] bg-[#1A1C2C] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all"
+                className="flex h-11 w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-3 py-2 text-sm text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all"
                 value={editCategoriaId}
                 onChange={(e) => setEditCategoriaId(Number(e.target.value))}
               >
-                <option value={0} className="bg-[#20223A]">— Sin categoría —</option>
+                <option value={0} className="bg-[--lumin-surface]">— Sin categoría —</option>
                 {categorias.map((cat) => (
-                  <option key={cat.id} value={cat.id} className="bg-[#20223A]">{cat.nombre}</option>
+                  <option key={cat.id} value={cat.id} className="bg-[--lumin-surface]">{cat.nombre}</option>
                 ))}
               </select>
             </div>
@@ -749,14 +753,14 @@ const Catalog = () => {
                 variant="outline"
                 onClick={() => setIsEditOpen(false)}
                 disabled={guardandoEdit}
-                className="w-full sm:w-1/2 h-11 rounded-xl font-bold border-[#2E3050] text-[#A0A3B1] hover:bg-[#252840] hover:text-white"
+                className="w-full sm:w-1/2 h-11 rounded-xl font-bold border-[--lumin-border] text-[--lumin-muted] hover:bg-[--lumin-hover] hover:text-[--lumin-text]"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={guardandoEdit}
-                className="w-full sm:w-1/2 h-11 bg-[#7B4CFF] text-white hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 rounded-xl font-bold flex items-center justify-center gap-2 border-0"
+                className="w-full sm:w-1/2 h-11 bg-[#7B4CFF] text-[--lumin-text] hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 rounded-xl font-bold flex items-center justify-center gap-2 border-0"
               >
                 {guardandoEdit ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /><span>Guardando…</span></>
@@ -788,8 +792,8 @@ const ProductCard = ({
   isAdmin?: boolean;
   onEdit?: (p: CatalogProduct) => void;
 }) => (
-  <Card className={`h-full overflow-hidden flex flex-col transition-shadow duration-200 bg-[#20223A] border-[#2E3050] rounded-2xl ${prod.ya_agregado ? 'opacity-50 grayscale' : 'hover:shadow-lg hover:shadow-black/20'}`}>
-    <div className="aspect-[4/3] bg-[#252840] flex items-center justify-center overflow-hidden group relative">
+  <Card className={`h-full overflow-hidden flex flex-col transition-shadow duration-200 bg-[--lumin-surface] border-[--lumin-border] rounded-2xl ${prod.ya_agregado ? 'opacity-50 grayscale' : 'hover:shadow-lg hover:shadow-black/20'}`}>
+    <div className="aspect-[4/3] bg-[--lumin-hover] flex items-center justify-center overflow-hidden group relative">
       {prod.ruta_imagen ? (
         <img
           src={prod.ruta_imagen}
@@ -799,40 +803,40 @@ const ProductCard = ({
           className={`absolute inset-0 object-cover w-full h-full transition-transform duration-500 ${prod.ya_agregado ? '' : 'group-hover:scale-105'}`}
         />
       ) : (
-        <span className="text-[#A0A3B1] text-xs flex flex-col items-center z-10">
+        <span className="text-[--lumin-muted] text-xs flex flex-col items-center z-10">
           <PackagePlus className="w-7 h-7 mb-1 opacity-40" />
           Sin imagen
         </span>
       )}
       {prod.categoria && (
-        <span className="absolute top-2 left-2 bg-[#1A1C2C]/80 backdrop-blur-sm text-[#A0A3B1] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#2E3050] shadow-sm truncate max-w-[calc(100%-1rem)]">
+        <span className="absolute top-2 left-2 bg-[--lumin-bg]/80 backdrop-blur-sm text-[--lumin-muted] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[--lumin-border] shadow-sm truncate max-w-[calc(100%-1rem)]">
           {prod.categoria}
         </span>
       )}
     </div>
 
-    <CardHeader className="pb-1 p-3 sm:p-4 bg-[#20223A] flex-none">
+    <CardHeader className="pb-1 p-3 sm:p-4 bg-[--lumin-surface] flex-none">
       <div
-        className="text-[10px] text-[#A0A3B1] font-mono mb-1 truncate"
+        className="text-[10px] text-[--lumin-muted] font-mono mb-1 truncate"
         title={prod.skus_anteriores?.length ? `SKU anteriores: ${prod.skus_anteriores.join(', ')}` : undefined}
       >
         SKU: {prod.sku}
       </div>
-      <CardTitle className="text-sm font-bold text-white line-clamp-2 leading-snug">
+      <CardTitle className="text-sm font-bold text-[--lumin-text] line-clamp-2 leading-snug">
         {prod.nombre}
       </CardTitle>
     </CardHeader>
 
-    <CardContent className="flex-grow pt-0 p-3 sm:p-4 bg-[#20223A] flex flex-col justify-end">
-      <p className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
+    <CardContent className="flex-grow pt-0 p-3 sm:p-4 bg-[--lumin-surface] flex flex-col justify-end">
+      <p className="text-lg sm:text-xl font-extrabold tracking-tight text-[--lumin-text]">
         ${prod.precio_sugerido?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
       </p>
-      <p className="text-[10px] text-[#A0A3B1] font-medium mt-0.5">Precio sugerido</p>
+      <p className="text-[10px] text-[--lumin-muted] font-medium mt-0.5">Precio sugerido</p>
     </CardContent>
 
-    <CardFooter className="bg-[#252840] p-3 sm:p-4 border-t border-[#2E3050] flex-none">
+    <CardFooter className="bg-[--lumin-hover] p-3 sm:p-4 border-t border-[--lumin-border] flex-none">
       {prod.ya_agregado ? (
-        <div className="w-full h-9 sm:h-10 flex items-center justify-center gap-1.5 rounded-xl bg-[#1A1C2C] border border-[#2E3050] text-[#A0A3B1] text-xs sm:text-sm font-bold select-none">
+        <div className="w-full h-9 sm:h-10 flex items-center justify-center gap-1.5 rounded-xl bg-[--lumin-bg] border border-[--lumin-border] text-[--lumin-muted] text-xs sm:text-sm font-bold select-none">
           <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
           Ya está en tu inventario
         </div>
@@ -840,7 +844,7 @@ const ProductCard = ({
         <Button
           onClick={() => onEdit(prod)}
           variant="outline"
-          className="w-full h-9 sm:h-10 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border-[#2E3050] text-[#A0A3B1] hover:bg-[#1A1C2C] hover:text-white"
+          className="w-full h-9 sm:h-10 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border-[--lumin-border] text-[--lumin-muted] hover:bg-[--lumin-bg] hover:text-[--lumin-text]"
         >
           <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
           Editar
@@ -848,7 +852,7 @@ const ProductCard = ({
       ) : (
         <Button
           onClick={() => onAgregar(prod)}
-          className="w-full h-9 sm:h-10 bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-md shadow-[#7B4CFF]/20 transition-all"
+          className="w-full h-9 sm:h-10 bg-[#7B4CFF] hover:bg-[#6B3CEF] text-[--lumin-text] rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-md shadow-[#7B4CFF]/20 transition-all"
         >
           <PackagePlus className="w-3.5 h-3.5 flex-shrink-0" />
           Agregar
@@ -879,10 +883,10 @@ const PaginatorBtn = ({
     className={`
       w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg text-xs sm:text-sm font-semibold transition-all
       ${active
-        ? 'bg-[#7B4CFF] text-white shadow-sm'
+        ? 'bg-[#7B4CFF] text-[--lumin-text] shadow-sm'
         : disabled
-          ? 'text-[#A0A3B1]/40 cursor-not-allowed'
-          : 'text-[#A0A3B1] hover:bg-[#252840] border border-[#2E3050]'}
+          ? 'text-[--lumin-muted]/40 cursor-not-allowed'
+          : 'text-[--lumin-muted] hover:bg-[--lumin-hover] border border-[--lumin-border]'}
     `}
   >
     {children}

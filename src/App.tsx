@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AlertProvider } from './context/AlertContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -47,6 +48,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <AlertProvider>
         <Router>
@@ -113,6 +115,7 @@ function App() {
         </Router>
       </AlertProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 export default App;

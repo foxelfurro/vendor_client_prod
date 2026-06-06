@@ -98,28 +98,28 @@ const ProductFilters = ({
   const isDark = theme === 'dark';
   const ui = isDark
     ? {
-        panel: 'bg-[#1c1c1f] border-white/10',
-        headerBorder: 'border-white/[0.08]',
-        heading: 'text-zinc-100',
-        label: 'text-zinc-400',
-        icon: 'text-zinc-500',
-        item: 'text-zinc-300 hover:bg-white/[0.06] hover:text-zinc-100',
-        itemBorder: 'border-white/10 hover:bg-white/[0.06] text-zinc-300',
-        clear: 'text-zinc-500 hover:text-zinc-200',
-        empty: 'text-zinc-500',
-        dotIdle: 'border-zinc-600',
+        panel: 'bg-[#20223A] border-[#2E3050]',
+        headerBorder: 'border-[#2E3050]',
+        heading: 'text-white',
+        label: 'text-[#A0A3B1]',
+        icon: 'text-[#A0A3B1]',
+        item: 'text-[#A0A3B1] hover:bg-[#252840] hover:text-white',
+        itemBorder: 'border-[#2E3050] hover:bg-[#252840] text-[#A0A3B1]',
+        clear: 'text-[#A0A3B1] hover:text-white',
+        empty: 'text-[#A0A3B1]',
+        dotIdle: 'border-[#2E3050]',
       }
     : {
-        panel: 'bg-white border-slate-200',
-        headerBorder: 'border-slate-100',
-        heading: 'text-slate-900',
-        label: 'text-slate-500',
-        icon: 'text-slate-400',
-        item: 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
-        itemBorder: 'border-slate-200 hover:bg-slate-50 text-slate-700',
-        clear: 'text-slate-400 hover:text-slate-700',
-        empty: 'text-slate-400',
-        dotIdle: 'border-slate-300',
+        panel: 'bg-white border-gray-200',
+        headerBorder: 'border-gray-100',
+        heading: 'text-gray-900',
+        label: 'text-gray-500',
+        icon: 'text-gray-400',
+        item: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+        itemBorder: 'border-gray-200 hover:bg-gray-50 text-gray-700',
+        clear: 'text-gray-400 hover:text-gray-700',
+        empty: 'text-gray-400',
+        dotIdle: 'border-gray-300',
       };
 
   // Estado activo de los elementos de lista (categoría, orden, tipo).
@@ -296,8 +296,8 @@ const ProductFilters = ({
               variant="outline"
               className={`w-full rounded-xl font-bold text-sm h-10 ${
                 isDark
-                  ? 'border-white/10 bg-transparent text-zinc-300 hover:bg-white/[0.06] hover:text-zinc-100'
-                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'border-[#2E3050] bg-transparent text-[#A0A3B1] hover:bg-[#252840] hover:text-white'
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
             >
               <X className="w-4 h-4 mr-2" />

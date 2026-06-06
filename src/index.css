@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* Shadcn tokens — light */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -24,6 +25,49 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    /* Lumin design tokens — light */
+    --lumin-bg: #ffffff;
+    --lumin-surface: #f9fafb;
+    --lumin-hover: #f3f4f6;
+    --lumin-border: #e5e7eb;
+    --lumin-text: #111827;
+    --lumin-muted: #6b7280;
+    --lumin-warn: #D97706;
+    --lumin-warn-bg: #fef3c7;
+    --lumin-warn-bd: #fcd34d;
+  }
+
+  html.dark {
+    /* Shadcn tokens — dark (Lumin Dark) */
+    --background: 233 26% 14%;
+    --foreground: 0 0% 100%;
+    --card: 233 29% 18%;
+    --card-foreground: 0 0% 100%;
+    --popover: 233 29% 18%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 260 100% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 233 27% 20%;
+    --secondary-foreground: 228 11% 66%;
+    --muted: 233 27% 20%;
+    --muted-foreground: 228 11% 66%;
+    --accent: 233 27% 20%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 50 100% 50%;
+    --destructive-foreground: 233 26% 14%;
+    --border: 234 27% 25%;
+    --input: 234 27% 25%;
+    --ring: 260 100% 65%;
+    /* Lumin design tokens — dark */
+    --lumin-bg: #1A1C2C;
+    --lumin-surface: #20223A;
+    --lumin-hover: #252840;
+    --lumin-border: #2E3050;
+    --lumin-text: #ffffff;
+    --lumin-muted: #A0A3B1;
+    --lumin-warn: #FFD600;
+    --lumin-warn-bg: rgba(255, 214, 0, 0.1);
+    --lumin-warn-bd: rgba(255, 214, 0, 0.3);
   }
 
   /* Fix Safari iOS viewport height */

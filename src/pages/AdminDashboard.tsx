@@ -95,27 +95,27 @@ const AdminDashboard = () => {
   };
 
 return (
-    <div className="p-5 sm:p-8 bg-[#1A1C2C] min-h-screen">
+    <div className="p-5 sm:p-8 bg-[--lumin-bg] min-h-screen">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Panel de Administración</h1>
-        <p className="text-[#A0A3B1] mt-2">Gestiona el acceso del personal y el catálogo maestro de la joyería.</p>
+        <h1 className="text-3xl font-bold text-[--lumin-text]">Panel de Administración</h1>
+        <p className="text-[--lumin-muted] mt-2">Gestiona el acceso del personal y el catálogo maestro de la joyería.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="bg-[#20223A] border-[#2E3050] shadow-md">
+        <Card className="bg-[--lumin-surface] border-[--lumin-border] shadow-md">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl text-white">
+            <CardTitle className="flex items-center gap-2 text-xl text-[--lumin-text]">
               <UserPlus className="h-6 w-6 text-[#7B4CFF]" />
               Registrar Nuevo Personal
             </CardTitle>
-            <CardDescription className="text-[#A0A3B1]">Crea cuentas y asigna la sucursal correspondiente.</CardDescription>
+            <CardDescription className="text-[--lumin-muted]">Crea cuentas y asigna la sucursal correspondiente.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUserSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Nombre Completo</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Nombre Completo</label>
                 <Input
-                  className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                  className="bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                   placeholder="Ej. Ana Pérez"
                   value={userForm.nombre}
                   onChange={(e) => setUserForm({...userForm, nombre: e.target.value})}
@@ -123,9 +123,9 @@ return (
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Correo Electrónico</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Correo Electrónico</label>
                 <Input
-                  className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                  className="bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                   type="email"
                   placeholder="ana@joyeria.com"
                   value={userForm.email}
@@ -134,9 +134,9 @@ return (
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Contraseña Temporal</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Contraseña Temporal</label>
                 <Input
-                  className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                  className="bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                   type="password"
                   placeholder="********"
                   value={userForm.password}
@@ -146,14 +146,14 @@ return (
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Rol y Sucursal</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Rol y Sucursal</label>
                 <select
-                  className="flex h-10 w-full rounded-xl border border-[#2E3050] bg-[#1A1C2C] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all"
+                  className="flex h-10 w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-3 py-2 text-sm text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all"
                   value={userForm.rol_id}
                   onChange={(e) => setUserForm({...userForm, rol_id: parseInt(e.target.value)})}
                 >
                   {ROLES_DISPONIBLES.map((rol) => (
-                    <option key={rol.id} value={rol.id} className="bg-[#20223A]">
+                    <option key={rol.id} value={rol.id} className="bg-[--lumin-surface]">
                       {rol.nombre}
                     </option>
                   ))}
@@ -162,7 +162,7 @@ return (
 
               <Button
                 type="submit"
-                className="w-full bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white mt-4 shadow-lg shadow-[#7B4CFF]/25 rounded-xl transition-all active:scale-[0.98]"
+                className="w-full bg-[#7B4CFF] hover:bg-[#6B3CEF] text-[--lumin-text] mt-4 shadow-lg shadow-[#7B4CFF]/25 rounded-xl transition-all active:scale-[0.98]"
                 disabled={isLoading}
               >
                 <Save className="w-4 h-4 mr-2" />
@@ -173,22 +173,22 @@ return (
         </Card>
 
         {/* COLUMNA 2: AGREGAR JOYERÍA */}
-        <Card className="bg-[#20223A] border-[#2E3050] shadow-md">
+        <Card className="bg-[--lumin-surface] border-[--lumin-border] shadow-md">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl text-white">
+            <CardTitle className="flex items-center gap-2 text-xl text-[--lumin-text]">
               <Gem className="h-6 w-6 text-[#7B4CFF]" />
               Nueva Joya al Catálogo Maestro
             </CardTitle>
-            <CardDescription className="text-[#A0A3B1]">Agrega modelos base que los vendedores podrán solicitar.</CardDescription>
+            <CardDescription className="text-[--lumin-muted]">Agrega modelos base que los vendedores podrán solicitar.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleJewelrySubmit} className="space-y-4">
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Código / SKU</label>
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Código / SKU</label>
                   <Input
-                    className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                    className="bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                     placeholder="Ej. 326032L"
                     value={jewelryForm.sku}
                     onChange={(e) => setJewelryForm({...jewelryForm, sku: e.target.value})}
@@ -196,9 +196,9 @@ return (
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Precio Sugerido ($)</label>
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Precio Sugerido ($)</label>
                   <Input
-                    className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                    className="bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                     type="number"
                     step="0.01"
                     placeholder="429.00"
@@ -210,9 +210,9 @@ return (
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Nombre de la Pieza</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Nombre de la Pieza</label>
                 <Input
-                  className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                  className="bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                   placeholder="Ej. Aretes en baño de oro..."
                   value={jewelryForm.nombre}
                   onChange={(e) => setJewelryForm({...jewelryForm, nombre: e.target.value})}
@@ -223,19 +223,19 @@ return (
               {/* Categoría: selector poblado desde la tabla relacional `categorias` */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Categoría</label>
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Categoría</label>
                   <select
-                    className="flex h-10 w-full rounded-xl border border-[#2E3050] bg-[#1A1C2C] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-10 w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-3 py-2 text-sm text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50"
                     value={jewelryForm.categoria_id}
                     onChange={(e) => setJewelryForm({...jewelryForm, categoria_id: Number(e.target.value)})}
                     disabled={categorias.length === 0}
                     required
                   >
                     {categorias.length === 0 ? (
-                      <option value={0} className="bg-[#20223A]">Cargando categorías…</option>
+                      <option value={0} className="bg-[--lumin-surface]">Cargando categorías…</option>
                     ) : (
                       categorias.map((cat) => (
-                        <option key={cat.id} value={cat.id} className="bg-[#20223A]">
+                        <option key={cat.id} value={cat.id} className="bg-[--lumin-surface]">
                           {cat.nombre}
                         </option>
                       ))
@@ -243,9 +243,9 @@ return (
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">ID Marca</label>
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">ID Marca</label>
                   <Input
-                    className="bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                    className="bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                     type="number"
                     placeholder="1"
                     value={jewelryForm.marca_id}
@@ -256,11 +256,11 @@ return (
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">URL de la Imagen</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">URL de la Imagen</label>
                 <div className="relative">
-                  <ImageIcon className="absolute left-3 top-3 h-4 w-4 text-[#A0A3B1]" />
+                  <ImageIcon className="absolute left-3 top-3 h-4 w-4 text-[--lumin-muted]" />
                   <Input
-                    className="pl-10 bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
+                    className="pl-10 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent rounded-xl"
                     placeholder="https://cdn.shopify.com/..."
                     value={jewelryForm.ruta_imagen}
                     onChange={(e) => setJewelryForm({...jewelryForm, ruta_imagen: e.target.value})}
@@ -270,16 +270,16 @@ return (
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Descripción / Detalles</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Descripción / Detalles</label>
                 <textarea
-                  className="flex min-h-[80px] w-full rounded-xl border border-[#2E3050] bg-[#1A1C2C] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent resize-none placeholder:text-[#A0A3B1]/40"
+                  className="flex min-h-[80px] w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-3 py-2 text-sm text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent resize-none placeholder:text-[--lumin-muted]/40"
                   placeholder="Detalles del producto..."
                   value={jewelryForm.descripcion}
                   onChange={(e) => setJewelryForm({...jewelryForm, descripcion: e.target.value})}
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white mt-4 shadow-lg shadow-[#7B4CFF]/25 rounded-xl transition-all active:scale-[0.98]">
+              <Button type="submit" className="w-full bg-[#7B4CFF] hover:bg-[#6B3CEF] text-[--lumin-text] mt-4 shadow-lg shadow-[#7B4CFF]/25 rounded-xl transition-all active:scale-[0.98]">
                 <Save className="w-4 h-4 mr-2" />
                 Registrar en Catálogo
               </Button>
