@@ -13,18 +13,31 @@ const Register = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
+  const [confirmEmail, setConfirmEmail] = useState('');
   const [telefono, setTelefono] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
   const turnstileRef = useRef<TurnstileInstance | null>(null);
 
+  const emailMismatch = confirmEmail.length > 0 && email !== confirmEmail;
+  const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    if (email !== confirmEmail) {
+      setError('Los correos electrónicos no coinciden.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
     if (!captchaToken) {
       setError('Completa la verificación de seguridad.');
       return;
@@ -82,11 +95,11 @@ const Register = () => {
         <div className="bg-[--lumin-surface] rounded-2xl border border-[--lumin-border]">
           <form onSubmit={handleSubmit} className="px-5 py-7 sm:px-7 space-y-4">
             <div>
-              <label className={labelClass}>Nombre comercial</label>
+              <label className={labelClass}>Nombre Completo</label>
               <input
                 required
                 type="text"
-                placeholder="Ej. Joyería Lumín"
+                placeholder="Ej. Miriam González"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 disabled={procesando}
@@ -107,31 +120,62 @@ const Register = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Teléfono</label>
-                <input
-                  required
-                  type="tel"
-                  placeholder="55 1234 5678"
-                  value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
-                  disabled={procesando}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Contraseña</label>
-                <input
-                  required
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={procesando}
-                  className={inputClass}
-                />
-              </div>
+            <div>
+              <label className={labelClass}>Confirmar correo electrónico</label>
+              <input
+                required
+                type="email"
+                placeholder="tu@correo.com"
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
+                disabled={procesando}
+                className={`${inputClass} ${emailMismatch ? 'border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {emailMismatch && (
+                <p className="mt-1.5 text-xs text-red-500 ml-1">Los correos no coinciden.</p>
+              )}
+            </div>
+
+            <div>
+              <label className={labelClass}>Teléfono</label>
+              <input
+                required
+                type="tel"
+                placeholder="55 1234 5678"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                disabled={procesando}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Contraseña</label>
+              <input
+                required
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={procesando}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Confirmar contraseña</label>
+              <input
+                required
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={procesando}
+                className={`${inputClass} ${passwordMismatch ? 'border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {passwordMismatch && (
+                <p className="mt-1.5 text-xs text-red-500 ml-1">Las contraseñas no coinciden.</p>
+              )}
             </div>
 
             <div className="w-full pt-1">
