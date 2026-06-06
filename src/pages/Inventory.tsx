@@ -12,7 +12,7 @@ import AppFooter from '@/components/AppFooter';
 import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
-import { matchSku, skuIncluye, extractSkuCandidates } from '@/lib/sku';
+import { matchSku, skuIncluye, extractSkuCandidates, getBaseSku, getTalla, hasTalla } from '@/lib/sku';
 import { useTheme } from '@/context/ThemeContext';
 
 const ITEMS_PER_PAGE = 12;
@@ -60,6 +60,22 @@ const Inventory = () => {
   const [customImagenFile, setCustomImagenFile] = useState<File | null>(null);
   const [customImagenPreview, setCustomImagenPreview] = useState<string | null>(null);
   const [guardandoCustom, setGuardandoCustom] = useState(false);
+
+  // Selector de talla para anillos escaneados por QR
+  interface TallaOpcionInventario {
+    tipo: 'inventario';
+    item: InventoryItem;
+  }
+  interface TallaOpcionCatalogo {
+    tipo: 'catalogo';
+    item: { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number };
+  }
+  type TallaOpcion = TallaOpcionInventario | TallaOpcionCatalogo;
+  const [tallaSelectorData, setTallaSelectorData] = useState<{
+    nombre: string;
+    opciones: TallaOpcion[];
+    stockInput?: string; // solo cuando es agregar desde catálogo
+  } | null>(null);
 
   const fetchInventory = async () => {
     try {
@@ -197,77 +213,71 @@ const Inventory = () => {
   // --- LÓGICA DEL ESCÁNER QR ---
   // Procesa el texto decodificado del QR: suma stock si la joya ya está en el
   // inventario, o la agrega desde el catálogo maestro si es nueva.
+  // Si es un anillo (SKU con talla) y hay varias tallas disponibles,
+  // muestra un selector de talla antes de confirmar.
   const procesarQr = async (decodedText: string) => {
     const candidates = extractSkuCandidates(decodedText);
+    // El candidato más descriptivo para mostrar en mensajes de error.
+    // candidates[0] es el más específico (ej. "987654/6"); si hay solo uno, ese mismo.
+    const skuDisplay = candidates[0] ?? decodedText.trim();
 
     try {
+      // ── 1. Buscar en el inventario propio ────────────────────────────────────
       const joyaEnMiInventario = inventario.find((p) =>
         candidates.some((sku) => matchSku(p, sku))
       );
 
       if (joyaEnMiInventario) {
-        const sumarStock = window.prompt(
-          `¡Ya tienes ${joyaEnMiInventario.nombre} en tu inventario!\nTienes ${joyaEnMiInventario.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`,
-          "1"
-        );
-        if (sumarStock) {
-          const sumar = parseInt(sumarStock);
-          if (!Number.isInteger(sumar) || sumar <= 0) {
-            await showAlert({
-              type: 'error',
-              title: 'Cantidad no válida',
-              message: 'Por favor ingresa un número mayor a 0.'
-            });
-            return;
-          }
-          await handleUpdateItem(joyaEnMiInventario.inventario_id, {
-            stock: joyaEnMiInventario.stock + sumar,
+        // Si el producto tiene talla, buscar si hay otras tallas del mismo modelo.
+        const baseSku = getBaseSku(joyaEnMiInventario.sku);
+        const variantesTalla = hasTalla(joyaEnMiInventario.sku)
+          ? inventario.filter((p) => hasTalla(p.sku) && getBaseSku(p.sku) === baseSku)
+          : [];
+
+        if (variantesTalla.length > 1) {
+          // Hay varias tallas → mostrar selector antes de sumar stock.
+          setTallaSelectorData({
+            nombre: joyaEnMiInventario.nombre,
+            opciones: variantesTalla.map((item) => ({ tipo: 'inventario' as const, item })),
           });
-          await showAlert({
-            type: 'success',
-            title: 'Stock actualizado',
-            message: `Se sumaron ${sumar} piezas a ${joyaEnMiInventario.nombre}.`
-          });
+          return;
         }
+
+        // Una sola talla o producto sin talla → flujo directo.
+        await sumarStockInventario(joyaEnMiInventario);
         return;
       }
 
+      // ── 2. Buscar en el catálogo maestro ─────────────────────────────────────
       const { data: catalogo } = await api.get("/vendor/explore");
-      const joyaNueva = (catalogo as { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number }[]).find((p) =>
+      type CatItem = { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number };
+      const catalogoArr = catalogo as CatItem[];
+
+      const joyaNueva = catalogoArr.find((p) =>
         candidates.some((sku) => matchSku(p, sku))
       );
 
       if (joyaNueva) {
-        const stockInput = window.prompt(
-          `¡Joya nueva detectada: ${joyaNueva.nombre}!\n¿Cuántas piezas físicas vas a registrar?`,
-          "1"
-        );
-        if (!stockInput) return;
+        // Si el producto tiene talla, buscar otras tallas del mismo modelo en el catálogo.
+        const baseSku = getBaseSku(joyaNueva.sku);
+        const variantesCat = hasTalla(joyaNueva.sku)
+          ? catalogoArr.filter((p) => hasTalla(p.sku) && getBaseSku(p.sku) === baseSku)
+          : [];
 
-        const precioSugerido = joyaNueva.precio_sugerido || 0;
-        const precioInput = window.prompt(
-          "¿A qué precio la vas a vender?",
-          precioSugerido.toString()
-        );
-        if (!precioInput) return;
+        if (variantesCat.length > 1) {
+          setTallaSelectorData({
+            nombre: joyaNueva.nombre,
+            opciones: variantesCat.map((item) => ({ tipo: 'catalogo' as const, item })),
+          });
+          return;
+        }
 
-        await api.post("/vendor/inventory", {
-          producto_maestro_id: joyaNueva.id,
-          stock: parseInt(stockInput),
-          precio_personalizado: parseFloat(precioInput),
-        });
-
-        await showAlert({
-          type: 'success',
-          title: '¡Joya guardada!',
-          message: 'La joya se agregó a tu inventario correctamente.'
-        });
-        fetchInventory();
+        await agregarDesdeCatalogo(joyaNueva);
       } else {
         await showAlert({
           type: 'warning',
           title: 'Código no encontrado',
-          message: `El código ${candidates[0]} no existe en la base de datos maestra.`
+          message: `El código "${skuDisplay}" no existe en la base de datos maestra.`,
         });
       }
     } catch (error) {
@@ -278,6 +288,56 @@ const Inventory = () => {
         message: 'Hubo un error al procesar el código QR.'
       });
     }
+  };
+
+  // Suma stock a un ítem ya existente en inventario.
+  const sumarStockInventario = async (joya: InventoryItem) => {
+    const sumarStock = window.prompt(
+      `¡Ya tienes ${joya.nombre}${hasTalla(joya.sku) ? ` (talla ${getTalla(joya.sku)})` : ''} en tu inventario!\nTienes ${joya.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`,
+      "1"
+    );
+    if (sumarStock) {
+      const sumar = parseInt(sumarStock);
+      if (!Number.isInteger(sumar) || sumar <= 0) {
+        await showAlert({
+          type: 'error',
+          title: 'Cantidad no válida',
+          message: 'Por favor ingresa un número mayor a 0.',
+        });
+        return;
+      }
+      await handleUpdateItem(joya.inventario_id, { stock: joya.stock + sumar });
+      await showAlert({
+        type: 'success',
+        title: 'Stock actualizado',
+        message: `Se sumaron ${sumar} piezas a ${joya.nombre}.`,
+      });
+    }
+  };
+
+  // Agrega una joya del catálogo maestro al inventario.
+  const agregarDesdeCatalogo = async (joya: { sku: string; nombre: string; precio_sugerido?: number; id: number }) => {
+    const stockInput = window.prompt(
+      `¡Joya nueva detectada: ${joya.nombre}${hasTalla(joya.sku) ? ` (talla ${getTalla(joya.sku)})` : ''}!\n¿Cuántas piezas físicas vas a registrar?`,
+      "1"
+    );
+    if (!stockInput) return;
+
+    const precioSugerido = joya.precio_sugerido || 0;
+    const precioInput = window.prompt("¿A qué precio la vas a vender?", precioSugerido.toString());
+    if (!precioInput) return;
+
+    await api.post("/vendor/inventory", {
+      producto_maestro_id: joya.id,
+      stock: parseInt(stockInput),
+      precio_personalizado: parseFloat(precioInput),
+    });
+    await showAlert({
+      type: 'success',
+      title: '¡Joya guardada!',
+      message: 'La joya se agregó a tu inventario correctamente.',
+    });
+    fetchInventory();
   };
 
   // El escáner llama a esto al detectar un QR: primero cierra el modal (para
@@ -423,6 +483,50 @@ const Inventory = () => {
             onClose={() => setShowScanner(false)}
           />
         )}
+
+        {/* Selector de talla para anillos detectados por QR */}
+        <Dialog open={tallaSelectorData !== null} onOpenChange={(open) => { if (!open) setTallaSelectorData(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Selecciona la talla</DialogTitle>
+              <DialogDescription>
+                {tallaSelectorData?.nombre} está disponible en varias tallas. Elige la que corresponde a la pieza escaneada.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-3 gap-2 py-2">
+              {tallaSelectorData?.opciones.map((opcion) => {
+                const talla = getTalla(opcion.item.sku) ?? opcion.item.sku;
+                const stockInfo = opcion.tipo === 'inventario'
+                  ? ` · ${(opcion.item as InventoryItem).stock} uds.`
+                  : '';
+                return (
+                  <button
+                    key={opcion.item.sku}
+                    onClick={async () => {
+                      setTallaSelectorData(null);
+                      if (opcion.tipo === 'inventario') {
+                        await sumarStockInventario(opcion.item as InventoryItem);
+                      } else {
+                        await agregarDesdeCatalogo(opcion.item as { sku: string; nombre: string; precio_sugerido?: number; id: number });
+                      }
+                    }}
+                    className="flex flex-col items-center justify-center gap-0.5 rounded-xl border border-[--lumin-border] bg-[--lumin-surface] hover:bg-[--lumin-hover] hover:border-[#7B4CFF] transition-all py-3 px-2 text-center"
+                  >
+                    <span className="text-xl font-bold text-[--lumin-text]">{talla}</span>
+                    {stockInfo && (
+                      <span className="text-[10px] text-[--lumin-muted] leading-tight">{stockInfo.trim()}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setTallaSelectorData(null)} className="w-full">
+                Cancelar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Layout: Filtros + Grid */}
         <div className="flex gap-6 items-start">

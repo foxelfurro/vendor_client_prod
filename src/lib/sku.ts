@@ -20,6 +20,10 @@ export interface ConSku {
  *   1. El texto ES directamente el SKU ("526453/10")
  *   2. El texto es una URL y el SKU es el último segmento ("…/526453")
  *   3. El SKU contiene "/" y quedó partido en los dos últimos segmentos ("…/526453/10")
+ *
+ * ORDEN: de más específico a menos específico, para que matchSku evalúe
+ * primero el SKU completo con talla ("987654/6") antes que la base ("987654")
+ * o el dígito suelto ("6"), evitando falsos positivos.
  */
 export function extractSkuCandidates(decodedText: string): string[] {
   const clean = decodedText.trim().replace(/\/$/, '');
@@ -27,10 +31,37 @@ export function extractSkuCandidates(decodedText: string): string[] {
   const last = parts[parts.length - 1];
   const secondLast = parts[parts.length - 2];
   const candidates: string[] = [];
-  if (last) candidates.push(last);
-  if (secondLast) candidates.push(secondLast);
+  // 1. Más específico: SKU completo con talla ("987654/6")
   if (secondLast && last) candidates.push(`${secondLast}/${last}`);
+  // 2. Base o SKU sin talla ("987654")
+  if (secondLast) candidates.push(secondLast);
+  // 3. Último segmento suelto ("6") — útil cuando el texto es solo el SKU sin "/"
+  if (last) candidates.push(last);
   return candidates;
+}
+
+/**
+ * Extrae la base del SKU (la parte antes del "/").
+ * Para "987654/6" devuelve "987654". Para "987654" devuelve "987654".
+ */
+export function getBaseSku(sku: string): string {
+  return sku.split('/')[0].trim();
+}
+
+/**
+ * Extrae la talla del SKU (la parte después del "/"), o null si no existe.
+ * Para "987654/6" devuelve "6". Para "987654" devuelve null.
+ */
+export function getTalla(sku: string): string | null {
+  const idx = sku.indexOf('/');
+  return idx !== -1 ? sku.slice(idx + 1).trim() : null;
+}
+
+/**
+ * Devuelve true si el SKU tiene un sufijo de talla (contiene "/").
+ */
+export function hasTalla(sku: string): boolean {
+  return sku.includes('/');
 }
 
 /**

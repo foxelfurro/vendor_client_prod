@@ -15,7 +15,7 @@ import AppFooter from '@/components/AppFooter';
 import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
-import { matchSku, skuIncluye, extractSkuCandidates } from '@/lib/sku';
+import { matchSku, skuIncluye, extractSkuCandidates, getBaseSku, getTalla, hasTalla } from '@/lib/sku';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -50,6 +50,9 @@ const Catalog = () => {
 
   // Escáner QR
   const [showScanner, setShowScanner] = useState(false);
+
+  // Selector de talla para anillos detectados por QR
+  const [tallaSelectorOpciones, setTallaSelectorOpciones] = useState<CatalogProduct[] | null>(null);
 
   // Filtros
   const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTERS);
@@ -212,25 +215,53 @@ const Catalog = () => {
   const handleQrScan = async (decodedText: string) => {
     setShowScanner(false);
     const candidates = extractSkuCandidates(decodedText);
+    // candidates[0] es el más específico (ej. "987654/6"); úsalo en mensajes de error.
+    const skuDisplay = candidates[0] ?? decodedText.trim();
 
+    // ── Buscar localmente ──────────────────────────────────────────────────────
     const joyaLocal = productos.find((p) =>
       candidates.some((sku) => matchSku(p, sku))
     );
 
     if (joyaLocal) {
+      // Si la joya tiene talla, buscar otras tallas del mismo modelo en la lista local.
+      const baseSku = getBaseSku(joyaLocal.sku);
+      const variantesLocal = hasTalla(joyaLocal.sku)
+        ? productos.filter((p) => hasTalla(p.sku) && getBaseSku(p.sku) === baseSku)
+        : [];
+
+      if (variantesLocal.length > 1) {
+        setTallaSelectorOpciones(variantesLocal);
+        return;
+      }
+
       abrirModal(joyaLocal);
       return;
     }
 
     if (isAdmin) {
-      // Fallback: pedir al backend la joya por SKU (1 sola fila, sin filtros).
+      // Fallback: pedir al backend la joya por SKU.
+      // Usar el candidato que representa la BASE del SKU (ej. "987654"), no el dígito suelto.
+      const searchQuery = candidates.find((c) => c.length > 2 && !c.includes('/')) ?? candidates[0];
       try {
-        const params = new URLSearchParams({ page: '1', limit: '5', search: candidates[0] });
+        const params = new URLSearchParams({ page: '1', limit: '10', search: searchQuery });
         const { data } = await api.get(`/vendor/explore?${params.toString()}`);
-        const remoto = (data?.data ?? [] as CatalogProduct[]).find((p: CatalogProduct) =>
+        const remotos = (data?.data ?? []) as CatalogProduct[];
+        const remoto = remotos.find((p: CatalogProduct) =>
           candidates.some((sku) => matchSku(p, sku))
         );
         if (remoto) {
+          // Verificar si hay variantes de talla entre los resultados remotos.
+          const baseSku = getBaseSku(remoto.sku);
+          const variantesRemoto = hasTalla(remoto.sku)
+            ? remotos.filter((p) => hasTalla(p.sku) && getBaseSku(p.sku) === baseSku)
+            : [];
+
+          if (variantesRemoto.length > 1) {
+            setTallaSelectorOpciones(variantesRemoto);
+            return;
+          }
+
           abrirEdicion(remoto);
           return;
         }
@@ -239,7 +270,7 @@ const Catalog = () => {
       }
     }
 
-    alert(`El código ${candidates[0]} no se encontró en el catálogo.`);
+    alert(`El código "${skuDisplay}" no se encontró en el catálogo.`);
   };
 
   // ── Filtrado + ordenamiento ─────────────────────────────────────────────────
@@ -440,6 +471,44 @@ const Catalog = () => {
             onClose={() => setShowScanner(false)}
           />
         )}
+
+        {/* Selector de talla para anillos detectados por QR */}
+        <Dialog open={tallaSelectorOpciones !== null} onOpenChange={(open) => { if (!open) setTallaSelectorOpciones(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Selecciona la talla</DialogTitle>
+              <DialogDescription>
+                {tallaSelectorOpciones?.[0]?.nombre} está disponible en varias tallas. Elige la que corresponde a la pieza escaneada.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-3 gap-2 py-2">
+              {tallaSelectorOpciones?.map((producto) => {
+                const talla = getTalla(producto.sku) ?? producto.sku;
+                return (
+                  <button
+                    key={producto.sku}
+                    onClick={() => {
+                      setTallaSelectorOpciones(null);
+                      if (isAdmin) {
+                        abrirEdicion(producto);
+                      } else {
+                        abrirModal(producto);
+                      }
+                    }}
+                    className="flex flex-col items-center justify-center rounded-xl border border-[--lumin-border] bg-[--lumin-surface] hover:bg-[--lumin-hover] hover:border-[#7B4CFF] transition-all py-3 px-2"
+                  >
+                    <span className="text-xl font-bold text-[--lumin-text]">{talla}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setTallaSelectorOpciones(null)} className="w-full">
+                Cancelar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* ── Layout: Sidebar + Grid ────────────────────────────────────────── */}
         {/*
