@@ -486,19 +486,31 @@ const Inventory = () => {
 
         {/* Selector de talla para anillos detectados por QR */}
         <Dialog open={tallaSelectorData !== null} onOpenChange={(open) => { if (!open) setTallaSelectorData(null); }}>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle>Selecciona la talla</DialogTitle>
-              <DialogDescription>
-                {tallaSelectorData?.nombre} está disponible en varias tallas. Elige la que corresponde a la pieza escaneada.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-3 gap-2 py-2">
+          <DialogContent className="max-w-xs bg-[--lumin-surface] border border-[--lumin-border] shadow-2xl rounded-3xl p-0 overflow-hidden gap-0">
+            <DialogTitle className="sr-only">Selecciona la talla</DialogTitle>
+            <DialogDescription className="sr-only">
+              Elige la talla que corresponde a la pieza escaneada.
+            </DialogDescription>
+
+            {/* Cabecera */}
+            <div className="px-6 pt-7 pb-5 text-center">
+              <div className="w-11 h-11 rounded-full bg-[#7B4CFF]/10 flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl">💍</span>
+              </div>
+              <h2 className="text-[17px] font-bold text-[--lumin-text] leading-tight">Selecciona la talla</h2>
+              <p className="text-[13px] text-[--lumin-muted] mt-1.5 leading-snug">
+                <span className="font-semibold text-[--lumin-text]">{tallaSelectorData?.nombre}</span>
+                {' '}está disponible en varias tallas.
+              </p>
+            </div>
+
+            {/* Grid de tallas */}
+            <div className="px-5 pb-4 grid grid-cols-4 gap-2">
               {tallaSelectorData?.opciones.map((opcion) => {
                 const talla = getTalla(opcion.item.sku) ?? opcion.item.sku;
-                const stockInfo = opcion.tipo === 'inventario'
-                  ? ` · ${(opcion.item as InventoryItem).stock} uds.`
-                  : '';
+                const stock = opcion.tipo === 'inventario'
+                  ? (opcion.item as InventoryItem).stock
+                  : null;
                 return (
                   <button
                     key={opcion.item.sku}
@@ -510,21 +522,30 @@ const Inventory = () => {
                         await agregarDesdeCatalogo(opcion.item as { sku: string; nombre: string; precio_sugerido?: number; id: number });
                       }
                     }}
-                    className="flex flex-col items-center justify-center gap-0.5 rounded-xl border border-[--lumin-border] bg-[--lumin-surface] hover:bg-[--lumin-hover] hover:border-[#7B4CFF] transition-all py-3 px-2 text-center"
+                    className="group flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-[--lumin-border] bg-[--lumin-bg] hover:border-[#7B4CFF] hover:bg-[#7B4CFF]/10 active:scale-95 transition-all py-3.5 px-1"
                   >
-                    <span className="text-xl font-bold text-[--lumin-text]">{talla}</span>
-                    {stockInfo && (
-                      <span className="text-[10px] text-[--lumin-muted] leading-tight">{stockInfo.trim()}</span>
+                    <span className="text-[22px] font-black text-[--lumin-text] group-hover:text-[#7B4CFF] transition-colors leading-none">
+                      {talla}
+                    </span>
+                    {stock !== null && (
+                      <span className="text-[10px] font-semibold text-[--lumin-muted] bg-[--lumin-hover] group-hover:bg-[#7B4CFF]/15 group-hover:text-[#7B4CFF] rounded-full px-2 py-0.5 leading-tight transition-colors">
+                        {stock} uds.
+                      </span>
                     )}
                   </button>
                 );
               })}
             </div>
-            <DialogFooter>
-              <Button variant="ghost" onClick={() => setTallaSelectorData(null)} className="w-full">
+
+            {/* Cancelar */}
+            <div className="px-5 pb-5 pt-1">
+              <button
+                onClick={() => setTallaSelectorData(null)}
+                className="w-full py-3 rounded-2xl text-[13px] font-semibold text-[--lumin-muted] hover:text-[--lumin-text] hover:bg-[--lumin-hover] transition-all"
+              >
                 Cancelar
-              </Button>
-            </DialogFooter>
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
 
