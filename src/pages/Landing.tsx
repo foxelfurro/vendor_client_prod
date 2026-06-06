@@ -306,7 +306,7 @@ const Landing = () => {
         {/* ================================================================= */}
         {/*  HERO                                                              */}
         {/* ================================================================= */}
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden mb-16 sm:mb-24">
           <div
             className="pointer-events-none absolute inset-0 -z-10 opacity-[0.055]"
             style={{
