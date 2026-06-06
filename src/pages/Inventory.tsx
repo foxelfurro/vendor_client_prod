@@ -13,6 +13,7 @@ import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
 import { matchSku, skuIncluye, extractSkuCandidates } from '@/lib/sku';
+import { useTheme } from '@/context/ThemeContext';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -35,6 +36,7 @@ interface InventoryItem {
 const Inventory = () => {
   const location = useLocation();
   const { showAlert, showConfirm } = useAlert();
+  const { isDark } = useTheme();
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
@@ -345,19 +347,19 @@ const Inventory = () => {
   if (loading) return <PageLoader message="Cargando inventario…" />;
 
   return (
-    <div className="bg-[#1A1C2C] font-body text-white antialiased min-h-screen">
+    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen">
 
       {/* Editorial Header */}
-      <header className="border-b border-[#2E3050] bg-[#20223A]">
+      <header className="border-b border-[--lumin-border] bg-[--lumin-surface]">
         <div className="max-w-7xl mx-auto px-5 py-8 md:py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-1">
             <span className="text-[0.6rem] tracking-[0.3em] uppercase font-bold text-[#7B4CFF]">
               Curated Collection
             </span>
-            <h1 className="text-4xl sm:text-5xl font-headline font-extrabold tracking-tighter leading-tight text-white">
+            <h1 className="text-4xl sm:text-5xl font-headline font-extrabold tracking-tighter leading-tight text-[--lumin-text]">
               Mi Inventario
             </h1>
-            <p className="text-sm text-[#A0A3B1] max-w-lg leading-relaxed">
+            <p className="text-sm text-[--lumin-muted] max-w-lg leading-relaxed">
               Administra tus joyas, revisa stock disponible y actualiza tus piezas.
             </p>
           </div>
@@ -368,13 +370,13 @@ const Inventory = () => {
       <main className="max-w-7xl mx-auto px-5 py-8 md:py-12 space-y-8">
 
         {/* Controls Bar */}
-        <div className="grid md:grid-cols-[1fr,auto,auto,auto] gap-3 items-center bg-[#20223A] p-4 rounded-2xl border border-[#2E3050]">
+        <div className="grid md:grid-cols-[1fr,auto,auto,auto] gap-3 items-center bg-[--lumin-surface] p-4 rounded-2xl border border-[--lumin-border]">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0A3B1]" size={20} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[--lumin-muted]" size={20} />
             <Input
               type="search"
               placeholder="Buscar por nombre o SKU..."
-              className="w-full pl-12 pr-4 py-3.5 bg-[#1A1C2C] border border-[#2E3050] rounded-xl text-white placeholder:text-[#A0A3B1]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent outline-none transition-all"
+              className="w-full pl-12 pr-4 py-3.5 bg-[--lumin-bg] border border-[--lumin-border] rounded-xl text-[--lumin-text] placeholder:text-[--lumin-muted]/40 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent outline-none transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -382,7 +384,7 @@ const Inventory = () => {
 
           <button
             onClick={() => setIsCustomModalOpen(true)}
-            className="flex items-center gap-2.5 py-3.5 px-5 rounded-xl font-bold bg-[#252840] border border-[#2E3050] text-white hover:bg-[#2E3050] transition-all"
+            className="flex items-center gap-2.5 py-3.5 px-5 rounded-xl font-bold bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] hover:bg-[#2E3050] transition-all"
           >
             <PlusCircle size={20} className="text-[#7B4CFF]" />
             <span className="hidden sm:inline">Pieza Propia</span>
@@ -392,8 +394,8 @@ const Inventory = () => {
             onClick={() => setShowScanner(!showScanner)}
             className={`flex items-center gap-2.5 py-3.5 px-5 rounded-xl font-bold transition-all ${
               showScanner
-                ? 'bg-[#FFD600]/10 text-[#FFD600] border border-[#FFD600]/30 hover:bg-[#FFD600]/15'
-                : 'bg-[#252840] border border-[#2E3050] text-white hover:bg-[#2E3050]'
+                ? 'bg-[--lumin-warn-bg] text-[--lumin-warn] border border-[--lumin-warn-bd] hover:bg-[--lumin-warn-bg]'
+                : 'bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] hover:bg-[#2E3050]'
             }`}
           >
             {showScanner ? <X size={20} /> : <QrCode size={20} />}
@@ -402,12 +404,12 @@ const Inventory = () => {
 
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden flex items-center gap-2.5 py-3.5 px-5 rounded-xl font-bold bg-[#252840] border border-[#2E3050] text-white hover:bg-[#2E3050] transition-all"
+            className="lg:hidden flex items-center gap-2.5 py-3.5 px-5 rounded-xl font-bold bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] hover:bg-[#2E3050] transition-all"
           >
             <Filter size={20} />
             <span>Filtros</span>
             {hasActiveFilters && (
-              <span className="bg-[#7B4CFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">ON</span>
+              <span className="bg-[#7B4CFF] text-[--lumin-text] text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">ON</span>
             )}
           </button>
         </div>
@@ -435,6 +437,7 @@ const Inventory = () => {
               onClose={() => {}}
               showTipo
               showStock
+              theme={isDark ? 'dark' : 'light'}
             />
           </aside>
 
@@ -448,16 +451,17 @@ const Inventory = () => {
               onClose={() => setSidebarOpen(false)}
               showTipo
               showStock
+              theme={isDark ? 'dark' : 'light'}
             />
           </div>
 
           {/* Inventory Grid */}
           <div className="flex-1 min-w-0">
         {inventarioFiltrado.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-24 text-[#A0A3B1] space-y-6 bg-[#20223A] rounded-2xl border-2 border-dashed border-[#2E3050]">
+          <div className="col-span-full flex flex-col items-center justify-center py-24 text-[--lumin-muted] space-y-6 bg-[--lumin-surface] rounded-2xl border-2 border-dashed border-[--lumin-border]">
             <Package size={64} className="opacity-40" strokeWidth={1} />
             <div className="text-center space-y-1">
-              <h3 className="text-xl font-headline font-bold text-white">No se encontraron joyas</h3>
+              <h3 className="text-xl font-headline font-bold text-[--lumin-text]">No se encontraron joyas</h3>
               <p className="text-sm max-w-sm">
                 Aún no tienes joyas que coincidan con los criterios de búsqueda.
               </p>
@@ -467,12 +471,12 @@ const Inventory = () => {
           <>
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {joyasMostradas.map((item) => (
-                <div key={item.inventario_id} className="group bg-[#20223A] rounded-2xl overflow-hidden border border-[#2E3050] hover:border-[#7B4CFF]/30 shadow-md shadow-black/20 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col relative">
+                <div key={item.inventario_id} className="group bg-[--lumin-surface] rounded-2xl overflow-hidden border border-[--lumin-border] hover:border-[#7B4CFF]/30 shadow-md shadow-black/20 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col relative">
 
                   {/* Botón Flotante para Eliminar de Vitrina */}
                   <button
                     onClick={() => handleDeleteItem(item.inventario_id, item.nombre)}
-                    className="absolute top-3 right-3 z-10 p-2 rounded-full bg-[#20223A]/90 border border-[#2E3050] text-[#A0A3B1] hover:text-[#FFD600] hover:bg-[#252840] transition-all"
+                    className="absolute top-3 right-3 z-10 p-2 rounded-full bg-[--lumin-surface]/90 border border-[--lumin-border] text-[--lumin-muted] hover:text-[--lumin-warn] hover:bg-[--lumin-hover] transition-all"
                     title="Eliminar de mi vitrina"
                   >
                     <Trash2 size={15} />
@@ -481,7 +485,7 @@ const Inventory = () => {
                   {/* Badge: joya propia pendiente de aprobación del administrador */}
                   {item.es_custom && item.estado === false && (
                     <span
-                      className="absolute top-3 left-3 z-10 bg-[#FFD600]/10 text-[#FFD600] border border-[#FFD600]/30 text-[10px] font-bold px-2 py-1 rounded-full"
+                      className="absolute top-3 left-3 z-10 bg-[--lumin-warn-bg] text-[--lumin-warn] border border-[--lumin-warn-bd] text-[10px] font-bold px-2 py-1 rounded-full"
                       title="Pendiente de aprobación. Solo es visible en tu inventario y tu tienda."
                     >
                       Pendiente
@@ -489,7 +493,7 @@ const Inventory = () => {
                   )}
 
                   {/* Product Image */}
-                  <div className="aspect-[4/3] overflow-hidden bg-[#252840] flex-shrink-0">
+                  <div className="aspect-[4/3] overflow-hidden bg-[--lumin-hover] flex-shrink-0">
                     <img
                       src={item.ruta_imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"}
                       alt={item.nombre}
@@ -500,26 +504,26 @@ const Inventory = () => {
                   {/* Product Details */}
                   <div className="p-3 sm:p-5 space-y-3 flex flex-col flex-grow">
                     <div className="space-y-1">
-                      <span className="text-[0.55rem] sm:text-[0.6rem] uppercase font-bold tracking-widest text-[#A0A3B1] truncate block">
+                      <span className="text-[0.55rem] sm:text-[0.6rem] uppercase font-bold tracking-widest text-[--lumin-muted] truncate block">
                         {item.categoria || (item.es_custom ? "Pieza Propia" : "Catálogo")}
                       </span>
-                      <h3 className="text-sm sm:text-base font-headline font-bold tracking-tight text-white leading-snug group-hover:text-[#7B4CFF] transition-colors line-clamp-2">
+                      <h3 className="text-sm sm:text-base font-headline font-bold tracking-tight text-[--lumin-text] leading-snug group-hover:text-[#7B4CFF] transition-colors line-clamp-2">
                         {item.nombre}
                       </h3>
                       <p
-                        className="text-[10px] sm:text-xs text-[#A0A3B1] font-mono tracking-tight bg-[#252840] inline-block px-1.5 py-0.5 rounded max-w-full truncate"
+                        className="text-[10px] sm:text-xs text-[--lumin-muted] font-mono tracking-tight bg-[--lumin-hover] inline-block px-1.5 py-0.5 rounded max-w-full truncate"
                         title={item.skus_anteriores?.length ? `SKU anteriores: ${item.skus_anteriores.join(', ')}` : undefined}
                       >
                         SKU: {item.sku}
                       </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1 sm:gap-3 pt-2 border-t border-[#2E3050] flex-grow">
-                      <p className="text-lg sm:text-xl font-extrabold tracking-tighter text-white">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1 sm:gap-3 pt-2 border-t border-[--lumin-border] flex-grow">
+                      <p className="text-lg sm:text-xl font-extrabold tracking-tighter text-[--lumin-text]">
                         ${item.precio_personalizado?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                       </p>
                       <div className="flex flex-col items-start sm:items-end">
-                        <p className={`text-[10px] sm:text-sm font-bold flex items-center gap-1 ${item.stock > 0 ? 'text-[#7B4CFF]' : 'text-[#FFD600]'}`}>
+                        <p className={`text-[10px] sm:text-sm font-bold flex items-center gap-1 ${item.stock > 0 ? 'text-[#7B4CFF]' : 'text-[--lumin-warn]'}`}>
                           <Package size={13} className="flex-shrink-0" />
                           <span className="truncate">{item.stock > 0 ? `${item.stock} stock` : 'Agotado'}</span>
                         </p>
@@ -528,16 +532,16 @@ const Inventory = () => {
 
                     {/* Editor Dual Inline (Stock & Precio) */}
                     <div className="mt-auto pt-1">
-                      <div className="bg-[#1A1C2C] p-2 sm:p-3 rounded-xl border border-[#2E3050]">
+                      <div className="bg-[--lumin-bg] p-2 sm:p-3 rounded-xl border border-[--lumin-border]">
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="text-[9px] sm:text-[10px] font-bold text-[#A0A3B1] uppercase tracking-wider block mb-1 text-center">
+                            <label className="text-[9px] sm:text-[10px] font-bold text-[--lumin-muted] uppercase tracking-wider block mb-1 text-center">
                               Stock
                             </label>
                             <Input
                               type="number"
                               min="0"
-                              className="text-center text-xs sm:text-sm font-bold h-9 bg-[#252840] border-[#2E3050] text-white px-1"
+                              className="text-center text-xs sm:text-sm font-bold h-9 bg-[--lumin-hover] border-[--lumin-border] text-[--lumin-text] px-1"
                               defaultValue={item.stock}
                               onBlur={(e) => {
                                 const val = parseInt(e.target.value);
@@ -548,16 +552,16 @@ const Inventory = () => {
                             />
                           </div>
                           <div>
-                            <label className="text-[9px] sm:text-[10px] font-bold text-[#A0A3B1] uppercase tracking-wider block mb-1 text-center">
+                            <label className="text-[9px] sm:text-[10px] font-bold text-[--lumin-muted] uppercase tracking-wider block mb-1 text-center">
                               Precio (MXN)
                             </label>
                             <div className="relative">
-                              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#A0A3B1]">$</span>
+                              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[--lumin-muted]">$</span>
                               <Input
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                className="text-center text-xs sm:text-sm font-bold h-9 bg-[#252840] border-[#2E3050] text-white pl-4 pr-1"
+                                className="text-center text-xs sm:text-sm font-bold h-9 bg-[--lumin-hover] border-[--lumin-border] text-[--lumin-text] pl-4 pr-1"
                                 defaultValue={item.precio_personalizado}
                                 onBlur={(e) => {
                                   const val = parseFloat(e.target.value);
@@ -569,7 +573,7 @@ const Inventory = () => {
                             </div>
                           </div>
                         </div>
-                        <p className="text-[9px] sm:text-[10px] text-[#A0A3B1]/60 mt-1.5 text-center h-3">
+                        <p className="text-[9px] sm:text-[10px] text-[--lumin-muted]/60 mt-1.5 text-center h-3">
                           {updatingId === item.inventario_id ? (
                             <span className="text-[#7B4CFF] font-medium animate-pulse">Guardando...</span>
                           ) : (
@@ -585,7 +589,7 @@ const Inventory = () => {
             </div>
 
             {visibleCount < inventarioFiltrado.length && (
-              <div ref={loaderRef} className="py-10 flex justify-center items-center text-[#A0A3B1]">
+              <div ref={loaderRef} className="py-10 flex justify-center items-center text-[--lumin-muted]">
                 <Loader2 className="w-8 h-8 animate-spin text-[#7B4CFF]" />
                 <span className="ml-2">Cargando más joyas...</span>
               </div>
@@ -597,17 +601,17 @@ const Inventory = () => {
 
         {/* --- MODAL PARA CREAR JOYA PROPIA --- */}
         <Dialog open={isCustomModalOpen} onOpenChange={setIsCustomModalOpen}>
-          <DialogContent className="sm:max-w-[500px] bg-[#20223A] border border-[#2E3050] shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0">
+          <DialogContent className="sm:max-w-[500px] bg-[--lumin-surface] border border-[--lumin-border] shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0">
 
-            <div className="bg-[#1A1C2C] p-6 sm:p-8 border-b border-[#2E3050]">
+            <div className="bg-[--lumin-bg] p-6 sm:p-8 border-b border-[--lumin-border]">
               <DialogHeader className="space-y-1">
                 <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-[#7B4CFF] mb-1 text-left">
                   Inventario Independiente
                 </span>
-                <DialogTitle className="text-2xl sm:text-3xl font-headline font-extrabold tracking-tighter text-white text-left">
+                <DialogTitle className="text-2xl sm:text-3xl font-headline font-extrabold tracking-tighter text-[--lumin-text] text-left">
                   Crear Pieza Propia
                 </DialogTitle>
-                <DialogDescription className="text-[#A0A3B1] text-sm leading-relaxed text-left">
+                <DialogDescription className="text-[--lumin-muted] text-sm leading-relaxed text-left">
                   Registra una joya para tu vitrina. Un administrador la revisará y le asignará una categoría antes de publicarla en el catálogo maestro.
                 </DialogDescription>
               </DialogHeader>
@@ -619,7 +623,7 @@ const Inventory = () => {
                 {/* Captura de Foto */}
                 <div className="col-span-2 flex flex-col items-center gap-3 mb-2">
                   {customImagenPreview ? (
-                    <div className="relative w-32 h-32 rounded-2xl overflow-hidden border border-[#2E3050] shadow-sm group">
+                    <div className="relative w-32 h-32 rounded-2xl overflow-hidden border border-[--lumin-border] shadow-sm group">
                       <img src={customImagenPreview} alt="Preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
@@ -628,13 +632,13 @@ const Inventory = () => {
                           setCustomImagenFile(null);
                           setCustomImagenPreview(null);
                         }}
-                        className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute inset-0 bg-black/50 text-[--lumin-text] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <X size={24} />
                       </button>
                     </div>
                   ) : (
-                    <label className="w-32 h-32 flex flex-col items-center justify-center bg-[#252840] border-2 border-dashed border-[#2E3050] rounded-2xl cursor-pointer hover:border-[#7B4CFF] transition-colors text-[#A0A3B1] hover:text-[#7B4CFF]">
+                    <label className="w-32 h-32 flex flex-col items-center justify-center bg-[--lumin-hover] border-2 border-dashed border-[--lumin-border] rounded-2xl cursor-pointer hover:border-[#7B4CFF] transition-colors text-[--lumin-muted] hover:text-[#7B4CFF]">
                       <Camera size={32} className="mb-2 opacity-50" />
                       <span className="text-[10px] font-bold uppercase tracking-widest text-center px-2">Añadir Foto</span>
                       <input
@@ -649,7 +653,7 @@ const Inventory = () => {
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[#A0A3B1]">
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[--lumin-muted]">
                     Nombre de la Joya
                   </label>
                   <Input
@@ -657,12 +661,12 @@ const Inventory = () => {
                     value={customNombre}
                     onChange={(e) => setCustomNombre(e.target.value)}
                     placeholder="Ej. Anillo de Compromiso Oro 14k"
-                    className="h-12 bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 rounded-xl font-medium focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                    className="h-12 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 rounded-xl font-medium focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                   />
                 </div>
 
                 <div className="space-y-2 col-span-2 sm:col-span-1">
-                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[#A0A3B1]">
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[--lumin-muted]">
                     Tu SKU (Código)
                   </label>
                   <Input
@@ -670,12 +674,12 @@ const Inventory = () => {
                     value={customSku}
                     onChange={(e) => setCustomSku(e.target.value)}
                     placeholder="Ej. MY-AN-01"
-                    className="h-12 bg-[#1A1C2C] border-[#2E3050] text-white placeholder:text-[#A0A3B1]/40 rounded-xl font-mono uppercase focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                    className="h-12 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] placeholder:text-[--lumin-muted]/40 rounded-xl font-mono uppercase focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                   />
                 </div>
 
                 <div className="space-y-2 col-span-2 sm:col-span-1">
-                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[#A0A3B1]">
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[--lumin-muted]">
                     Stock Físico
                   </label>
                   <Input
@@ -684,16 +688,16 @@ const Inventory = () => {
                     required
                     value={customStock}
                     onChange={(e) => setCustomStock(e.target.value)}
-                    className="h-12 bg-[#1A1C2C] border-[#2E3050] text-white rounded-xl font-bold focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                    className="h-12 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] rounded-xl font-bold focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                   />
                 </div>
 
                 <div className="space-y-2 col-span-2 mt-2">
-                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[#A0A3B1]">
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-widest text-[--lumin-muted]">
                     Precio de Venta (MXN)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0A3B1] font-bold">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[--lumin-muted] font-bold">$</span>
                     <Input
                       type="number"
                       min="0"
@@ -702,7 +706,7 @@ const Inventory = () => {
                       value={customPrecio}
                       onChange={(e) => setCustomPrecio(e.target.value)}
                       placeholder="0.00"
-                      className="pl-8 h-14 bg-[#1A1C2C] border-[#2E3050] text-[#FFD600] placeholder:text-[#A0A3B1]/40 rounded-xl font-bold text-lg focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
+                      className="pl-8 h-14 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-warn] placeholder:text-[--lumin-muted]/40 rounded-xl font-bold text-lg focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                     />
                   </div>
                 </div>
@@ -714,14 +718,14 @@ const Inventory = () => {
                   variant="outline"
                   onClick={() => setIsCustomModalOpen(false)}
                   disabled={guardandoCustom}
-                  className="w-full sm:w-1/2 h-12 rounded-xl font-bold border-[#2E3050] text-[#A0A3B1] hover:bg-[#252840] hover:text-white"
+                  className="w-full sm:w-1/2 h-12 rounded-xl font-bold border-[--lumin-border] text-[--lumin-muted] hover:bg-[--lumin-hover] hover:text-[--lumin-text]"
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
                   disabled={guardandoCustom}
-                  className="w-full sm:w-1/2 h-12 bg-[#7B4CFF] text-white hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-1/2 h-12 bg-[#7B4CFF] text-[--lumin-text] hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
                 >
                   {guardandoCustom ? (
                     <>

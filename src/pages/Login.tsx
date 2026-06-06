@@ -76,22 +76,22 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-[#1A1C2C] font-body text-white antialiased min-h-screen flex flex-col">
+    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen flex flex-col">
       <PublicNav />
 
       <main className="flex-grow flex items-center justify-center px-5 py-10">
-        <div className="w-full max-w-[1100px] grid md:grid-cols-2 bg-[#20223A] rounded-2xl md:overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-[#2E3050]">
+        <div className="w-full max-w-[1100px] grid md:grid-cols-2 bg-[--lumin-surface] rounded-2xl md:overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-[--lumin-border]">
 
           {/* Left Side: Editorial */}
-          <div className="relative hidden md:block overflow-hidden bg-[#252840]">
+          <div className="relative hidden md:block overflow-hidden bg-[--lumin-hover]">
             <img
               className="absolute inset-0 w-full h-full object-cover opacity-30"
               alt="Luxury jewelry"
               src="https://images.unsplash.com/photo-1631982690223-8aa4be0a2497?w=800&auto=format&fit=crop&q=60"
             />
-            <div className="relative h-full flex flex-col justify-end p-12 text-white">
+            <div className="relative h-full flex flex-col justify-end p-12 text-[--lumin-text]">
               <span className="text-[0.6rem] tracking-[0.3em] uppercase font-bold mb-4 text-[#7B4CFF]">Gestión de Alto Valor</span>
-              <h2 className="text-4xl font-headline font-extrabold tracking-tighter leading-tight mb-6 text-white">
+              <h2 className="text-4xl font-headline font-extrabold tracking-tighter leading-tight mb-6 text-[--lumin-text]">
                 El Mercado Nacional de Joyería, <br/>bajo su control.
               </h2>
             </div>
@@ -100,34 +100,34 @@ const Login = () => {
           {/* Right Side: Form */}
           <div className="p-5 sm:p-8 md:p-12 flex flex-col justify-center">
             <div className="mb-8">
-              <h1 className="text-3xl font-headline font-bold text-white tracking-tight mb-2">Inicia Sesión</h1>
-              <p className="text-[#A0A3B1] text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
+              <h1 className="text-3xl font-headline font-bold text-[--lumin-text] tracking-tight mb-2">Inicia Sesión</h1>
+              <p className="text-[--lumin-muted] text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
             </div>
 
             {errorMessage && (
-              <div className="bg-[#FFD600]/10 border-l-4 border-[#FFD600] text-[#FFD600] p-4 rounded-xl mb-6">
+              <div className="bg-[--lumin-warn-bg] border-l-4 border-[#FFD600] text-[--lumin-warn] p-4 rounded-xl mb-6">
                 <p className="text-sm font-medium">{errorMessage}</p>
               </div>
             )}
 
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1] ml-1">Email</label>
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted] ml-1">Email</label>
                 <input
-                  className="w-full bg-[#1A1C2C] border border-[#2E3050] rounded-xl px-4 py-3.5 text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[#A0A3B1]/40"
+                  className="w-full bg-[--lumin-bg] border border-[--lumin-border] rounded-xl px-4 py-3.5 text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[--lumin-muted]/40"
                   type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-end ml-1">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[#A0A3B1]">Contraseña</label>
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Contraseña</label>
                   <button type="button" onClick={() => navigate('/forgot-password')} className="text-[0.65rem] uppercase font-bold text-[#7B4CFF]/60 hover:text-[#7B4CFF] transition-colors underline-offset-4 hover:underline">
                     ¿Olvidaste tu contraseña?
                   </button>
                 </div>
                 <input
-                  className="w-full bg-[#1A1C2C] border border-[#2E3050] rounded-xl px-4 py-3.5 text-white outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[#A0A3B1]/40"
+                  className="w-full bg-[--lumin-bg] border border-[--lumin-border] rounded-xl px-4 py-3.5 text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[--lumin-muted]/40"
                   type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
                 />
               </div>
@@ -146,7 +146,7 @@ const Login = () => {
 
               <div className="pt-2">
                 <button
-                  className={`w-full bg-[#7B4CFF] text-white font-bold py-4 rounded-xl shadow-lg shadow-[#7B4CFF]/25 transition-all flex justify-center items-center gap-2 ${!captchaToken ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#6B3CEF] active:scale-[0.98]'}`}
+                  className={`w-full bg-[#7B4CFF] text-[--lumin-text] font-bold py-4 rounded-xl shadow-lg shadow-[#7B4CFF]/25 transition-all flex justify-center items-center gap-2 ${!captchaToken ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#6B3CEF] active:scale-[0.98]'}`}
                   type="submit"
                   disabled={!captchaToken}
                 >
@@ -156,8 +156,8 @@ const Login = () => {
               </div>
             </form>
 
-            <div className="mt-10 pt-8 border-t border-[#2E3050] text-center">
-              <p className="text-[#A0A3B1] text-sm">
+            <div className="mt-10 pt-8 border-t border-[--lumin-border] text-center">
+              <p className="text-[--lumin-muted] text-sm">
                 Nuevo en Lumin?{' '}
                 <button onClick={() => navigate('/registro')} className="text-[#7B4CFF] font-bold hover:underline underline-offset-4">Hazte socio</button>
               </p>

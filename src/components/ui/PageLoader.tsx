@@ -46,7 +46,7 @@ export default function PageLoader({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-4 bg-background font-body text-on-surface',
+        'flex flex-col items-center justify-center gap-4 bg-[--lumin-bg] text-[--lumin-text]',
         inline ? 'w-full py-16' : 'min-h-screen',
         className,
       )}
@@ -55,7 +55,7 @@ export default function PageLoader({
       aria-label={message ?? 'Cargando…'}
     >
       {/* Spinner animado con ícono de la librería lucide-react */}
-      <div className="p-4 rounded-2xl bg-surface-container border border-outline-variant/20 shadow-sm">
+      <div className="p-4 rounded-2xl bg-[--lumin-surface] border border-[--lumin-border]/30 shadow-sm">
         <Loader2
           className="w-7 h-7 animate-spin text-primary-stitch"
           strokeWidth={2}
@@ -65,7 +65,7 @@ export default function PageLoader({
 
       {/* Mensaje descriptivo */}
       {message && (
-        <p className="text-sm font-medium text-on-surface-variant tracking-wide">
+        <p className="text-sm font-medium text-[--lumin-muted] tracking-wide">
           {message}
         </p>
       )}

@@ -23,15 +23,19 @@ import {
   ShieldCheck,
   Menu,
   X,
-  UserCircle
+  UserCircle,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useAlert } from '@/context/AlertContext';
+import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 
 const Layout = () => {
   const { user, logout } = useAuth();
   const { showConfirm } = useAlert();
+  const { isDark, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -99,30 +103,29 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background font-body text-on-surface antialiased overflow-hidden">
-      
+    <div className="flex h-screen bg-white dark:bg-[--lumin-bg] font-body text-gray-900 dark:text-[--lumin-text] antialiased overflow-hidden">
+
       {/* --- SIDEBAR LATERAL --- */}
       <aside
         className={cn(
-          "fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface-container-lowest border-r border-outline-variant/10 flex flex-col transition-transform duration-300 ease-in-out shadow-[16px_0_48px_rgba(45,52,53,0.03)] md:shadow-none",
+          "fixed md:static inset-y-0 left-0 z-50 w-72 bg-white dark:bg-[--lumin-surface] border-r border-gray-200 dark:border-[--lumin-border] flex flex-col transition-transform duration-300 ease-in-out shadow-lg md:shadow-none",
           "md:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
         aria-label="Barra lateral"
       >
         {/* Header del Sidebar (Logo) */}
-        <div className="h-20 flex items-center justify-between px-8 border-b border-outline-variant/10">
+        <div className="h-20 flex items-center justify-between px-8 border-b border-gray-200 dark:border-[--lumin-border]">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-surface-container border border-outline-variant/30 text-primary-stitch">
+            <div className="p-2 rounded-xl bg-gray-100 dark:bg-[--lumin-hover] border border-gray-200 dark:border-[--lumin-border] text-[#7B4CFF]">
               <Gem size={20} strokeWidth={2} />
             </div>
-            <span className="text-sm font-headline font-extrabold tracking-[0.15em] uppercase text-on-surface">
+            <span className="text-sm font-headline font-extrabold tracking-[0.15em] uppercase text-gray-900 dark:text-[--lumin-text]">
               Lumin
             </span>
           </div>
-          {/* Botón de cerrar solo visible en móvil y DENTRO del sidebar para evitar empalmes */}
-          <button 
-            className="md:hidden p-2 -mr-2 text-on-surface-variant hover:text-on-surface transition-colors"
+          <button
+            className="md:hidden p-2 -mr-2 text-gray-500 dark:text-[--lumin-muted] hover:text-gray-900 dark:hover:text-[--lumin-text] transition-colors"
             onClick={() => setIsSidebarOpen(false)}
           >
             <X size={20} />
@@ -141,33 +144,32 @@ const Layout = () => {
                 cn(
                   "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group",
                   isActive
-                    ? "bg-surface-container-high text-on-surface font-bold shadow-sm border border-outline-variant/20"
-                    : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium border border-transparent"
+                    ? "bg-gray-100 dark:bg-[--lumin-hover] text-gray-900 dark:text-[--lumin-text] font-bold shadow-sm border border-gray-200 dark:border-[--lumin-border]"
+                    : "text-gray-500 dark:text-[--lumin-muted] hover:bg-gray-100 dark:hover:bg-[--lumin-hover] hover:text-gray-900 dark:hover:text-[--lumin-text] font-medium border border-transparent"
                 )
               }
             >
-              <Icon 
-                size={20} 
-                className={cn("flex-shrink-0 transition-colors", "group-hover:text-primary-stitch")} 
-                aria-hidden="true" 
+              <Icon
+                size={20}
+                className={cn("flex-shrink-0 transition-colors", "group-hover:text-[#7B4CFF]")}
+                aria-hidden="true"
               />
               <span className="tracking-wide">{name}</span>
             </NavLink>
           ))}
         </nav>
 
-{/* Usuario y logout */}
-        <div className="p-6 border-t border-outline-variant/10 bg-surface-container-lowest/50 flex flex-col gap-2">
+        {/* Usuario, toggle y logout */}
+        <div className="p-6 border-t border-gray-200 dark:border-[--lumin-border] bg-gray-50 dark:bg-[--lumin-surface] flex flex-col gap-2">
           <div className="px-2 mb-2">
-            <p className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-primary-stitch opacity-80">
+            <p className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-[#7B4CFF] opacity-80">
               {isAdmin ? 'Atelier Admin' : 'Vendedor Autorizado'}
             </p>
-            <p className="text-sm font-bold text-on-surface truncate mt-1">
+            <p className="text-sm font-bold text-gray-900 dark:text-[--lumin-text] truncate mt-1">
               {user?.nombre || 'Usuario Registrado'}
             </p>
           </div>
 
-          {/* Nuevo botón hacia Mi Perfil */}
           <NavLink
             to="/perfil"
             onClick={handleLinkClick}
@@ -175,21 +177,32 @@ const Layout = () => {
               cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-bold text-sm",
                 isActive
-                  ? "bg-surface-container-high text-on-surface shadow-sm border border-outline-variant/20"
-                  : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface border border-transparent"
+                  ? "bg-gray-100 dark:bg-[--lumin-hover] text-gray-900 dark:text-[--lumin-text] shadow-sm border border-gray-200 dark:border-[--lumin-border]"
+                  : "text-gray-500 dark:text-[--lumin-muted] hover:bg-gray-100 dark:hover:bg-[--lumin-hover] hover:text-gray-900 dark:hover:text-[--lumin-text] border border-transparent"
               )
             }
           >
-            <UserCircle size={18} className="group-hover:text-primary-stitch transition-colors flex-shrink-0" />
+            <UserCircle size={18} className="group-hover:text-[#7B4CFF] transition-colors flex-shrink-0" />
             <span className="tracking-wide">Mi Perfil</span>
           </NavLink>
+
+          {/* Toggle dark/light */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-500 dark:text-[--lumin-muted] hover:bg-gray-100 dark:hover:bg-[--lumin-hover] hover:text-gray-900 dark:hover:text-[--lumin-text] transition-all font-bold text-sm tracking-wide border border-transparent"
+            aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+          >
+            {isDark ? <Sun size={18} className="flex-shrink-0" /> : <Moon size={18} className="flex-shrink-0" />}
+            <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+          </button>
+
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="flex items-center justify-center gap-3 px-4 py-3.5 w-full rounded-xl hover:bg-error/10 text-on-surface-variant hover:text-error transition-all group disabled:opacity-50 border border-transparent hover:border-error/20 font-bold text-sm tracking-wide"
+            className="flex items-center justify-center gap-3 px-4 py-3.5 w-full rounded-xl hover:bg-red-50 dark:hover:bg-[--lumin-warn-bg] text-gray-500 dark:text-[--lumin-muted] hover:text-red-600 dark:hover:text-[--lumin-warn] transition-all group disabled:opacity-50 border border-transparent hover:border-red-200 dark:hover:border-[--lumin-warn-bd] font-bold text-sm tracking-wide"
             aria-label="Cerrar sesión"
           >
-            <LogOut size={18} aria-hidden="true" className="group-hover:text-error transition-colors flex-shrink-0" />
+            <LogOut size={18} aria-hidden="true" className="group-hover:text-red-600 dark:group-hover:text-[--lumin-warn] transition-colors flex-shrink-0" />
             <span className="truncate">
               {isLoggingOut ? 'Saliendo...' : 'Cerrar Sesión'}
             </span>
@@ -200,7 +213,7 @@ const Layout = () => {
       {/* Overlay oscuro para móvil */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-on-surface/20 z-40 md:hidden backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/30 z-40 md:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
           aria-hidden="true"
         />
@@ -208,27 +221,36 @@ const Layout = () => {
 
       {/* --- CONTENIDO PRINCIPAL --- */}
       <div className="flex-1 flex flex-col relative w-full min-w-0">
-        
-        {/* TopBar Móvil Exclusiva (Soluciona el bug del botón flotante) */}
-        <header className="md:hidden h-20 border-b border-outline-variant/10 bg-surface-container-lowest flex items-center justify-between px-6 z-30 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-primary-stitch">
-              <Gem size={18} strokeWidth={2} />
+
+        {/* TopBar Móvil */}
+        <header className="md:hidden h-16 border-b border-gray-200 dark:border-[--lumin-border] bg-white dark:bg-[--lumin-surface] flex items-center justify-between px-5 z-30 flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-[--lumin-hover] border border-gray-200 dark:border-[--lumin-border] text-[#7B4CFF]">
+              <Gem size={16} strokeWidth={2} />
             </div>
-            <span className="text-xs font-headline font-extrabold tracking-[0.15em] uppercase text-on-surface">
+            <span className="text-xs font-headline font-extrabold tracking-[0.15em] uppercase text-gray-900 dark:text-[--lumin-text]">
               Lumin
             </span>
           </div>
-          <button
-            className="p-2 -mr-2 text-on-surface hover:text-primary-stitch transition-colors"
-            onClick={() => setIsSidebarOpen(true)}
-            aria-label="Abrir menú"
-          >
-            <Menu size={24} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-gray-500 dark:text-[--lumin-muted] hover:text-[#7B4CFF] transition-colors"
+              aria-label={isDark ? 'Modo claro' : 'Modo oscuro'}
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button
+              className="p-2 text-gray-900 dark:text-[--lumin-text] hover:text-[#7B4CFF] transition-colors"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Abrir menú"
+            >
+              <Menu size={22} />
+            </button>
+          </div>
         </header>
 
-        {/* Outlet (Donde renderizan Dashboard, Caja, etc.) */}
+        {/* Outlet */}
         <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
