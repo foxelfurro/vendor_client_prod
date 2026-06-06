@@ -31,11 +31,11 @@ export default function StorePreview({ personalization: p, storeName }: StorePre
 
   return (
     <div className="lg:sticky lg:top-6">
-      <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">
+      <p className="text-xs font-bold uppercase tracking-wider text-[--lumin-muted] mb-2">
         Vista previa
       </p>
       <div
-        className="rounded-2xl overflow-hidden border border-outline-variant/20 shadow-sm"
+        className="rounded-2xl overflow-hidden border border-[--lumin-border]/30 shadow-sm"
         style={{ background: t.pageBg }}
       >
         {/* Banner */}
@@ -119,7 +119,7 @@ export default function StorePreview({ personalization: p, storeName }: StorePre
           ))}
         </div>
       </div>
-      <p className="text-[11px] text-on-surface-variant mt-2 text-center">
+      <p className="text-[11px] text-[--lumin-muted] mt-2 text-center">
         Así verán tu catálogo tus clientes.
       </p>
     </div>

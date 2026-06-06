@@ -199,70 +199,70 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="bg-background font-body text-on-surface antialiased min-h-screen">
-      
+    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen">
+
       {/* Header */}
-      <header className="border-b border-outline-variant/10 bg-surface-container-lowest">
-        <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="space-y-2">
-            <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold text-primary-stitch opacity-80">
+      <header className="border-b border-[--lumin-border]">
+        <div className="max-w-7xl mx-auto px-5 py-8 md:py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+          <div className="space-y-1.5">
+            <span className="text-[0.6rem] tracking-[0.35em] uppercase font-bold text-[#7B4CFF]">
               Lumin
             </span>
-            <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter leading-tight text-on-surface">
+            <h1 className="text-3xl md:text-5xl font-headline font-extrabold tracking-tight leading-tight text-[--lumin-text]">
               Panel de Control
             </h1>
-            <p className="text-body-md text-on-surface-variant max-w-xl leading-relaxed">
+            <p className="text-sm text-[--lumin-muted] max-w-xl leading-relaxed">
               Administra tus ventas, inventario y comisiones en un entorno curado para la excelencia.
             </p>
           </div>
-          <Link 
-            to="/inventario" 
-            className="flex items-center justify-center w-full md:w-auto flex-shrink-0 gap-2.5 bg-surface-container border border-outline-variant/30 text-on-surface font-bold py-3.5 px-6 rounded-xl hover:bg-surface-container-high transition-all"
+          <Link
+            to="/inventario"
+            className="flex items-center justify-center w-full md:w-auto flex-shrink-0 gap-2.5 bg-[#7B4CFF] text-[--lumin-text] font-bold py-3.5 px-6 rounded-xl hover:bg-[#6B3CEF] active:scale-95 transition-all shadow-lg shadow-[#7B4CFF]/25"
           >
             <span>Mi Inventario</span>
-            <ArrowRight size={20} className="text-primary-stitch" />
+            <ArrowRight size={18} />
           </Link>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12">
-        
+      <main className="max-w-7xl mx-auto px-5 py-8 md:py-12 space-y-8">
+
         {/* Tarjeta de Nueva Venta */}
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] overflow-hidden">
+        <div className="bg-[--lumin-surface] rounded-2xl border border-[--lumin-border] overflow-hidden">
           {/* Encabezado */}
-          <div className="flex items-center gap-4 px-6 md:px-8 py-6 border-b border-outline-variant/10">
-            <div className="p-3 rounded-xl bg-surface-container border border-outline-variant/30 text-emerald-500 shadow-sm flex-shrink-0">
-              <BadgeDollarSign size={26} strokeWidth={1.5} />
+          <div className="flex items-center gap-4 px-5 md:px-7 py-5 border-b border-[--lumin-border]">
+            <div className="p-3 rounded-xl bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#7B4CFF] flex-shrink-0">
+              <BadgeDollarSign size={24} strokeWidth={1.5} />
             </div>
             <div className="space-y-0.5 min-w-0">
-              <h2 className="text-xl md:text-2xl font-headline font-bold text-on-surface tracking-tight">
+              <h2 className="text-lg md:text-xl font-headline font-bold text-[--lumin-text] tracking-tight">
                 Nueva Venta
               </h2>
-              <p className="text-on-surface-variant text-sm">
+              <p className="text-[--lumin-muted] text-sm">
                 Busca o escanea una joya para registrar la salida.
               </p>
             </div>
           </div>
 
-          <form onSubmit={handleVender} className="p-6 md:p-8 space-y-6">
+          <form onSubmit={handleVender} className="p-5 md:p-7 space-y-5">
             {inventario.length === 0 ? (
-              <div className="text-center text-error py-6 font-medium bg-error/10 rounded-xl border border-error/20">
+              <div className="text-center text-[--lumin-warn] py-6 font-medium bg-[--lumin-warn-bg] rounded-xl border border-[--lumin-warn-bd]">
                 No tienes productos con stock.
               </div>
             ) : (
               <>
                 {/* Buscador por SKU / Nombre + escáner QR */}
-                <div className="space-y-3">
-                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
+                <div className="space-y-2.5">
+                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
                     Buscar Joya (Nombre o SKU)
                   </label>
                   <div className="flex gap-2">
                     <div className="relative flex-1 min-w-0">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[--lumin-muted]" size={17} />
                       <Input
                         type="text"
                         placeholder="Escribe el SKU o nombre..."
-                        className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-on-surface focus:ring-2 focus:ring-primary-stitch outline-none transition-all"
+                        className="w-full pl-10 pr-4 py-3 bg-[--lumin-bg] border border-[--lumin-border] rounded-xl text-[--lumin-text] placeholder:text-[--lumin-muted]/50 focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent outline-none transition-all"
                         value={searchTerm}
                         onChange={(e) => {
                           setSearchTerm(e.target.value);
@@ -272,22 +272,22 @@ const Dashboard = () => {
 
                       {/* Lista de sugerencias */}
                       {searchTerm && !productoSeleccionado && resultadosBusqueda.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                        <div className="absolute z-10 w-full mt-1 bg-[--lumin-surface] border border-[--lumin-border] rounded-xl shadow-2xl max-h-60 overflow-y-auto">
                           {resultadosBusqueda.map((item) => (
                             <button
                               key={item.inventario_id}
                               type="button"
-                              className="w-full text-left px-4 py-3 hover:bg-surface-container transition-colors border-b border-outline-variant/5 last:border-0 flex justify-between items-center"
+                              className="w-full text-left px-4 py-3 hover:bg-[--lumin-hover] transition-colors border-b border-[--lumin-border] last:border-0 flex justify-between items-center gap-3"
                               onClick={() => {
                                 setProductoSeleccionado(String(item.inventario_id));
                                 setSearchTerm(`${item.nombre} (${item.sku || 'S/N'})`);
                               }}
                             >
-                              <div>
-                                <p className="font-medium text-on-surface">{item.nombre}</p>
-                                <p className="text-xs text-on-surface-variant">SKU: {item.sku || 'N/A'}</p>
+                              <div className="min-w-0">
+                                <p className="font-semibold text-[--lumin-text] text-sm truncate">{item.nombre}</p>
+                                <p className="text-xs text-[--lumin-muted] mt-0.5">SKU: {item.sku || 'N/A'}</p>
                               </div>
-                              <span className="text-sm font-bold text-emerald-600">${item.precio_personalizado}</span>
+                              <span className="text-sm font-bold text-[#7B4CFF] flex-shrink-0">${item.precio_personalizado}</span>
                             </button>
                           ))}
                         </div>
@@ -299,17 +299,17 @@ const Dashboard = () => {
                       type="button"
                       onClick={() => setShowScanner(true)}
                       aria-label="Escanear código QR"
-                      className="flex-shrink-0 flex items-center gap-2 px-4 py-3.5 rounded-xl bg-surface-container border border-outline-variant/30 text-on-surface font-bold hover:bg-surface-container-high hover:border-primary-stitch transition-all"
+                      className="flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-xl bg-[--lumin-bg] border border-[--lumin-border] text-[#7B4CFF] font-bold hover:border-[#7B4CFF]/50 hover:bg-[--lumin-hover] active:scale-95 transition-all"
                     >
-                      <QrCode size={20} className="text-primary-stitch" />
-                      <span className="hidden sm:inline">Escanear</span>
+                      <QrCode size={20} />
+                      <span className="hidden sm:inline text-sm">Escanear</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Cantidad */}
-                <div className="space-y-3">
-                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-on-surface-variant">
+                <div className="space-y-2.5">
+                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
                     Cantidad
                   </label>
                   <input
@@ -318,15 +318,15 @@ const Dashboard = () => {
                     required
                     value={cantidad}
                     onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                    className="flex h-12 w-full rounded-xl border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-stitch text-on-surface transition-all shadow-sm hover:border-outline-variant/50"
+                    className="flex h-12 w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-4 py-2 text-sm text-[--lumin-text] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent transition-all"
                   />
                 </div>
 
                 {/* Total a cobrar */}
                 {productoActual && (
-                  <div className="bg-surface-container-low p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center border border-outline-variant/20 shadow-inner gap-2">
-                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant">Total a cobrar</span>
-                    <span className="text-3xl font-headline font-extrabold text-on-surface">
+                  <div className="bg-[--lumin-warn-bg] p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center border border-[#FFD600]/25 gap-2">
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-[--lumin-warn]/80">Total a cobrar</span>
+                    <span className="text-3xl font-headline font-extrabold text-[--lumin-warn]">
                       ${total.toLocaleString('es-MX')}
                     </span>
                   </div>
@@ -338,8 +338,8 @@ const Dashboard = () => {
             {ventaMsg && (
               <div className={`w-full px-4 py-3 rounded-xl text-sm font-medium border ${
                 ventaMsg.tipo === 'success'
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                  : 'bg-red-50 border-red-200 text-red-800'
+                  ? 'bg-[#7B4CFF]/15 border-[#7B4CFF]/30 text-[#C4B5FD]'
+                  : 'bg-[--lumin-warn-bg] border-[--lumin-warn-bd] text-[--lumin-warn]'
               }`}>
                 {ventaMsg.texto}
               </div>
@@ -347,7 +347,7 @@ const Dashboard = () => {
 
             <Button
               type="submit"
-              className="w-full h-14 rounded-xl bg-on-surface hover:bg-on-surface/90 text-surface-container-lowest font-bold text-base shadow-lg transition-all"
+              className="w-full h-14 rounded-xl bg-[#7B4CFF] hover:bg-[#6B3CEF] text-[--lumin-text] font-bold text-base shadow-lg shadow-[#7B4CFF]/25 active:scale-[0.98] transition-all disabled:opacity-40"
               disabled={procesando || !productoSeleccionado}
             >
               <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
@@ -357,31 +357,52 @@ const Dashboard = () => {
         </div>
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
-            let trendColor = "text-tertiary";
-            if (kpi.trendType === 'warning') trendColor = "text-error";
-            if (kpi.trendType === 'neutral') trendColor = "text-on-surface-variant";
+            const isWarning = kpi.trendType === 'warning';
+            const isUp = kpi.trendType === 'up';
             return (
-              <div key={kpi.id} className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 shadow-[0_8px_32px_rgba(45,52,53,0.04)] space-y-4 hover:shadow-[0_12px_40px_rgba(45,52,53,0.06)] transition-all">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold text-on-surface-variant ml-1 truncate">
-                    {kpi.label}
-                  </span>
-                  <div className="p-2.5 rounded-xl bg-surface-container border border-outline-variant/30 text-primary-stitch flex-shrink-0">
-                    <Icon size={20} />
+              <div
+                key={kpi.id}
+                className={`relative bg-[--lumin-surface] rounded-2xl p-4 md:p-5 border overflow-hidden transition-all hover:scale-[1.015] ${
+                  isWarning
+                    ? 'border-[--lumin-warn-bd] shadow-[0_0_28px_rgba(255,214,0,0.07)]'
+                    : 'border-[--lumin-border] hover:border-[#7B4CFF]/30'
+                }`}
+              >
+                {isWarning && <div className="absolute inset-0 bg-[#FFD600]/5 pointer-events-none" />}
+                <div className="relative space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className={`p-2.5 rounded-xl flex-shrink-0 ${
+                      isWarning
+                        ? 'bg-[--lumin-warn-bg] text-[--lumin-warn]'
+                        : 'bg-[#7B4CFF]/15 text-[#7B4CFF]'
+                    }`}>
+                      <Icon size={17} />
+                    </div>
+                    {isWarning && (
+                      <span className="text-[0.55rem] font-extrabold px-2 py-0.5 bg-[#FFD600] text-[#1A1C2C] rounded-full tracking-wider uppercase flex-shrink-0">
+                        Crítico
+                      </span>
+                    )}
+                    {isUp && (
+                      <span className="text-[0.55rem] font-extrabold px-2 py-0.5 bg-[#7B4CFF]/20 text-[#C4B5FD] rounded-full tracking-wider uppercase flex-shrink-0 flex items-center gap-0.5">
+                        <TrendingUp size={9} /> +12.5%
+                      </span>
+                    )}
                   </div>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-3xl font-headline font-extrabold tracking-tighter text-on-surface truncate">
-                    {kpi.value}
+                  <div>
+                    <p className="text-xl md:text-2xl font-headline font-extrabold tracking-tight text-[--lumin-text] truncate">
+                      {kpi.value}
+                    </p>
+                    <p className="text-[0.7rem] text-[--lumin-muted] mt-0.5 truncate font-medium">{kpi.label}</p>
+                  </div>
+                  <p className={`text-[0.7rem] font-medium truncate ${
+                    isWarning ? 'text-[--lumin-warn]/70' : 'text-[--lumin-muted]/70'
+                  }`}>
+                    {kpi.trend}
                   </p>
-                  <div className={`flex items-center gap-1.5 text-xs font-bold ${trendColor}`}>
-                    {kpi.trendType === 'up' && <TrendingUp size={16} className="flex-shrink-0" />}
-                    {kpi.trendType === 'warning' && <AlertTriangle size={16} className="flex-shrink-0" />}
-                    <span className="truncate">{kpi.trend}</span>
-                  </div>
                 </div>
               </div>
             );
@@ -389,23 +410,23 @@ const Dashboard = () => {
         </div>
 
         {/* Actividad Reciente + Gráfico */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-          
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
           {/* Actividad Reciente */}
-          <div className="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-outline-variant/10 gap-4">
-              <h2 className="text-xl md:text-2xl font-headline font-bold tracking-tight text-on-surface">Actividad Reciente del Atelier</h2>
-              <button className="text-xs text-primary-stitch font-bold hover:underline flex items-center gap-1 self-start sm:self-auto">
-                Ver Todo <ArrowRight size={14} />
+          <div className="lg:col-span-2 bg-[--lumin-surface] rounded-2xl p-5 md:p-7 border border-[--lumin-border] space-y-5">
+            <div className="flex items-center justify-between pb-4 border-b border-[--lumin-border]">
+              <h2 className="text-base md:text-lg font-headline font-bold tracking-tight text-[--lumin-text]">Actividad Reciente</h2>
+              <button className="text-xs text-[#7B4CFF] font-bold hover:text-[#C4B5FD] flex items-center gap-1 transition-colors">
+                Ver Todo <ArrowRight size={13} />
               </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {stats.ultimas_ventas && stats.ultimas_ventas.length > 0 ? (
                 stats.ultimas_ventas.map((venta) => (
-                  <div key={venta.id} className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between group pb-6 border-b border-outline-variant/10 last:border-b-0 last:pb-0">
-                    <div className="flex gap-4 items-center flex-1 min-w-0">
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container border border-outline-variant/10 flex-shrink-0 flex items-center justify-center">
+                  <div key={venta.id} className="flex gap-3 items-center justify-between group pb-4 border-b border-[--lumin-border] last:border-b-0 last:pb-0">
+                    <div className="flex gap-3 items-center flex-1 min-w-0">
+                      <div className="w-11 h-11 rounded-xl overflow-hidden bg-[--lumin-bg] border border-[--lumin-border] flex-shrink-0 flex items-center justify-center">
                         {venta.imagen ? (
                           <img
                             src={venta.imagen}
@@ -413,64 +434,62 @@ const Dashboard = () => {
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
-                          <Package size={24} className="text-on-surface-variant/40" />
+                          <Package size={18} className="text-[--lumin-muted]/40" />
                         )}
                       </div>
-                      <div className="flex-1 space-y-1 min-w-0">
-                        <span className="text-[0.65rem] uppercase font-bold tracking-widest text-tertiary block truncate">
-                          Venta Realizada
-                        </span>
-                        <h4 className="text-lg font-headline font-bold tracking-tight text-on-surface leading-snug group-hover:text-primary-stitch transition-colors truncate">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-[--lumin-text] leading-snug group-hover:text-[#7B4CFF] transition-colors truncate">
                           {venta.producto_nombre}
                         </h4>
-                        <p className="text-sm text-on-surface-variant flex items-center gap-1.5 truncate">
-                          <Users size={14} className="flex-shrink-0" /> Cantidad: {venta.cantidad}
+                        <p className="text-xs text-[--lumin-muted] flex items-center gap-1 mt-0.5">
+                          <Users size={11} className="flex-shrink-0" /> {venta.cantidad} pzs
                         </p>
                       </div>
                     </div>
-                    <div className="text-left sm:text-right space-y-1 flex-shrink-0 pl-20 sm:pl-0">
-                      <p className="text-sm font-bold text-on-surface">${venta.total}</p>
-                      <p className="text-xs text-outline flex items-center gap-1 sm:justify-end">
-                        <Clock3 size={12} className="flex-shrink-0" /> {venta.fecha}
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm font-bold text-[--lumin-text]">${venta.total}</p>
+                      <p className="text-xs text-[--lumin-muted] flex items-center gap-1 justify-end mt-0.5">
+                        <Clock3 size={10} className="flex-shrink-0" /> {venta.fecha}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center text-on-surface-variant py-8">
-                  <Package size={48} className="mx-auto opacity-40 mb-2" />
-                  <p>No hay actividad reciente. Realiza tu primera venta.</p>
+                <div className="text-center text-[--lumin-muted] py-10">
+                  <Package size={40} className="mx-auto opacity-25 mb-3" />
+                  <p className="text-sm">No hay actividad reciente. Realiza tu primera venta.</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Gráfico de Rendimiento Mensual */}
-          <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/10 shadow-[0_16px_48px_rgba(45,52,53,0.06)] space-y-6">
-            <h3 className="text-xl font-headline font-bold tracking-tight text-on-surface">Rendimiento (Mes)</h3>
-            
-            <div className="h-[300px] w-full">
+          <div className="bg-[--lumin-surface] rounded-2xl p-5 md:p-7 border border-[--lumin-border] space-y-5">
+            <h3 className="text-base md:text-lg font-headline font-bold tracking-tight text-[--lumin-text]">Rendimiento (Mes)</h3>
+
+            <div className="h-[280px] w-full">
               {stats.grafica_mensual && stats.grafica_mensual.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.grafica_mensual} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="mes" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                    <Tooltip 
+                  <BarChart data={stats.grafica_mensual} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2E3050" />
+                    <XAxis dataKey="mes" stroke="#A0A3B1" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#A0A3B1" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                    <Tooltip
                       formatter={(value, name) => {
                         if (typeof value === 'number') {
                           return [`$${value.toLocaleString('es-MX')}`, 'Ventas'];
                         }
                         return [`${value}`, `${name}`];
                       }}
-                      contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                      contentStyle={{ backgroundColor: '#20223A', borderRadius: '12px', border: '1px solid #2E3050', color: '#fff' }}
+                      cursor={{ fill: 'rgba(123,76,255,0.08)' }}
                     />
-                    <Bar dataKey="total" fill="#2d3436" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="total" fill="#7B4CFF" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-on-surface-variant space-y-3">
-                  <TrendingUp size={48} className="opacity-30" />
+                <div className="h-full flex flex-col items-center justify-center text-[--lumin-muted] space-y-3">
+                  <TrendingUp size={40} className="opacity-25" />
                   <p className="text-sm text-center">Aún no hay ventas registradas este año.</p>
                 </div>
               )}

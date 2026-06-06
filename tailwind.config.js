@@ -73,9 +73,9 @@ export default {
         "surface-dim": "#d3dbdd"
       },
       fontFamily: {
-        "headline": ["Manrope", "sans-serif"],
-        "body": ["Manrope", "sans-serif"],
-        "manrope": ["Manrope", "sans-serif"],
+        "headline": ["Montserrat", "sans-serif"],
+        "body": ["Poppins", "sans-serif"],
+        "manrope": ["Poppins", "sans-serif"],
       },
       borderRadius: {
         "DEFAULT": "0.125rem",

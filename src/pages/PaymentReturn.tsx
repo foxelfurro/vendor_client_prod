@@ -67,8 +67,8 @@ const PaymentReturn = () => {
 
   // --- Vistas por estado -----------------------------------------------------
   const wrap = (contenido: React.ReactNode) => (
-    <div className="bg-background font-body text-on-surface antialiased min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg p-8 text-center space-y-5">
+    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md bg-[--lumin-surface] rounded-2xl border border-[--lumin-border] shadow-lg shadow-black/20 p-8 text-center space-y-5">
         {contenido}
       </div>
     </div>
@@ -77,9 +77,9 @@ const PaymentReturn = () => {
   if (estado === 'cargando') {
     return wrap(
       <>
-        <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-        <h1 className="text-xl font-headline font-extrabold">Confirmando tu pago…</h1>
-        <p className="text-on-surface-variant text-sm">Esto toma solo unos segundos.</p>
+        <Loader2 className="w-12 h-12 text-[#7B4CFF] animate-spin mx-auto" />
+        <h1 className="text-xl font-headline font-extrabold text-[--lumin-text]">Confirmando tu pago…</h1>
+        <p className="text-[--lumin-muted] text-sm">Esto toma solo unos segundos.</p>
       </>
     );
   }
@@ -87,16 +87,16 @@ const PaymentReturn = () => {
   if (estado === 'pagado') {
     return wrap(
       <>
-        <div className="w-14 h-14 rounded-full bg-tertiary/10 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-8 h-8 text-tertiary" />
+        <div className="w-14 h-14 rounded-full bg-[#7B4CFF]/15 flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-8 h-8 text-[#7B4CFF]" />
         </div>
-        <h1 className="text-2xl font-headline font-extrabold">¡Pago confirmado!</h1>
-        <p className="text-on-surface-variant text-sm leading-relaxed">
+        <h1 className="text-2xl font-headline font-extrabold text-[--lumin-text]">¡Pago confirmado!</h1>
+        <p className="text-[--lumin-muted] text-sm leading-relaxed">
           Tu suscripción está activa. Ya puedes iniciar sesión y comenzar a usar Lumin.
         </p>
         <button
           onClick={() => navigate('/login')}
-          className="w-full py-3.5 rounded-xl bg-on-surface text-surface-container-lowest font-bold flex items-center justify-center gap-2 hover:bg-on-surface/90 transition-all"
+          className="w-full py-3.5 rounded-xl bg-[#7B4CFF] text-[--lumin-text] font-bold flex items-center justify-center gap-2 hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 transition-all active:scale-[0.98]"
         >
           <LogIn size={18} /> Iniciar sesión
         </button>
@@ -109,23 +109,23 @@ const PaymentReturn = () => {
     const esSpei = metodo === 'bank_transfer';
     return wrap(
       <>
-        <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto">
-          <Clock className="w-8 h-8 text-amber-600" />
+        <div className="w-14 h-14 rounded-full bg-[--lumin-warn-bg] flex items-center justify-center mx-auto">
+          <Clock className="w-8 h-8 text-[--lumin-warn]" />
         </div>
-        <h1 className="text-2xl font-headline font-extrabold">Pago en proceso</h1>
-        <p className="text-on-surface-variant text-sm leading-relaxed">
+        <h1 className="text-2xl font-headline font-extrabold text-[--lumin-text]">Pago en proceso</h1>
+        <p className="text-[--lumin-muted] text-sm leading-relaxed">
           {esOxxo
             ? 'Genera tu ficha y paga en cualquier tienda OXXO. Tu cuenta se activará automáticamente cuando se confirme el pago (puede tardar varias horas).'
             : esSpei
             ? 'Realiza la transferencia SPEI con los datos que te proporcionó Stripe. Tu cuenta se activará automáticamente al recibir el pago.'
             : 'Estamos esperando la confirmación de tu pago. Tu cuenta se activará automáticamente en cuanto se confirme.'}
         </p>
-        <p className="text-xs text-on-surface-variant/70">
+        <p className="text-xs text-[--lumin-muted]/60">
           Puedes cerrar esta ventana; no necesitas mantenerla abierta.
         </p>
         <button
           onClick={() => navigate('/login')}
-          className="w-full py-3.5 rounded-xl border border-outline-variant/30 font-bold flex items-center justify-center gap-2 hover:bg-surface-container transition-all"
+          className="w-full py-3.5 rounded-xl border border-[--lumin-border] text-[--lumin-text] font-bold flex items-center justify-center gap-2 hover:bg-[--lumin-hover] transition-all"
         >
           <LogIn size={18} /> Ir a iniciar sesión
         </button>
@@ -137,26 +137,26 @@ const PaymentReturn = () => {
   const expirado = estado === 'expirado';
   return wrap(
     <>
-      <div className="w-14 h-14 rounded-full bg-error/10 flex items-center justify-center mx-auto">
-        <XCircle className="w-8 h-8 text-error" />
+      <div className="w-14 h-14 rounded-full bg-[--lumin-warn-bg] flex items-center justify-center mx-auto">
+        <XCircle className="w-8 h-8 text-[--lumin-warn]" />
       </div>
-      <h1 className="text-2xl font-headline font-extrabold">
+      <h1 className="text-2xl font-headline font-extrabold text-[--lumin-text]">
         {expirado ? 'El pago expiró' : 'El pago no se completó'}
       </h1>
-      <p className="text-on-surface-variant text-sm leading-relaxed">
+      <p className="text-[--lumin-muted] text-sm leading-relaxed">
         {estado === 'error'
           ? 'No pudimos verificar el estado de tu pago. Si crees que ya pagaste, espera unos minutos o contacta a soporte.'
           : 'No se concretó el cobro. Tu cuenta sigue registrada: puedes intentar el pago de nuevo cuando quieras.'}
       </p>
       <button
         onClick={() => navigate('/suscripcion')}
-        className="w-full py-3.5 rounded-xl bg-on-surface text-surface-container-lowest font-bold flex items-center justify-center gap-2 hover:bg-on-surface/90 transition-all"
+        className="w-full py-3.5 rounded-xl bg-[#7B4CFF] text-[--lumin-text] font-bold flex items-center justify-center gap-2 hover:bg-[#6B3CEF] shadow-lg shadow-[#7B4CFF]/25 transition-all active:scale-[0.98]"
       >
         <RefreshCw size={18} /> Intentar de nuevo
       </button>
       <button
         onClick={() => navigate('/login')}
-        className="text-primary text-sm font-bold hover:underline underline-offset-4"
+        className="text-[#7B4CFF] text-sm font-bold hover:underline underline-offset-4"
       >
         Volver a iniciar sesión
       </button>

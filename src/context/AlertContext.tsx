@@ -112,7 +112,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       </AlertContext.Provider>
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent className="max-w-sm bg-surface-container-lowest border border-outline-variant/20 shadow-lg rounded-3xl p-0 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <AlertDialogContent className="max-w-sm bg-[--lumin-surface] border border-[--lumin-border]/30 shadow-lg rounded-3xl p-0 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="p-6 sm:p-8 space-y-5">
             {alert && (
               <>
@@ -123,10 +123,10 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   </div>
                   <div className="flex-1 min-w-0">
                     <AlertDialogHeader className="p-0 space-y-1">
-                      <AlertDialogTitle className="text-lg font-bold text-on-surface">
+                      <AlertDialogTitle className="text-lg font-bold text-[--lumin-text]">
                         {alert.title}
                       </AlertDialogTitle>
-                      <AlertDialogDescription className="text-sm text-on-surface-variant leading-relaxed">
+                      <AlertDialogDescription className="text-sm text-[--lumin-muted] leading-relaxed">
                         {alert.message}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -138,7 +138,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   {isConfirm && (
                     <AlertDialogCancel
                       onClick={handleCancel}
-                      className="px-5 py-2.5 rounded-xl font-semibold text-sm bg-surface-container border border-outline-variant/20 text-on-surface hover:bg-surface-container-high transition-all"
+                      className="px-5 py-2.5 rounded-xl font-semibold text-sm bg-[--lumin-hover] border border-[--lumin-border]/30 text-[--lumin-text] hover:bg-[--lumin-hover] transition-all"
                     >
                       {alert.cancelText || 'Cancelar'}
                     </AlertDialogCancel>

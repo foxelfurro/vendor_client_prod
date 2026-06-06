@@ -35,34 +35,31 @@ const Subscribe = () => {
   };
 
   const inputClass =
-    'w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/40 text-sm disabled:opacity-50';
+    'w-full bg-[--lumin-bg] border border-[--lumin-border] rounded-xl px-4 py-3.5 text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[--lumin-muted]/40 text-sm disabled:opacity-50';
   const labelClass =
-    'block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1 mb-2';
+    'block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted] ml-1 mb-2';
 
   return (
-    <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-6 py-12">
+    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen flex flex-col items-center justify-center p-5 py-12">
       <div className="w-full max-w-md space-y-6">
-        {/* Encabezado */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 bg-surface-container rounded-2xl flex items-center justify-center border border-outline-variant/30 text-primary mb-4 shadow-sm">
+          <div className="mx-auto w-12 h-12 bg-[#7B4CFF]/15 rounded-2xl flex items-center justify-center border border-[#7B4CFF]/30 text-[#7B4CFF] mb-4">
             <ShieldCheck size={22} />
           </div>
-          <h1 className="text-3xl font-headline font-extrabold tracking-tight">Activa tu suscripción</h1>
-          <p className="text-on-surface-variant text-sm tracking-wide">
-            Suscripción Lumin · <span className="font-bold text-on-surface">${PRECIO} MXN</span> al mes.
+          <h1 className="text-3xl font-headline font-extrabold tracking-tight text-[--lumin-text]">Activa tu suscripción</h1>
+          <p className="text-[--lumin-muted] text-sm tracking-wide">
+            Suscripción Lumin · <span className="font-bold text-[--lumin-warn]">${PRECIO} MXN</span> al mes.
           </p>
         </div>
 
-        {/* Indicador de pasos */}
         <div className="flex items-center justify-center gap-2 text-[0.65rem] uppercase font-bold tracking-widest">
-          <span className="text-on-surface-variant/50">1. Cuenta</span>
-          <span className="w-8 h-px bg-outline-variant/40" />
-          <span className="text-primary">2. Suscripción</span>
+          <span className="text-[--lumin-muted]/50">1. Cuenta</span>
+          <span className="w-8 h-px bg-[#2E3050]" />
+          <span className="text-[#7B4CFF]">2. Suscripción</span>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg overflow-hidden">
-          <form onSubmit={handleSubmit} className="px-7 py-7 space-y-5">
-            {/* Identificación */}
+        <div className="bg-[--lumin-surface] rounded-2xl border border-[--lumin-border] overflow-hidden">
+          <form onSubmit={handleSubmit} className="px-6 py-7 space-y-5">
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>Correo de tu cuenta</label>
@@ -91,7 +88,7 @@ const Subscribe = () => {
             </div>
 
             {error && (
-              <div className="bg-error/10 border border-error/20 text-error text-sm rounded-lg px-4 py-3">
+              <div className="bg-[--lumin-warn-bg] border border-[--lumin-warn-bd] text-[--lumin-warn] text-sm rounded-xl px-4 py-3">
                 {error}
               </div>
             )}
@@ -99,8 +96,8 @@ const Subscribe = () => {
             <button
               type="submit"
               disabled={procesando}
-              className={`w-full py-3.5 rounded-xl bg-on-surface text-surface-container-lowest font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2 ${
-                procesando ? 'opacity-50 cursor-not-allowed' : 'hover:bg-on-surface/90'
+              className={`w-full py-3.5 rounded-xl bg-[#7B4CFF] text-[--lumin-text] font-bold text-base shadow-lg shadow-[#7B4CFF]/25 transition-all flex items-center justify-center gap-2 ${
+                procesando ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#6B3CEF] active:scale-[0.98]'
               }`}
             >
               {procesando ? (
@@ -114,15 +111,15 @@ const Subscribe = () => {
               )}
             </button>
 
-            <p className="text-[11px] text-on-surface-variant/70 text-center leading-relaxed">
+            <p className="text-[11px] text-[--lumin-muted]/70 text-center leading-relaxed">
               El pago se procesa en la página segura de Stripe. No almacenamos los datos de tu tarjeta.
             </p>
           </form>
         </div>
 
-        <p className="text-center text-on-surface-variant text-[11px] tracking-wide uppercase font-manrope">
+        <p className="text-center text-[--lumin-muted] text-[11px] tracking-wide uppercase">
           ¿Aún no tienes cuenta?{' '}
-          <Link to="/registro" className="text-primary font-bold hover:underline underline-offset-4">
+          <Link to="/registro" className="text-[#7B4CFF] font-bold hover:underline underline-offset-4">
             Regístrate
           </Link>
         </p>

@@ -13,18 +13,31 @@ const Register = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
+  const [confirmEmail, setConfirmEmail] = useState('');
   const [telefono, setTelefono] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
   const turnstileRef = useRef<TurnstileInstance | null>(null);
 
+  const emailMismatch = confirmEmail.length > 0 && email !== confirmEmail;
+  const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    if (email !== confirmEmail) {
+      setError('Los correos electrónicos no coinciden.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
     if (!captchaToken) {
       setError('Completa la verificación de seguridad.');
       return;
@@ -56,39 +69,37 @@ const Register = () => {
   };
 
   const inputClass =
-    'w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/40 text-sm disabled:opacity-50';
+    'w-full bg-[--lumin-bg] border border-[--lumin-border] rounded-xl px-4 py-3.5 text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[--lumin-muted]/40 text-sm disabled:opacity-50';
   const labelClass =
-    'block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1 mb-2';
+    'block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted] ml-1 mb-2';
 
   return (
-    <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-6 py-12">
+    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen flex flex-col items-center justify-center p-5 py-12">
       <div className="w-full max-w-md space-y-6">
-        {/* Encabezado */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 bg-surface-container rounded-2xl flex items-center justify-center border border-outline-variant/30 text-primary mb-4 shadow-sm">
+          <div className="mx-auto w-12 h-12 bg-[#7B4CFF]/15 rounded-2xl flex items-center justify-center border border-[#7B4CFF]/30 text-[#7B4CFF] mb-4">
             <UserPlus size={22} />
           </div>
-          <h1 className="text-3xl font-headline font-extrabold tracking-tight">Crea tu cuenta</h1>
-          <p className="text-on-surface-variant text-sm tracking-wide">
+          <h1 className="text-3xl font-headline font-extrabold tracking-tight text-[--lumin-text]">Crea tu cuenta</h1>
+          <p className="text-[--lumin-muted] text-sm tracking-wide">
             Paso 1 de 2 — primero tu cuenta, después activas tu suscripción.
           </p>
         </div>
 
-        {/* Indicador de pasos */}
         <div className="flex items-center justify-center gap-2 text-[0.65rem] uppercase font-bold tracking-widest">
-          <span className="text-primary">1. Cuenta</span>
-          <span className="w-8 h-px bg-outline-variant/40" />
-          <span className="text-on-surface-variant/50">2. Suscripción</span>
+          <span className="text-[#7B4CFF]">1. Cuenta</span>
+          <span className="w-8 h-px bg-[#2E3050]" />
+          <span className="text-[--lumin-muted]/50">2. Suscripción</span>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-lg">
-          <form onSubmit={handleSubmit} className="px-4 py-7 sm:px-7 space-y-4">
+        <div className="bg-[--lumin-surface] rounded-2xl border border-[--lumin-border]">
+          <form onSubmit={handleSubmit} className="px-5 py-7 sm:px-7 space-y-4">
             <div>
-              <label className={labelClass}>Nombre comercial</label>
+              <label className={labelClass}>Nombre Completo</label>
               <input
                 required
                 type="text"
-                placeholder="Ej. Joyería Lumín"
+                placeholder="Ej. Miriam González"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 disabled={procesando}
@@ -109,31 +120,62 @@ const Register = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Teléfono</label>
-                <input
-                  required
-                  type="tel"
-                  placeholder="55 1234 5678"
-                  value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
-                  disabled={procesando}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Contraseña</label>
-                <input
-                  required
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={procesando}
-                  className={inputClass}
-                />
-              </div>
+            <div>
+              <label className={labelClass}>Confirmar correo electrónico</label>
+              <input
+                required
+                type="email"
+                placeholder="tu@correo.com"
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
+                disabled={procesando}
+                className={`${inputClass} ${emailMismatch ? 'border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {emailMismatch && (
+                <p className="mt-1.5 text-xs text-red-500 ml-1">Los correos no coinciden.</p>
+              )}
+            </div>
+
+            <div>
+              <label className={labelClass}>Teléfono</label>
+              <input
+                required
+                type="tel"
+                placeholder="55 1234 5678"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                disabled={procesando}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Contraseña</label>
+              <input
+                required
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={procesando}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Confirmar contraseña</label>
+              <input
+                required
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={procesando}
+                className={`${inputClass} ${passwordMismatch ? 'border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {passwordMismatch && (
+                <p className="mt-1.5 text-xs text-red-500 ml-1">Las contraseñas no coinciden.</p>
+              )}
             </div>
 
             <div className="w-full pt-1">
@@ -154,15 +196,15 @@ const Register = () => {
                 checked={acceptedTerms}
                 onChange={(e) => setAcceptedTerms(e.target.checked)}
                 disabled={procesando}
-                className="mt-1 h-4 w-4 rounded border-outline-variant/40 text-primary focus:ring-primary cursor-pointer disabled:opacity-50"
+                className="mt-1 h-4 w-4 rounded border-[--lumin-border] accent-[#7B4CFF] cursor-pointer disabled:opacity-50"
               />
-              <label htmlFor="terms" className="text-sm text-on-surface-variant cursor-pointer select-none leading-relaxed">
+              <label htmlFor="terms" className="text-sm text-[--lumin-muted] cursor-pointer select-none leading-relaxed">
                 He leído la{' '}
-                <Link to="/privacy" className="text-primary underline hover:opacity-80">
+                <Link to="/privacy" className="text-[#7B4CFF] underline hover:text-[#C4B5FD]">
                   política de privacidad
                 </Link>{' '}
                 y acepto los{' '}
-                <Link to="/terms" className="text-primary underline hover:opacity-80">
+                <Link to="/terms" className="text-[#7B4CFF] underline hover:text-[#C4B5FD]">
                   términos de servicio
                 </Link>
                 .
@@ -170,7 +212,7 @@ const Register = () => {
             </div>
 
             {error && (
-              <div className="bg-error/10 border border-error/20 text-error text-sm rounded-lg px-4 py-3">
+              <div className="bg-[--lumin-warn-bg] border border-[--lumin-warn-bd] text-[--lumin-warn] text-sm rounded-xl px-4 py-3">
                 {error}
               </div>
             )}
@@ -178,10 +220,10 @@ const Register = () => {
             <button
               type="submit"
               disabled={procesando || !captchaToken || !acceptedTerms}
-              className={`w-full h-13 py-3.5 rounded-xl bg-on-surface text-surface-container-lowest font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2 ${
+              className={`w-full py-3.5 rounded-xl bg-[#7B4CFF] text-[--lumin-text] font-bold text-base shadow-lg shadow-[#7B4CFF]/25 transition-all flex items-center justify-center gap-2 ${
                 procesando || !captchaToken || !acceptedTerms
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-on-surface/90'
+                  ? 'opacity-40 cursor-not-allowed'
+                  : 'hover:bg-[#6B3CEF] active:scale-[0.98]'
               }`}
             >
               {procesando ? (
@@ -197,12 +239,12 @@ const Register = () => {
           </form>
         </div>
 
-        <p className="text-center text-on-surface-variant text-[11px] tracking-wide uppercase font-manrope">
+        <p className="text-center text-[--lumin-muted] text-[11px] tracking-wide uppercase">
           ¿Ya tienes cuenta?{' '}
           <button
             type="button"
             onClick={() => navigate('/login')}
-            className="text-primary font-bold hover:underline underline-offset-4"
+            className="text-[#7B4CFF] font-bold hover:underline underline-offset-4"
           >
             Inicia sesión
           </button>

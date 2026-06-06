@@ -76,65 +76,64 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-background font-body text-on-surface antialiased selection:bg-primary/20 min-h-screen flex flex-col">
+    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen flex flex-col">
       <PublicNav />
 
-      {/* Main Content Canvas */}
-      <main className="flex-grow flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-[1100px] grid md:grid-cols-2 bg-surface-container-lowest rounded-xl md:overflow-hidden shadow-[0_32px_64px_-16px_rgba(45,52,53,0.06)] border border-outline-variant/10">
+      <main className="flex-grow flex items-center justify-center px-5 py-10">
+        <div className="w-full max-w-[1100px] grid md:grid-cols-2 bg-[--lumin-surface] rounded-2xl md:overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-[--lumin-border]">
 
           {/* Left Side: Editorial */}
-          <div className="relative hidden md:block overflow-hidden bg-surface-container">
-            <img 
-              className="absolute inset-0 w-full h-full object-cover opacity-90 mix-blend-multiply" 
-              alt="Luxury jewelry" 
-              src="https://images.unsplash.com/photo-1631982690223-8aa4be0a2497?w=800&auto=format&fit=crop&q=60" 
+          <div className="relative hidden md:block overflow-hidden bg-[--lumin-hover]">
+            <img
+              className="absolute inset-0 w-full h-full object-cover opacity-30"
+              alt="Luxury jewelry"
+              src="https://images.unsplash.com/photo-1631982690223-8aa4be0a2497?w=800&auto=format&fit=crop&q=60"
             />
-            <div className="relative h-full flex flex-col justify-end p-12 text-on-surface">
-              <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold mb-4 opacity-60">Gestión de Alto Valor</span>
-              <h2 className="text-4xl font-headline font-extrabold tracking-tighter leading-tight mb-6">
+            <div className="relative h-full flex flex-col justify-end p-12 text-[--lumin-text]">
+              <span className="text-[0.6rem] tracking-[0.3em] uppercase font-bold mb-4 text-[#7B4CFF]">Gestión de Alto Valor</span>
+              <h2 className="text-4xl font-headline font-extrabold tracking-tighter leading-tight mb-6 text-[--lumin-text]">
                 El Mercado Nacional de Joyería, <br/>bajo su control.
               </h2>
             </div>
           </div>
 
           {/* Right Side: Form */}
-          <div className="p-4 sm:p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest rounded-xl md:rounded-none">
-            <div className="mb-10">
-              <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Inicia Sesión</h1>
-              <p className="text-on-surface-variant text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
+          <div className="p-5 sm:p-8 md:p-12 flex flex-col justify-center">
+            <div className="mb-8">
+              <h1 className="text-3xl font-headline font-bold text-[--lumin-text] tracking-tight mb-2">Inicia Sesión</h1>
+              <p className="text-[--lumin-muted] text-sm tracking-wide">Ingresa tus credenciales para administrar tu negocio.</p>
             </div>
 
             {errorMessage && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-md mb-6 shadow-sm">
+              <div className="bg-[--lumin-warn-bg] border-l-4 border-[#FFD600] text-[--lumin-warn] p-4 rounded-xl mb-6">
                 <p className="text-sm font-medium">{errorMessage}</p>
               </div>
             )}
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant ml-1">Email</label>
-                <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all" 
-                  type="email" value={email} onChange={(e) => setEmail(e.target.value)} required 
+                <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted] ml-1">Email</label>
+                <input
+                  className="w-full bg-[--lumin-bg] border border-[--lumin-border] rounded-xl px-4 py-3.5 text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[--lumin-muted]/40"
+                  type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-end ml-1">
-                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-on-surface-variant">Contraseña</label>
-                  <button type="button" onClick={() => navigate('/forgot-password')} className="text-[0.65rem] uppercase font-bold text-primary/60 hover:text-primary transition-colors underline-offset-4 hover:underline">
+                  <label className="block text-[0.65rem] uppercase font-bold tracking-widest text-[--lumin-muted]">Contraseña</label>
+                  <button type="button" onClick={() => navigate('/forgot-password')} className="text-[0.65rem] uppercase font-bold text-[#7B4CFF]/60 hover:text-[#7B4CFF] transition-colors underline-offset-4 hover:underline">
                     ¿Olvidaste tu contraseña?
                   </button>
                 </div>
-                <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-4 py-3.5 text-on-surface outline-none focus:border-primary transition-all" 
-                  type="password" value={password} onChange={(e) => setPassword(e.target.value)} required 
+                <input
+                  className="w-full bg-[--lumin-bg] border border-[--lumin-border] rounded-xl px-4 py-3.5 text-[--lumin-text] outline-none focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent transition-all placeholder:text-[--lumin-muted]/40"
+                  type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
                 />
               </div>
 
               {/* WIDGET TURNSTILE */}
-              <div className="w-full py-2">
+              <div className="w-full py-1">
                 <Turnstile
                   ref={turnstileRef}
                   siteKey={TURNSTILE_SITE_KEY}
@@ -145,21 +144,22 @@ const Login = () => {
                 />
               </div>
 
-              <div className="pt-4">
-                <button 
-                  className={`w-full bg-primary hover:bg-primary-dim text-on-primary font-bold py-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 group ${!captchaToken ? 'opacity-50 cursor-not-allowed' : ''}`} 
+              <div className="pt-2">
+                <button
+                  className={`w-full bg-[#7B4CFF] text-[--lumin-text] font-bold py-4 rounded-xl shadow-lg shadow-[#7B4CFF]/25 transition-all flex justify-center items-center gap-2 ${!captchaToken ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#6B3CEF] active:scale-[0.98]'}`}
                   type="submit"
                   disabled={!captchaToken}
                 >
                   <span>Accede a tu negocio</span>
-                  <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
                 </button>
               </div>
             </form>
 
-            <div className="mt-12 pt-8 border-t border-outline-variant/10 text-center">
-              <p className="text-on-surface-variant text-sm">
-                Nuevo en Lumin? <button onClick={() => navigate('/registro')} className="text-primary font-bold hover:underline">Hazte socio</button>
+            <div className="mt-10 pt-8 border-t border-[--lumin-border] text-center">
+              <p className="text-[--lumin-muted] text-sm">
+                Nuevo en Lumin?{' '}
+                <button onClick={() => navigate('/registro')} className="text-[#7B4CFF] font-bold hover:underline underline-offset-4">Hazte socio</button>
               </p>
             </div>
           </div>
