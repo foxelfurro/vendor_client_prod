@@ -161,38 +161,42 @@ const PhoneFrame = ({ src, alt }: { src?: string; alt: string }) => (
 
     {/* Botón silencio */}
     <div
-      className="absolute left-0 -translate-x-full rounded-l-[3px]"
+      className="absolute left-0 -translate-x-full"
       style={{
-        top: '11%', height: '5%', width: '5px',
-        background: 'linear-gradient(to right, #2a2a2c, #525254)',
-        boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.1)',
+        top: '11%', height: '5%', width: '4px',
+        borderRadius: '2px 0 0 2px',
+        background: 'linear-gradient(to right, #2a2a2c, #4a4a4c)',
+        boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.3)',
       }}
     />
     {/* Subir volumen */}
     <div
-      className="absolute left-0 -translate-x-full rounded-l-[3px]"
+      className="absolute left-0 -translate-x-full"
       style={{
-        top: '20%', height: '9.5%', width: '5px',
-        background: 'linear-gradient(to right, #2a2a2c, #525254)',
-        boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.1)',
+        top: '20%', height: '9%', width: '4px',
+        borderRadius: '2px 0 0 2px',
+        background: 'linear-gradient(to right, #2a2a2c, #4a4a4c)',
+        boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.3)',
       }}
     />
     {/* Bajar volumen */}
     <div
-      className="absolute left-0 -translate-x-full rounded-l-[3px]"
+      className="absolute left-0 -translate-x-full"
       style={{
-        top: '31.5%', height: '9.5%', width: '5px',
-        background: 'linear-gradient(to right, #2a2a2c, #525254)',
-        boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.1)',
+        top: '31%', height: '9%', width: '4px',
+        borderRadius: '2px 0 0 2px',
+        background: 'linear-gradient(to right, #2a2a2c, #4a4a4c)',
+        boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.3)',
       }}
     />
     {/* Botón encendido */}
     <div
-      className="absolute right-0 translate-x-full rounded-r-[3px]"
+      className="absolute right-0 translate-x-full"
       style={{
-        top: '23%', height: '14%', width: '5px',
-        background: 'linear-gradient(to left, #2a2a2c, #525254)',
-        boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.1)',
+        top: '22%', height: '13%', width: '4px',
+        borderRadius: '0 2px 2px 0',
+        background: 'linear-gradient(to left, #2a2a2c, #4a4a4c)',
+        boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.3)',
       }}
     />
 
@@ -201,65 +205,30 @@ const PhoneFrame = ({ src, alt }: { src?: string; alt: string }) => (
       className="relative"
       style={{
         aspectRatio: '9 / 19.5',
-        borderRadius: '46px',
-        padding: '3px',
-        background: 'linear-gradient(145deg, #7c7c7e 0%, #3c3c3e 30%, #5c5c5e 55%, #2c2c2e 100%)',
+        borderRadius: '44px',
+        padding: '2.5px',
+        background: 'linear-gradient(160deg, #8e8e90 0%, #3a3a3c 25%, #6e6e70 50%, #2c2c2e 80%, #4a4a4c 100%)',
         boxShadow:
-          '0 55px 110px -15px rgba(0,0,0,0.65),' +
-          '0 0 0 0.5px rgba(255,255,255,0.07),' +
-          'inset 0 1px 0 rgba(255,255,255,0.16),' +
-          'inset 0 -1px 0 rgba(0,0,0,0.4)',
+          '0 0 0 0.5px rgba(255,255,255,0.12),' +
+          'inset 0 1px 0 rgba(255,255,255,0.2),' +
+          'inset 0 -1px 0 rgba(0,0,0,0.5),' +
+          '0 40px 80px -10px rgba(0,0,0,0.7),' +
+          '0 10px 30px -5px rgba(0,0,0,0.4)',
       }}
     >
       {/* Pantalla */}
       <div
         className="relative h-full w-full overflow-hidden bg-black"
-        style={{ borderRadius: '43px' }}
+        style={{ borderRadius: '41.5px' }}
       >
-        {/* Barra de estado */}
-        <div
-          className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between"
-          style={{ padding: '10px 24px 0' }}
-        >
-          <span style={{ color: '#fff', fontSize: '10px', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1 }}>
-            9:41
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            {/* Barras de señal */}
-            <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '11px' }}>
-              {[3, 5, 7, 10].map((h, i) => (
-                <div
-                  key={i}
-                  style={{ width: '3px', height: `${h}px`, background: '#fff', borderRadius: '1px' }}
-                />
-              ))}
-            </div>
-            {/* WiFi */}
-            <svg width="13" height="10" viewBox="0 0 16 12" fill="white">
-              <path d="M8 9a1.5 1.5 0 110 3A1.5 1.5 0 018 9zm0-3c1.38 0 2.62.56 3.53 1.46L13 6A7 7 0 001 6l1.47 1.46A4.96 4.96 0 018 6zm0-4c2.2 0 4.2.9 5.65 2.34L15.08.93A9.97 9.97 0 008-.01 9.97 9.97 0 00.92.93L2.35 2.34A7.96 7.96 0 018 2z" />
-            </svg>
-            {/* Batería */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1px' }}>
-              <div style={{
-                width: '22px', height: '11px', borderRadius: '3px',
-                border: '1px solid rgba(255,255,255,0.55)', padding: '2px',
-                display: 'flex', alignItems: 'center',
-              }}>
-                <div style={{ width: '72%', height: '100%', background: '#fff', borderRadius: '1px' }} />
-              </div>
-              <div style={{ width: '2px', height: '5px', background: 'rgba(255,255,255,0.45)', borderRadius: '0 1px 1px 0' }} />
-            </div>
-          </div>
-        </div>
-
         {/* Dynamic Island */}
         <div
           className="absolute z-30"
           style={{
             top: '9px', left: '50%', transform: 'translateX(-50%)',
-            width: '92px', height: '28px',
+            width: '88px', height: '26px',
             background: '#000', borderRadius: '50px',
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.04)',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.03)',
           }}
         />
 
@@ -267,53 +236,17 @@ const PhoneFrame = ({ src, alt }: { src?: string; alt: string }) => (
         {src ? (
           <img src={src} alt={alt} className="h-full w-full object-cover object-top" />
         ) : (
-          // Mini UI de Lumin como placeholder
-          <div className="h-full w-full bg-[#0d0f1e] flex flex-col" style={{ paddingTop: '52px' }}>
-            <div style={{ padding: '8px 12px 6px', borderBottom: '1px solid rgba(46,48,80,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                <div style={{ width: '20px', height: '20px', borderRadius: '6px', background: '#7B4CFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: '10px', height: '6px', background: 'rgba(255,255,255,0.85)', borderRadius: '1px' }} />
-                </div>
-                <div style={{ width: '36px', height: '6px', background: '#252840', borderRadius: '3px' }} />
-              </div>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#252840' }} />
-            </div>
-            <div style={{ flex: 1, padding: '8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', overflow: 'hidden' }}>
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} style={{ background: '#1a1c30', borderRadius: '12px', overflow: 'hidden' }}>
-                  <div style={{
-                    aspectRatio: '1', background: 'linear-gradient(135deg, #252840 0%, #1a1c2c 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <ShoppingBag size={13} style={{ color: 'rgba(123,76,255,0.55)' }} />
-                  </div>
-                  <div style={{ padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ height: '5px', background: '#2E3050', borderRadius: '3px', width: i % 2 === 0 ? '72%' : '55%' }} />
-                    <div style={{ height: '5px', background: 'rgba(123,76,255,0.22)', borderRadius: '3px', width: '42%' }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div style={{ padding: '6px 8px 10px' }}>
-              <div style={{
-                height: '28px', borderRadius: '10px',
-                background: 'rgba(123,76,255,0.18)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-              }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(123,76,255,0.45)' }} />
-                <div style={{ width: '48px', height: '5px', background: 'rgba(123,76,255,0.25)', borderRadius: '3px' }} />
-              </div>
-            </div>
-          </div>
+          // Placeholder vacío con fondo negro
+          <div className="h-full w-full bg-black" />
         )}
 
         {/* Indicador home */}
         <div
           className="absolute z-20"
           style={{
-            bottom: '6px', left: '50%', transform: 'translateX(-50%)',
-            width: '100px', height: '4px',
-            background: 'rgba(255,255,255,0.22)', borderRadius: '3px',
+            bottom: '7px', left: '50%', transform: 'translateX(-50%)',
+            width: '90px', height: '3.5px',
+            background: 'rgba(255,255,255,0.25)', borderRadius: '2px',
           }}
         />
 
@@ -321,8 +254,8 @@ const PhoneFrame = ({ src, alt }: { src?: string; alt: string }) => (
         <div
           className="absolute inset-0 pointer-events-none z-10"
           style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.065) 0%, transparent 50%)',
-            borderRadius: '43px',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 40%, transparent 60%)',
+            borderRadius: '41.5px',
           }}
         />
       </div>
@@ -330,7 +263,7 @@ const PhoneFrame = ({ src, alt }: { src?: string; alt: string }) => (
       {/* Borde interior del marco */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ borderRadius: '46px', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)' }}
+        style={{ borderRadius: '44px', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.07)' }}
       />
     </div>
   </div>
