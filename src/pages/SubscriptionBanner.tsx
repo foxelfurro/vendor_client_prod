@@ -42,18 +42,18 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
 
   // 4. Renderizado
   return (
-    <div className={`p-4 mb-6 rounded-md shadow-sm border-l-4 flex justify-between items-center ${
-      estaExpirado 
-        ? 'bg-red-50 border-red-500 text-red-800' 
-        : 'bg-yellow-50 border-yellow-500 text-yellow-800'
+    <div className={`p-4 mb-6 rounded-xl border-l-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${
+      estaExpirado
+        ? 'bg-[#FFD600]/10 border-[#FFD600] text-[#FFD600]'
+        : 'bg-[#7B4CFF]/10 border-[#7B4CFF]/60 text-[#C4B5FD]'
     }`}>
       <div>
-        <h3 className="font-bold text-lg">
+        <h3 className="font-bold text-base">
           {estaExpirado ? 'Suscripción Expirada' : 'Aviso de Renovación'}
         </h3>
-        <p className="text-sm mt-1">
-          {estaExpirado 
-            ? 'Tu acceso al inventario está pausado. Renueva para seguir operando.' 
+        <p className="text-sm mt-0.5 opacity-80">
+          {estaExpirado
+            ? 'Tu acceso al inventario está pausado. Renueva para seguir operando.'
             : `Tu suscripción vence en ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}.`}
         </p>
       </div>
@@ -61,10 +61,10 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
       <button
         onClick={handleRenovar}
         disabled={procesando}
-        className={`px-4 py-2 font-semibold rounded shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
+        className={`shrink-0 px-4 py-2 font-bold rounded-xl shadow transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
           estaExpirado
-            ? 'bg-red-600 hover:bg-red-700 text-white'
-            : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+            ? 'bg-[#FFD600] text-[#1A1C2C] hover:bg-[#FFD600]/90'
+            : 'bg-[#7B4CFF] text-white hover:bg-[#6B3CEF] shadow-[#7B4CFF]/25'
         }`}
       >
         {procesando ? 'Abriendo…' : 'Renovar Ahora'}
