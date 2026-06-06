@@ -11,7 +11,7 @@ export default function AppFooter() {
           Lumin by Qlatte &copy; {year}
         </p>
         <p className="text-xs text-gray-300 dark:text-[--lumin-muted]/30 tracking-wide">
-          Plataforma de gestión de joyería
+          Plataforma de gestión de catálogos
         </p>
       </div>
     </footer>

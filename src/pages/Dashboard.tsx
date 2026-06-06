@@ -206,7 +206,7 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-5 py-8 md:py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
           <div className="space-y-1.5">
             <span className="text-[0.6rem] tracking-[0.35em] uppercase font-bold text-[#7B4CFF]">
-              Lumin · QLatte
+              Lumin
             </span>
             <h1 className="text-3xl md:text-5xl font-headline font-extrabold tracking-tight leading-tight text-[--lumin-text]">
               Panel de Control
