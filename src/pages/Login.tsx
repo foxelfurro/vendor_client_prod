@@ -133,7 +133,7 @@ const Login = () => {
               </div>
 
               {/* WIDGET TURNSTILE */}
-              <div className="w-full py-1">
+              <div className="w-full py-1 overflow-hidden">
                 <Turnstile
                   ref={turnstileRef}
                   siteKey={TURNSTILE_SITE_KEY}
@@ -141,6 +141,7 @@ const Login = () => {
                   onExpire={() => setCaptchaToken(null)}
                   onError={() => setCaptchaToken(null)}
                   options={{ theme: 'light', size: 'flexible' }}
+                  style={{ width: '100%' }}
                 />
               </div>
 

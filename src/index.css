@@ -6,32 +6,32 @@
   :root {
     /* Shadcn tokens — light */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 265 60% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 265 60% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 265 60% 12%;
+    --primary: 265 100% 59%;          /* #862fff */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 353 100% 81%;        /* #ff9fab */
+    --secondary-foreground: 353 60% 25%;
+    --muted: 353 100% 93%;            /* #ffc0c8 claro */
+    --muted-foreground: 265 20% 45%;
+    --accent: 265 100% 80%;           /* #c59bff */
+    --accent-foreground: 265 60% 20%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 353 60% 88%;            /* rosa muy claro */
+    --input: 265 30% 90%;
+    --ring: 265 100% 59%;             /* #862fff */
     --radius: 0.5rem;
     /* Lumin design tokens — light */
     --lumin-bg: #ffffff;
-    --lumin-surface: #f9fafb;
-    --lumin-hover: #f3f4f6;
-    --lumin-border: #e5e7eb;
-    --lumin-text: #111827;
-    --lumin-muted: #6b7280;
+    --lumin-surface: #faf7ff;
+    --lumin-hover: #f2eaff;
+    --lumin-border: #e8d5ff;
+    --lumin-text: #1a0a2e;
+    --lumin-muted: #a06bdd;
     --lumin-warn: #D97706;
     --lumin-warn-bg: #fef3c7;
     --lumin-warn-bd: #fcd34d;

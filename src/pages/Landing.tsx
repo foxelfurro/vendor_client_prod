@@ -282,14 +282,14 @@ const FeatureCard = ({
   title: string;
   body: string;
 }) => (
-  <div className="group rounded-2xl border border-[--lumin-border] bg-[--lumin-surface] p-6 sm:p-7 transition-all duration-300 hover:border-[#7B4CFF]/35 hover:shadow-[0_20px_40px_-15px_rgba(123,76,255,0.15)]">
-    <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-[#7B4CFF]/12 p-3 text-[#7B4CFF] transition-transform duration-300 group-hover:-translate-y-0.5">
+  <div className="group rounded-2xl border border-white/50 bg-white/40 backdrop-blur-sm p-6 sm:p-7 transition-all duration-300 hover:border-white/80 hover:bg-white/60 hover:shadow-[0_20px_40px_-15px_rgba(134,47,255,0.2)]">
+    <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-[#862fff]/10 p-3 text-[#862fff] transition-transform duration-300 group-hover:-translate-y-0.5">
       <Icon size={20} strokeWidth={2} />
     </div>
-    <h3 className="mb-2 text-lg font-headline font-bold tracking-tight text-[--lumin-text]">
+    <h3 className="mb-2 text-lg font-headline font-bold tracking-tight text-white">
       {title}
     </h3>
-    <p className="text-sm leading-relaxed text-[--lumin-muted]">{body}</p>
+    <p className="text-sm leading-relaxed text-[#7c4cbf]">{body}</p>
   </div>
 );
 
@@ -299,22 +299,17 @@ const FeatureCard = ({
 
 const Landing = () => {
   return (
-    <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-dvh flex flex-col">
+    <div
+      className="font-body text-white antialiased min-h-dvh flex flex-col w-full max-w-full overflow-x-hidden"
+      style={{ background: 'linear-gradient(160deg, #c59bff 0%, #d4aaff 25%, #e8c4ff 50%, #ffb8c8 75%, #ff9fab 100%)' }}
+    >
       <PublicNav />
 
       <main className="flex-grow">
         {/* ================================================================= */}
         {/*  HERO                                                              */}
         {/* ================================================================= */}
-        <section className="relative overflow-hidden mb-16 sm:mb-24">
-          <div
-            className="pointer-events-none absolute inset-0 -z-10 opacity-[0.055]"
-            style={{
-              backgroundImage: 'radial-gradient(circle at 1px 1px, #7B4CFF 1px, transparent 0)',
-              backgroundSize: '32px 32px',
-            }}
-            aria-hidden
-          />
+        <section className="relative overflow-hidden mb-0">
 
           <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 pt-14 sm:pt-22 pb-18 sm:pb-26">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -322,20 +317,20 @@ const Landing = () => {
               <div
                 className="text-center lg:text-left animate-in fade-in-0 slide-in-from-bottom-4 duration-700"
               >
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#7B4CFF]/30 bg-[#7B4CFF]/10 px-3 py-1.5 mb-6">
-                  <Sparkles size={12} className="text-[#7B4CFF]" />
-                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-[--lumin-muted]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#ff8594] bg-[#ffc0c8] px-3 py-1.5 mb-6">
+                  <Sparkles size={12} className="text-[#862fff]" />
+                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-white">
                     Plataforma para vendedoras de joyería
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-[--lumin-text] mb-6">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-white mb-6">
                   Tu joyería,
                   <br />
-                  <span className="text-[#7B4CFF]">organizada y vendiendo.</span>
+                  <span className="text-[#862fff]">organizada y vendiendo.</span>
                 </h1>
 
-                <p className="text-base sm:text-lg leading-relaxed text-[--lumin-muted] max-w-xl mx-auto lg:mx-0 mb-10">
+                <p className="text-base sm:text-lg leading-relaxed text-white/90 max-w-xl mx-auto lg:mx-0 mb-10">
                   Lumin reúne tu inventario, catálogo, tienda online y caja en un
                   solo lugar. Diseñada para que vendas más sin pelearte con
                   hojas de cálculo ni capturas manuales.
@@ -344,20 +339,20 @@ const Landing = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center lg:justify-start">
                   <Link
                     to="/registro"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#7B4CFF] px-7 py-4 text-sm font-bold text-[--lumin-text] shadow-lg shadow-[#7B4CFF]/25 transition-all hover:bg-[#6B3CEF] active:scale-[0.98]"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#862fff] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#862fff]/30 transition-all hover:bg-[#7B2EE8] active:scale-[0.98]"
                   >
                     Hazte socia
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                   </Link>
                   <Link
                     to="/login"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[--lumin-border] bg-[--lumin-surface] px-7 py-4 text-sm font-bold text-[--lumin-text] transition-all hover:border-[#7B4CFF]/40"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#ffc0c8] px-7 py-4 text-sm font-bold text-white transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
                   >
                     Ya soy socia · Iniciar sesión
                   </Link>
                 </div>
 
-                <p className="mt-6 text-xs text-[--lumin-muted]/70 text-center lg:text-left">
+                <p className="mt-6 text-xs text-[#862fff]/80 text-center lg:text-left">
                   Sin permanencia. Cancela cuando quieras.
                 </p>
               </div>
@@ -366,7 +361,7 @@ const Landing = () => {
               <div
                 className="relative animate-in fade-in-0 slide-in-from-right-8 duration-1000 delay-200"
               >
-                <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-[#7B4CFF]/20 to-transparent blur-3xl opacity-70" />
+                <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-[#862fff]/30 to-[#ff9fab]/20 blur-3xl opacity-60" />
                 <PhoneFrame src="https://cdn.qlatte.com/uploads/capturas/IMG_2173.png" alt="Vista principal de Lumin en celular" />
               </div>
             </div>
@@ -377,7 +372,7 @@ const Landing = () => {
         {/*  TIRA DE BENEFICIOS RÁPIDOS                                        */}
         {/* ================================================================= */}
         <FadeIn>
-          <section className="border-y border-[--lumin-border] bg-[--lumin-surface]">
+          <section className="border-y border-white/50 bg-white/40 backdrop-blur-sm">
             <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 py-8">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                 {[
@@ -387,8 +382,8 @@ const Landing = () => {
                   { icon: CheckCircle2, label: 'Soporte humano en español' },
                 ].map(({ icon: Icon, label }) => (
                   <div key={label} className="flex items-center gap-3 justify-center lg:justify-start">
-                    <Icon size={18} className="text-[#7B4CFF] shrink-0" />
-                    <span className="text-xs sm:text-sm font-medium text-[--lumin-muted]">{label}</span>
+                    <Icon size={18} className="text-[#862fff] shrink-0" />
+                    <span className="text-xs sm:text-sm font-medium text-[#7c4cbf]">{label}</span>
                   </div>
                 ))}
               </div>
@@ -403,13 +398,13 @@ const Landing = () => {
           <div className="mx-auto max-w-screen-2xl px-5 sm:px-8">
             <FadeIn>
               <div className="max-w-2xl mx-auto text-center mb-14 sm:mb-20">
-                <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
+                <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                   Todo en uno
                 </span>
-                <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-[--lumin-text]">
+                <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-white">
                   Construida para cómo vendes hoy.
                 </h2>
-                <p className="mt-5 text-base sm:text-lg text-[--lumin-muted] leading-relaxed">
+                <p className="mt-5 text-base sm:text-lg text-[#7c4cbf] leading-relaxed">
                   Cada función fue diseñada con vendedoras reales. Sin curva de
                   aprendizaje, sin manuales de 80 páginas.
                 </p>
@@ -429,7 +424,7 @@ const Landing = () => {
         {/* ================================================================= */}
         {/*  SHOWCASE ALTERNADO                                                */}
         {/* ================================================================= */}
-        <section className="py-20 sm:py-28 bg-[--lumin-surface] border-y border-[--lumin-border]">
+        <section className="py-20 sm:py-28 bg-white/40 backdrop-blur-sm border-y border-white/50">
           <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 space-y-32 sm:space-y-44">
             {SHOWCASE.map((item) => (
               <div
@@ -441,20 +436,20 @@ const Landing = () => {
                 {/* Texto */}
                 <FadeIn from={item.align === 'left' ? 'right' : 'left'}>
                   <div>
-                    <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
+                    <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                       {item.eyebrow}
                     </span>
-                    <h3 className="mt-3 text-3xl sm:text-4xl font-headline font-extrabold tracking-tight text-[--lumin-text]">
+                    <h3 className="mt-3 text-3xl sm:text-4xl font-headline font-extrabold tracking-tight text-white">
                       {item.title}
                     </h3>
-                    <p className="mt-5 text-base text-[--lumin-muted] leading-relaxed">
+                    <p className="mt-5 text-base text-[#7c4cbf] leading-relaxed">
                       {item.body}
                     </p>
                     <ul className="mt-8 space-y-3">
                       {item.bullets.map((b) => (
                         <li key={b} className="flex items-start gap-3">
-                          <CheckCircle2 size={18} className="text-[#7B4CFF] shrink-0 mt-0.5" />
-                          <span className="text-sm text-[--lumin-text]">{b}</span>
+                          <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                          <span className="text-sm text-white">{b}</span>
                         </li>
                       ))}
                     </ul>
@@ -464,7 +459,7 @@ const Landing = () => {
                 {/* Captura */}
                 <FadeIn from={item.align === 'left' ? 'left' : 'right'} delay={140}>
                   <div className="relative py-6">
-                    <div className="absolute -inset-6 -z-10 rounded-[3rem] bg-gradient-to-br from-[#7B4CFF]/12 to-transparent blur-2xl opacity-60" />
+                    <div className="absolute -inset-6 -z-10 rounded-[3rem] bg-gradient-to-br from-[#862fff]/12 to-transparent blur-2xl opacity-60" />
                     <PhoneFrame src={item.image} alt={item.title} />
                   </div>
                 </FadeIn>
@@ -479,34 +474,34 @@ const Landing = () => {
         <section id="precio" className="py-20 sm:py-28">
           <div className="mx-auto max-w-3xl px-5 sm:px-8 text-center">
             <FadeIn>
-              <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
+              <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                 Precio honesto
               </span>
-              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-[--lumin-text]">
+              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-white">
                 Una sola suscripción. Todo incluido.
               </h2>
-              <p className="mt-5 text-base sm:text-lg text-[--lumin-muted]">
+              <p className="mt-5 text-base sm:text-lg text-[#7c4cbf]">
                 Sin niveles confusos. Sin upsells. Sin sorpresas en tu recibo.
               </p>
             </FadeIn>
 
             <FadeIn delay={120}>
-              <div className="mt-12 rounded-3xl border border-[--lumin-border] bg-[--lumin-surface] p-8 sm:p-12 shadow-lg shadow-black/10 text-left">
-                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-[--lumin-border]">
+              <div className="mt-12 rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-8 sm:p-12 shadow-lg shadow-[#862fff]/10 text-left">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-white/50">
                   <div>
-                    <h3 className="text-2xl font-headline font-extrabold tracking-tight text-[--lumin-text]">
+                    <h3 className="text-2xl font-headline font-extrabold tracking-tight text-white">
                       Lumin · Acceso completo
                     </h3>
-                    <p className="mt-2 text-sm text-[--lumin-muted]">
+                    <p className="mt-2 text-sm text-[#7c4cbf]">
                       Cuenta de socia con todas las funciones, actualizaciones incluidas.
                     </p>
                   </div>
                   <div className="text-left sm:text-right">
                     <div className="flex items-baseline gap-2 sm:justify-end">
-                      <span className="text-5xl font-headline font-extrabold tracking-tighter text-[--lumin-warn]">
+                      <span className="text-5xl font-headline font-extrabold tracking-tighter text-[#862fff]">
                         $299.99
                       </span>
-                      <span className="text-sm font-bold text-[--lumin-muted]">MXN / mes</span>
+                      <span className="text-sm font-bold text-[#7c4cbf]">MXN / mes</span>
                     </div>
                   </div>
                 </div>
@@ -521,8 +516,8 @@ const Landing = () => {
                     'Actualizaciones para siempre',
                   ].map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
-                      <CheckCircle2 size={18} className="text-[#7B4CFF] shrink-0 mt-0.5" />
-                      <span className="text-sm text-[--lumin-text]">{feature}</span>
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm text-white">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -530,12 +525,12 @@ const Landing = () => {
                 <div className="mt-10">
                   <Link
                     to="/registro"
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#7B4CFF] px-7 py-4 text-sm font-bold text-[--lumin-text] shadow-lg shadow-[#7B4CFF]/25 transition-all hover:bg-[#6B3CEF] active:scale-[0.98]"
+                    className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#862fff] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#862fff]/25 transition-all hover:bg-[#7B2EE8] active:scale-[0.98]"
                   >
                     Comenzar ahora
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                   </Link>
-                  <p className="mt-4 text-center text-xs text-[--lumin-muted]/70">
+                  <p className="mt-4 text-center text-xs text-[#7c4cbf]/70">
                     Cancela cuando quieras desde tu perfil.
                   </p>
                 </div>
@@ -551,7 +546,7 @@ const Landing = () => {
           <div className="mx-auto max-w-screen-2xl px-5 sm:px-8">
             <div className="grid md:grid-cols-2 gap-5 sm:gap-6">
               <FadeIn delay={0}>
-                <div className="rounded-3xl bg-[#7B4CFF] p-10 sm:p-12 text-[--lumin-text] shadow-xl shadow-[#7B4CFF]/20 h-full">
+                <div className="rounded-3xl bg-[#862fff] p-10 sm:p-12 text-white shadow-xl shadow-[#862fff]/20 h-full">
                   <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] opacity-60">
                     Nueva en Lumin
                   </span>
@@ -564,7 +559,7 @@ const Landing = () => {
                   </p>
                   <Link
                     to="/registro"
-                    className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-white/10 px-6 py-3.5 text-sm font-bold text-[--lumin-text] transition-all hover:bg-white/20"
+                    className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-white/30"
                   >
                     Hazte socia
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
@@ -573,20 +568,20 @@ const Landing = () => {
               </FadeIn>
 
               <FadeIn delay={100}>
-                <div className="rounded-3xl border border-[--lumin-border] bg-[--lumin-surface] p-10 sm:p-12 h-full">
-                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#7B4CFF]">
+                <div className="rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-10 sm:p-12 h-full">
+                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                     Ya eres socia
                   </span>
-                  <h3 className="mt-3 text-3xl font-headline font-extrabold tracking-tight text-[--lumin-text]">
+                  <h3 className="mt-3 text-3xl font-headline font-extrabold tracking-tight text-white">
                     Tu negocio te está esperando.
                   </h3>
-                  <p className="mt-4 text-sm text-[--lumin-muted] leading-relaxed">
+                  <p className="mt-4 text-sm text-[#7c4cbf] leading-relaxed">
                     Entra a tu panel para revisar inventario, ventas y novedades
                     del catálogo maestro.
                   </p>
                   <Link
                     to="/login"
-                    className="mt-8 group inline-flex items-center gap-2 rounded-xl border border-[--lumin-border] px-6 py-3.5 text-sm font-bold text-[--lumin-text] transition-all hover:border-[#7B4CFF]/60"
+                    className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-[#ffc0c8] px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
                   >
                     Iniciar sesión
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
