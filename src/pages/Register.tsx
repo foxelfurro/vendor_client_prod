@@ -178,7 +178,7 @@ const Register = () => {
               )}
             </div>
 
-            <div className="w-full pt-1">
+            <div className="w-full pt-1 overflow-hidden">
               <Turnstile
                 ref={turnstileRef}
                 siteKey={TURNSTILE_SITE_KEY}
@@ -186,6 +186,7 @@ const Register = () => {
                 onExpire={() => setCaptchaToken(null)}
                 onError={() => setCaptchaToken(null)}
                 options={{ theme: 'light', size: 'flexible' }}
+                style={{ width: '100%' }}
               />
             </div>
 
