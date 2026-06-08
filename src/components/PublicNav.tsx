@@ -14,8 +14,7 @@ export default function PublicNav() {
 
   return (
     <nav
-      className="border-b border-white/40 backdrop-blur-md"
-      style={{ background: 'rgba(255, 192, 200, 0.55)' }}
+      style={{ background: '#ffc0c8', borderBottom: '1px solid #ffaabb' }}
       aria-label="Navegación principal"
     >
       <div className="flex justify-between items-center w-full px-5 sm:px-8 py-4 sm:py-5 max-w-screen-2xl mx-auto gap-4">

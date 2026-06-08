@@ -300,7 +300,7 @@ const FeatureCard = ({
 const Landing = () => {
   return (
     <div
-      className="font-body text-[#1a0a2e] antialiased min-h-dvh flex flex-col"
+      className="font-body text-[#1a0a2e] antialiased min-h-dvh flex flex-col w-full max-w-full overflow-x-hidden"
       style={{ background: 'linear-gradient(160deg, #c59bff 0%, #d4aaff 25%, #e8c4ff 50%, #ffb8c8 75%, #ff9fab 100%)' }}
     >
       <PublicNav />
@@ -346,7 +346,7 @@ const Landing = () => {
                   </Link>
                   <Link
                     to="/login"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff9fab] bg-[#ffc0c8]/30 px-7 py-4 text-sm font-bold text-[#1a0a2e] transition-all hover:bg-[#ffc0c8]/50"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#ffc0c8] px-7 py-4 text-sm font-bold text-[#1a0a2e] transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
                   >
                     Ya soy socia · Iniciar sesión
                   </Link>
@@ -581,7 +581,7 @@ const Landing = () => {
                   </p>
                   <Link
                     to="/login"
-                    className="mt-8 group inline-flex items-center gap-2 rounded-xl border border-white/50 px-6 py-3.5 text-sm font-bold text-[#1a0a2e] transition-all hover:border-[#862fff]/60"
+                    className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-[#ffc0c8] px-6 py-3.5 text-sm font-bold text-[#1a0a2e] transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
                   >
                     Iniciar sesión
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
