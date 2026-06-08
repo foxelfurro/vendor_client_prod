@@ -306,15 +306,10 @@ const Landing = () => {
         {/* ================================================================= */}
         {/*  HERO                                                              */}
         {/* ================================================================= */}
-        <section className="relative overflow-hidden mb-16 sm:mb-24">
-          <div
-            className="pointer-events-none absolute inset-0 -z-10 opacity-[0.055]"
-            style={{
-              backgroundImage: 'radial-gradient(circle at 1px 1px, #7B4CFF 1px, transparent 0)',
-              backgroundSize: '32px 32px',
-            }}
-            aria-hidden
-          />
+        <section
+          className="relative overflow-hidden mb-16 sm:mb-24"
+          style={{ background: 'linear-gradient(135deg, #c59bff 0%, #d4aaff 30%, #ffb8c8 70%, #ff9fab 100%)' }}
+        >
 
           <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 pt-14 sm:pt-22 pb-18 sm:pb-26">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -322,20 +317,20 @@ const Landing = () => {
               <div
                 className="text-center lg:text-left animate-in fade-in-0 slide-in-from-bottom-4 duration-700"
               >
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#7B4CFF]/30 bg-[#7B4CFF]/10 px-3 py-1.5 mb-6">
-                  <Sparkles size={12} className="text-[#7B4CFF]" />
-                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-[--lumin-muted]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#ff9fab]/60 bg-[#ff9fab]/30 px-3 py-1.5 mb-6">
+                  <Sparkles size={12} className="text-[#862fff]" />
+                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-[#1a0a2e]">
                     Plataforma para vendedoras de joyería
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-[--lumin-text] mb-6">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-[#1a0a2e] mb-6">
                   Tu joyería,
                   <br />
-                  <span className="text-[#7B4CFF]">organizada y vendiendo.</span>
+                  <span className="text-[#862fff]">organizada y vendiendo.</span>
                 </h1>
 
-                <p className="text-base sm:text-lg leading-relaxed text-[--lumin-muted] max-w-xl mx-auto lg:mx-0 mb-10">
+                <p className="text-base sm:text-lg leading-relaxed text-[#3b1870] max-w-xl mx-auto lg:mx-0 mb-10">
                   Lumin reúne tu inventario, catálogo, tienda online y caja en un
                   solo lugar. Diseñada para que vendas más sin pelearte con
                   hojas de cálculo ni capturas manuales.
@@ -344,20 +339,20 @@ const Landing = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center lg:justify-start">
                   <Link
                     to="/registro"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#7B4CFF] px-7 py-4 text-sm font-bold text-[--lumin-text] shadow-lg shadow-[#7B4CFF]/25 transition-all hover:bg-[#6B3CEF] active:scale-[0.98]"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#862fff] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#862fff]/30 transition-all hover:bg-[#7B2EE8] active:scale-[0.98]"
                   >
                     Hazte socia
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                   </Link>
                   <Link
                     to="/login"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[--lumin-border] bg-[--lumin-surface] px-7 py-4 text-sm font-bold text-[--lumin-text] transition-all hover:border-[#7B4CFF]/40"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff9fab] bg-[#ffc0c8]/30 px-7 py-4 text-sm font-bold text-[#1a0a2e] transition-all hover:bg-[#ffc0c8]/50"
                   >
                     Ya soy socia · Iniciar sesión
                   </Link>
                 </div>
 
-                <p className="mt-6 text-xs text-[--lumin-muted]/70 text-center lg:text-left">
+                <p className="mt-6 text-xs text-[#862fff]/80 text-center lg:text-left">
                   Sin permanencia. Cancela cuando quieras.
                 </p>
               </div>
@@ -366,7 +361,7 @@ const Landing = () => {
               <div
                 className="relative animate-in fade-in-0 slide-in-from-right-8 duration-1000 delay-200"
               >
-                <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-[#7B4CFF]/20 to-transparent blur-3xl opacity-70" />
+                <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-[#862fff]/30 to-[#ff9fab]/20 blur-3xl opacity-60" />
                 <PhoneFrame src="https://cdn.qlatte.com/uploads/capturas/IMG_2173.png" alt="Vista principal de Lumin en celular" />
               </div>
             </div>
