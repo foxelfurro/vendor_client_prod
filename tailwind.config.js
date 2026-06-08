@@ -5,6 +5,20 @@ export default {
   theme: {
     extend: {
       colors: {
+        // --- Escala gray remapeada a púrpura/rosa (paleta Lumin light) ---
+        gray: {
+          50:  "#faf7ff",
+          100: "#f2eaff",
+          200: "#e8d5ff",
+          300: "#d4b5ff",
+          400: "#c59bff",
+          500: "#a06bdd",
+          600: "#7c4cbf",
+          700: "#5c2e9a",
+          800: "#3b1870",
+          900: "#1a0a2e",
+          950: "#0d0418",
+        },
         // --- Tus variables originales (HSL) ---
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

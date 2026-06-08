@@ -27,11 +27,11 @@
     --radius: 0.5rem;
     /* Lumin design tokens — light */
     --lumin-bg: #ffffff;
-    --lumin-surface: #fdf6ff;
-    --lumin-hover: #f3e8ff;
+    --lumin-surface: #faf7ff;
+    --lumin-hover: #f2eaff;
     --lumin-border: #e8d5ff;
     --lumin-text: #1a0a2e;
-    --lumin-muted: #7c6b9a;
+    --lumin-muted: #a06bdd;
     --lumin-warn: #D97706;
     --lumin-warn-bg: #fef3c7;
     --lumin-warn-bd: #fcd34d;
