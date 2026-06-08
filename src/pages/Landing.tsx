@@ -282,7 +282,7 @@ const FeatureCard = ({
   title: string;
   body: string;
 }) => (
-  <div className="group rounded-2xl border border-[#e8d5ff] bg-[#faf7ff] p-6 sm:p-7 transition-all duration-300 hover:border-[#c59bff] hover:shadow-[0_20px_40px_-15px_rgba(134,47,255,0.15)]">
+  <div className="group rounded-2xl border border-white/50 bg-white/40 backdrop-blur-sm p-6 sm:p-7 transition-all duration-300 hover:border-white/80 hover:bg-white/60 hover:shadow-[0_20px_40px_-15px_rgba(134,47,255,0.2)]">
     <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-[#862fff]/10 p-3 text-[#862fff] transition-transform duration-300 group-hover:-translate-y-0.5">
       <Icon size={20} strokeWidth={2} />
     </div>
@@ -299,17 +299,17 @@ const FeatureCard = ({
 
 const Landing = () => {
   return (
-    <div className="bg-white font-body text-[#1a0a2e] antialiased min-h-dvh flex flex-col">
+    <div
+      className="font-body text-[#1a0a2e] antialiased min-h-dvh flex flex-col"
+      style={{ background: 'linear-gradient(160deg, #c59bff 0%, #d4aaff 25%, #e8c4ff 50%, #ffb8c8 75%, #ff9fab 100%)' }}
+    >
       <PublicNav />
 
       <main className="flex-grow">
         {/* ================================================================= */}
         {/*  HERO                                                              */}
         {/* ================================================================= */}
-        <section
-          className="relative overflow-hidden mb-16 sm:mb-24"
-          style={{ background: 'linear-gradient(135deg, #c59bff 0%, #d4aaff 30%, #ffb8c8 70%, #ff9fab 100%)' }}
-        >
+        <section className="relative overflow-hidden mb-0">
 
           <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 pt-14 sm:pt-22 pb-18 sm:pb-26">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -372,7 +372,7 @@ const Landing = () => {
         {/*  TIRA DE BENEFICIOS RÁPIDOS                                        */}
         {/* ================================================================= */}
         <FadeIn>
-          <section className="border-y border-[#e8d5ff] bg-[#faf7ff]">
+          <section className="border-y border-white/50 bg-white/40 backdrop-blur-sm">
             <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 py-8">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                 {[
@@ -424,7 +424,7 @@ const Landing = () => {
         {/* ================================================================= */}
         {/*  SHOWCASE ALTERNADO                                                */}
         {/* ================================================================= */}
-        <section className="py-20 sm:py-28 bg-[#faf7ff] border-y border-[#e8d5ff]">
+        <section className="py-20 sm:py-28 bg-white/40 backdrop-blur-sm border-y border-white/50">
           <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 space-y-32 sm:space-y-44">
             {SHOWCASE.map((item) => (
               <div
@@ -486,8 +486,8 @@ const Landing = () => {
             </FadeIn>
 
             <FadeIn delay={120}>
-              <div className="mt-12 rounded-3xl border border-[#e8d5ff] bg-[#faf7ff] p-8 sm:p-12 shadow-lg shadow-black/10 text-left">
-                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-[#e8d5ff]">
+              <div className="mt-12 rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-8 sm:p-12 shadow-lg shadow-[#862fff]/10 text-left">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-white/50">
                   <div>
                     <h3 className="text-2xl font-headline font-extrabold tracking-tight text-[#1a0a2e]">
                       Lumin · Acceso completo
@@ -525,7 +525,7 @@ const Landing = () => {
                 <div className="mt-10">
                   <Link
                     to="/registro"
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#862fff] px-7 py-4 text-sm font-bold text-[#1a0a2e] shadow-lg shadow-[#862fff]/25 transition-all hover:bg-[#7B2EE8] active:scale-[0.98]"
+                    className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#862fff] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#862fff]/25 transition-all hover:bg-[#7B2EE8] active:scale-[0.98]"
                   >
                     Comenzar ahora
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
@@ -568,7 +568,7 @@ const Landing = () => {
               </FadeIn>
 
               <FadeIn delay={100}>
-                <div className="rounded-3xl border border-[#e8d5ff] bg-[#faf7ff] p-10 sm:p-12 h-full">
+                <div className="rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-10 sm:p-12 h-full">
                   <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                     Ya eres socia
                   </span>
@@ -581,7 +581,7 @@ const Landing = () => {
                   </p>
                   <Link
                     to="/login"
-                    className="mt-8 group inline-flex items-center gap-2 rounded-xl border border-[#e8d5ff] px-6 py-3.5 text-sm font-bold text-[#1a0a2e] transition-all hover:border-[#862fff]/60"
+                    className="mt-8 group inline-flex items-center gap-2 rounded-xl border border-white/50 px-6 py-3.5 text-sm font-bold text-[#1a0a2e] transition-all hover:border-[#862fff]/60"
                   >
                     Iniciar sesión
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
