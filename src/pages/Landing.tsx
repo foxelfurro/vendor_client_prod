@@ -286,7 +286,7 @@ const FeatureCard = ({
     <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-[#862fff]/10 p-3 text-[#862fff] transition-transform duration-300 group-hover:-translate-y-0.5">
       <Icon size={20} strokeWidth={2} />
     </div>
-    <h3 className="mb-2 text-lg font-headline font-bold tracking-tight text-[#1a0a2e]">
+    <h3 className="mb-2 text-lg font-headline font-bold tracking-tight text-white">
       {title}
     </h3>
     <p className="text-sm leading-relaxed text-[#7c4cbf]">{body}</p>
@@ -300,7 +300,7 @@ const FeatureCard = ({
 const Landing = () => {
   return (
     <div
-      className="font-body text-[#1a0a2e] antialiased min-h-dvh flex flex-col w-full max-w-full overflow-x-hidden"
+      className="font-body text-white antialiased min-h-dvh flex flex-col w-full max-w-full overflow-x-hidden"
       style={{ background: 'linear-gradient(160deg, #c59bff 0%, #d4aaff 25%, #e8c4ff 50%, #ffb8c8 75%, #ff9fab 100%)' }}
     >
       <PublicNav />
@@ -317,14 +317,14 @@ const Landing = () => {
               <div
                 className="text-center lg:text-left animate-in fade-in-0 slide-in-from-bottom-4 duration-700"
               >
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#ff9fab]/60 bg-[#ff9fab]/30 px-3 py-1.5 mb-6">
-                  <Sparkles size={12} className="text-[#862fff]" />
-                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-[#1a0a2e]">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#ff9fab] px-3 py-1.5 mb-6">
+                  <Sparkles size={12} className="text-white" />
+                  <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-white">
                     Plataforma para vendedoras de joyería
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-[#1a0a2e] mb-6">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-[1.05] text-white mb-6">
                   Tu joyería,
                   <br />
                   <span className="text-[#862fff]">organizada y vendiendo.</span>
@@ -346,7 +346,7 @@ const Landing = () => {
                   </Link>
                   <Link
                     to="/login"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#ffc0c8] px-7 py-4 text-sm font-bold text-[#1a0a2e] transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#ffc0c8] px-7 py-4 text-sm font-bold text-white transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
                   >
                     Ya soy socia · Iniciar sesión
                   </Link>
@@ -401,7 +401,7 @@ const Landing = () => {
                 <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                   Todo en uno
                 </span>
-                <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-[#1a0a2e]">
+                <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-white">
                   Construida para cómo vendes hoy.
                 </h2>
                 <p className="mt-5 text-base sm:text-lg text-[#7c4cbf] leading-relaxed">
@@ -439,7 +439,7 @@ const Landing = () => {
                     <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                       {item.eyebrow}
                     </span>
-                    <h3 className="mt-3 text-3xl sm:text-4xl font-headline font-extrabold tracking-tight text-[#1a0a2e]">
+                    <h3 className="mt-3 text-3xl sm:text-4xl font-headline font-extrabold tracking-tight text-white">
                       {item.title}
                     </h3>
                     <p className="mt-5 text-base text-[#7c4cbf] leading-relaxed">
@@ -449,7 +449,7 @@ const Landing = () => {
                       {item.bullets.map((b) => (
                         <li key={b} className="flex items-start gap-3">
                           <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
-                          <span className="text-sm text-[#1a0a2e]">{b}</span>
+                          <span className="text-sm text-white">{b}</span>
                         </li>
                       ))}
                     </ul>
@@ -477,7 +477,7 @@ const Landing = () => {
               <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                 Precio honesto
               </span>
-              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-[#1a0a2e]">
+              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-white">
                 Una sola suscripción. Todo incluido.
               </h2>
               <p className="mt-5 text-base sm:text-lg text-[#7c4cbf]">
@@ -489,7 +489,7 @@ const Landing = () => {
               <div className="mt-12 rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-8 sm:p-12 shadow-lg shadow-[#862fff]/10 text-left">
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-white/50">
                   <div>
-                    <h3 className="text-2xl font-headline font-extrabold tracking-tight text-[#1a0a2e]">
+                    <h3 className="text-2xl font-headline font-extrabold tracking-tight text-white">
                       Lumin · Acceso completo
                     </h3>
                     <p className="mt-2 text-sm text-[#7c4cbf]">
@@ -517,7 +517,7 @@ const Landing = () => {
                   ].map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
                       <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
-                      <span className="text-sm text-[#1a0a2e]">{feature}</span>
+                      <span className="text-sm text-white">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -572,7 +572,7 @@ const Landing = () => {
                   <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
                     Ya eres socia
                   </span>
-                  <h3 className="mt-3 text-3xl font-headline font-extrabold tracking-tight text-[#1a0a2e]">
+                  <h3 className="mt-3 text-3xl font-headline font-extrabold tracking-tight text-white">
                     Tu negocio te está esperando.
                   </h3>
                   <p className="mt-4 text-sm text-[#7c4cbf] leading-relaxed">
@@ -581,7 +581,7 @@ const Landing = () => {
                   </p>
                   <Link
                     to="/login"
-                    className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-[#ffc0c8] px-6 py-3.5 text-sm font-bold text-[#1a0a2e] transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
+                    className="mt-8 group inline-flex items-center gap-2 rounded-xl bg-[#ffc0c8] px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#ffb0be] active:scale-[0.98]"
                   >
                     Iniciar sesión
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
