@@ -317,7 +317,7 @@ const Landing = () => {
               <div
                 className="text-center lg:text-left animate-in fade-in-0 slide-in-from-bottom-4 duration-700"
               >
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#ffc0c8] bg-[#ffc0c8] px-3 py-1.5 mb-6">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#ff8594] bg-[#ffc0c8] px-3 py-1.5 mb-6">
                   <Sparkles size={12} className="text-[#862fff]" />
                   <span className="text-[0.65rem] uppercase font-bold tracking-[0.2em] text-[#1a0a2e]">
                     Plataforma para vendedoras de joyería
