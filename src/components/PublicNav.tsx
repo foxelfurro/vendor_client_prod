@@ -14,7 +14,8 @@ export default function PublicNav() {
 
   return (
     <nav
-      style={{ background: '#ffc0c8', borderBottom: '1px solid #ffaabb' }}
+      className="relative z-10"
+      style={{ background: '#ffc0c8' }}
       aria-label="Navegación principal"
     >
       <div className="flex justify-between items-center w-full px-5 sm:px-8 py-4 sm:py-5 max-w-screen-2xl mx-auto gap-4">
