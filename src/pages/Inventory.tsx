@@ -544,9 +544,9 @@ const Inventory = () => {
 
         {/* --- MODAL PARA CREAR JOYA PROPIA --- */}
         <Dialog open={isCustomModalOpen} onOpenChange={setIsCustomModalOpen}>
-          <DialogContent className="sm:max-w-[500px] bg-surface-container-lowest border border-outline-variant/20 shadow-2xl rounded-3xl p-0 overflow-hidden font-body gap-0">
-            
-            <div className="bg-surface-container-low p-6 sm:p-8 border-b border-outline-variant/10">
+          <DialogContent className="sm:max-w-[500px] bg-surface-container-lowest border border-outline-variant/20 shadow-2xl rounded-3xl p-0 font-body gap-0 flex flex-col max-h-[90dvh]">
+
+            <div className="bg-surface-container-low p-6 sm:p-8 border-b border-outline-variant/10 flex-shrink-0">
               <DialogHeader className="space-y-1">
                 <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-primary-stitch opacity-80 mb-1 text-left">
                   Inventario Independiente
@@ -560,7 +560,7 @@ const Inventory = () => {
               </DialogHeader>
             </div>
 
-            <form onSubmit={handleAgregarCustom} className="p-6 sm:p-8 space-y-6 bg-surface-container-lowest">
+            <form onSubmit={handleAgregarCustom} className="p-6 sm:p-8 space-y-6 bg-surface-container-lowest overflow-y-auto flex-1">
               <div className="grid grid-cols-2 gap-4">
                 
                 {/* Captura de Foto Nivel Componente */}
