@@ -12,6 +12,7 @@ import QrScanner from '@/components/QrScanner';
 import ProductFilters, { DEFAULT_PRODUCT_FILTERS } from '@/components/ProductFilters';
 import type { ProductFilterState } from '@/components/ProductFilters';
 import { matchSku, skuIncluye } from '@/lib/sku';
+import { useAlert } from '@/context/AlertContext';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -33,6 +34,7 @@ interface InventoryItem {
 
 const Inventory = () => {
   const location = useLocation();
+  const { showAlert, showConfirm } = useAlert();
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
@@ -80,7 +82,7 @@ const Inventory = () => {
       );
     } catch (error) {
       console.error("Error al actualizar la joya:", error);
-      alert("No se pudieron guardar los cambios.");
+      await showAlert({ type: 'error', title: 'Error al actualizar', message: 'No se pudieron guardar los cambios.' });
     } finally {
       setUpdatingId(null);
     }
