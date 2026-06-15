@@ -4,16 +4,17 @@ import { readableTextOn } from '@/lib/personalization';
 interface WhatsAppCTAProps {
   phone: string;
   productName: string;
+  sku?: string;
   /** Color de acento opcional para personalizar el botón. */
   accentColor?: string;
 }
 
-export function WhatsAppCTA({ phone, productName, accentColor }: WhatsAppCTAProps) {
-  // Limpiamos el teléfono (por si el usuario puso espacios o guiones en su perfil)
+export function WhatsAppCTA({ phone, productName, sku, accentColor }: WhatsAppCTAProps) {
   const cleanPhone = phone;
 
-  // Mensaje predeterminado codificado para URL
-  const message = `Hola! Me interesa el producto *${productName}* que vi en tu catálogo de Lumin.`;
+  const message = sku
+    ? `Hola! Me interesa el producto *${productName}* (SKU: ${sku}) que vi en tu catálogo de Lumin.`
+    : `Hola! Me interesa el producto *${productName}* que vi en tu catálogo de Lumin.`;
   const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 
   // Si hay color de acento, se usa como fondo; si no, se mantiene el look original.
