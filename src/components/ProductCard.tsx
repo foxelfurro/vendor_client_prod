@@ -5,6 +5,7 @@ interface ProductCardProps {
   product: {
     inventario_id: string;
     nombre: string;
+    sku: string;
     descripcion: string;
     ruta_imagen: string;
     precio_sugerido: number;
@@ -76,7 +77,7 @@ export function ProductCard({
             ${Number(precioFinal).toLocaleString('es-MX')}
           </p>
           {/* Asumiendo que WhatsAppCTA toma el ancho completo (w-full) en su interior */}
-          <WhatsAppCTA phone={vendorPhone} productName={product.nombre} accentColor={accentColor} />
+          <WhatsAppCTA phone={vendorPhone} productName={product.nombre} sku={product.sku} accentColor={accentColor} />
         </div>
       </div>
     </div>
