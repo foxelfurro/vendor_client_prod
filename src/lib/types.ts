@@ -32,6 +32,7 @@ export interface CatalogProduct {
 export interface StoreProduct {
   inventario_id: string;
   nombre: string;
+  sku: string;
   descripcion: string;
   ruta_imagen: string;
   precio_sugerido: number;
