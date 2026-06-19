@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import QrScanner from '@/components/QrScanner';
 import { matchSku, extractSkuCandidates } from '@/lib/sku';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { OnboardingModal, useOnboarding } from '@/components/OnboardingModal';
+import { useAuth } from '@/context/AuthContext';
 import {
   DollarSign,
   Package,
@@ -96,6 +98,8 @@ function formatFechaHistorial(isoFecha: string): { fecha: string; hora: string }
 const HISTORY_PAGE_SIZE = 50;
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const { open: onboardingOpen, dismiss: dismissOnboarding } = useOnboarding();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -681,6 +685,13 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Tutorial de bienvenida */}
+      <OnboardingModal
+        open={onboardingOpen}
+        onDismiss={dismissOnboarding}
+        storeSlug={user?.store_slug || ''}
+      />
 
       {/* Escáner QR (modal a pantalla completa) */}
       {showScanner && (

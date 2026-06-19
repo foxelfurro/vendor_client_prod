@@ -20,6 +20,7 @@ import PrivacyPolicy from './pages/policy';
 import TermsOfService from './pages/terms';
 import Devoluciones from './pages/Devoluciones';
 import Profile from './pages/Profile';
+import StoreSettings from './pages/StoreSettings';
 import PublicStore from './pages/PublicStore';
 import Landing from './pages/Landing';
 
@@ -87,6 +88,7 @@ function App() {
             <Route path="/inventario" element={<Inventory />} />
             <Route path="/caja" element={<Caja />} /> 
             <Route path="/perfil" element={<Profile />} />
+            <Route path="/tienda" element={<StoreSettings />} />
             
             {/* Ruta de Admin */}
             <Route
