@@ -6,7 +6,7 @@ import { useAlert } from '@/context/AlertContext';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera } from "lucide-react";
+import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera, Plus, Minus } from "lucide-react";
 import PageLoader from '@/components/ui/PageLoader';
 import AppFooter from '@/components/AppFooter';
 import QrScanner from '@/components/QrScanner';
@@ -60,6 +60,12 @@ const Inventory = () => {
   const [customImagenFile, setCustomImagenFile] = useState<File | null>(null);
   const [customImagenPreview, setCustomImagenPreview] = useState<string | null>(null);
   const [guardandoCustom, setGuardandoCustom] = useState(false);
+
+  // Modales QR: sumar stock a joya existente
+  type CatItem = { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number };
+  const [qrStockModal, setQrStockModal] = useState<{ item: InventoryItem; input: string } | null>(null);
+  // Modal QR: agregar joya nueva desde catálogo
+  const [qrAddModal, setQrAddModal] = useState<{ item: CatItem; stock: string; precio: string } | null>(null);
 
   // Selector de talla para anillos escaneados por QR
   interface TallaOpcionInventario {
@@ -250,7 +256,6 @@ const Inventory = () => {
 
       // ── 2. Buscar en el catálogo maestro ─────────────────────────────────────
       const { data: catalogo } = await api.get("/vendor/explore");
-      type CatItem = { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number };
       const catalogoArr = catalogo as CatItem[];
 
       const joyaNueva = catalogoArr.find((p) =>
@@ -290,54 +295,49 @@ const Inventory = () => {
     }
   };
 
-  // Suma stock a un ítem ya existente en inventario.
-  const sumarStockInventario = async (joya: InventoryItem) => {
-    const sumarStock = window.prompt(
-      `¡Ya tienes ${joya.nombre}${hasTalla(joya.sku) ? ` (talla ${getTalla(joya.sku)})` : ''} en tu inventario!\nTienes ${joya.stock} piezas actualmente.\n\n¿Cuántas piezas NUEVAS quieres sumarle?`,
-      "1"
-    );
-    if (sumarStock) {
-      const sumar = parseInt(sumarStock);
-      if (!Number.isInteger(sumar) || sumar <= 0) {
-        await showAlert({
-          type: 'error',
-          title: 'Cantidad no válida',
-          message: 'Por favor ingresa un número mayor a 0.',
-        });
-        return;
-      }
-      await handleUpdateItem(joya.inventario_id, { stock: joya.stock + sumar });
-      await showAlert({
-        type: 'success',
-        title: 'Stock actualizado',
-        message: `Se sumaron ${sumar} piezas a ${joya.nombre}.`,
-      });
-    }
+  // Abre el modal para sumar stock a un ítem ya existente en inventario.
+  const sumarStockInventario = (joya: InventoryItem) => {
+    setQrStockModal({ item: joya, input: '1' });
   };
 
-  // Agrega una joya del catálogo maestro al inventario.
-  const agregarDesdeCatalogo = async (joya: { sku: string; nombre: string; precio_sugerido?: number; id: number }) => {
-    const stockInput = window.prompt(
-      `¡Joya nueva detectada: ${joya.nombre}${hasTalla(joya.sku) ? ` (talla ${getTalla(joya.sku)})` : ''}!\n¿Cuántas piezas físicas vas a registrar?`,
-      "1"
-    );
-    if (!stockInput) return;
+  const handleConfirmarSumarStock = async () => {
+    if (!qrStockModal) return;
+    const sumar = parseInt(qrStockModal.input);
+    if (!Number.isInteger(sumar) || sumar <= 0) {
+      await showAlert({ type: 'error', title: 'Cantidad no válida', message: 'Por favor ingresa un número mayor a 0.' });
+      return;
+    }
+    setQrStockModal(null);
+    await handleUpdateItem(qrStockModal.item.inventario_id, { stock: qrStockModal.item.stock + sumar });
+    await showAlert({ type: 'success', title: 'Stock actualizado', message: `Se sumaron ${sumar} piezas a ${qrStockModal.item.nombre}.` });
+  };
 
-    const precioSugerido = joya.precio_sugerido || 0;
-    const precioInput = window.prompt("¿A qué precio la vas a vender?", precioSugerido.toString());
-    if (!precioInput) return;
+  // Abre el modal para agregar una joya del catálogo maestro al inventario.
+  const agregarDesdeCatalogo = (joya: CatItem) => {
+    setQrAddModal({ item: joya, stock: '1', precio: String(joya.precio_sugerido || '') });
+  };
 
-    await api.post("/vendor/inventory", {
-      producto_maestro_id: joya.id,
-      stock: parseInt(stockInput),
-      precio_personalizado: parseFloat(precioInput),
-    });
-    await showAlert({
-      type: 'success',
-      title: '¡Joya guardada!',
-      message: 'La joya se agregó a tu inventario correctamente.',
-    });
-    fetchInventory();
+  const handleConfirmarAgregarDesdeQr = async () => {
+    if (!qrAddModal) return;
+    const stockVal = parseInt(qrAddModal.stock);
+    const precioVal = parseFloat(qrAddModal.precio);
+    if (!stockVal || stockVal <= 0 || !precioVal || precioVal < 0) {
+      await showAlert({ type: 'error', title: 'Datos inválidos', message: 'Ingresa un stock y precio válidos.' });
+      return;
+    }
+    setQrAddModal(null);
+    try {
+      await api.post('/vendor/inventory', {
+        producto_maestro_id: qrAddModal.item.id,
+        stock: stockVal,
+        precio_personalizado: precioVal,
+      });
+      await showAlert({ type: 'success', title: '¡Joya guardada!', message: 'La joya se agregó a tu inventario correctamente.' });
+      fetchInventory();
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      await showAlert({ type: 'error', title: 'Error', message: error.response?.data?.error || 'No se pudo agregar la joya.' });
+    }
   };
 
   // El escáner llama a esto al detectar un QR: primero cierra el modal (para
@@ -870,6 +870,123 @@ const Inventory = () => {
         </Dialog>
 
       </main>
+
+      {/* ── Modal: Sumar stock por QR ───────────────────────────────────────── */}
+      <Dialog open={qrStockModal !== null} onOpenChange={(v) => { if (!v) setQrStockModal(null); }}>
+        <DialogContent className="max-w-sm bg-[--lumin-surface] border border-[--lumin-border] shadow-2xl rounded-3xl p-0 overflow-hidden gap-0 font-body">
+          <DialogTitle className="sr-only">Sumar stock</DialogTitle>
+          <DialogDescription className="sr-only">Agrega piezas al stock actual de la joya.</DialogDescription>
+          <div className="px-6 pt-7 pb-5 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#7B4CFF] flex items-center justify-center mx-auto mb-4">
+              <Package size={22} />
+            </div>
+            <h2 className="text-lg font-bold text-[--lumin-text]">Sumar piezas</h2>
+            <p className="text-sm text-[--lumin-muted] mt-1">
+              <span className="font-semibold text-[--lumin-text]">{qrStockModal?.item.nombre}</span>
+              {qrStockModal?.item.sku && hasTalla(qrStockModal.item.sku) ? ` · Talla ${getTalla(qrStockModal.item.sku)}` : ''}
+            </p>
+            <p className="text-xs text-[--lumin-muted] mt-0.5">Stock actual: <span className="font-bold text-[#7B4CFF]">{qrStockModal?.item.stock} piezas</span></p>
+          </div>
+          <div className="px-6 pb-2">
+            <label className="text-[0.65rem] font-bold uppercase tracking-widest text-[--lumin-muted] block mb-2 text-center">
+              ¿Cuántas piezas nuevas sumar?
+            </label>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setQrStockModal((prev) => prev ? { ...prev, input: String(Math.max(1, parseInt(prev.input || '1') - 1)) } : prev)}
+                className="w-10 h-10 rounded-xl bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] flex items-center justify-center hover:border-[#7B4CFF]/40 transition-colors"
+              >
+                <Minus size={16} />
+              </button>
+              <Input
+                type="number"
+                min="1"
+                value={qrStockModal?.input ?? '1'}
+                onChange={(e) => setQrStockModal((prev) => prev ? { ...prev, input: e.target.value } : prev)}
+                className="w-20 text-center text-xl font-extrabold h-12 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] rounded-xl focus-visible:ring-[#7B4CFF]"
+              />
+              <button
+                onClick={() => setQrStockModal((prev) => prev ? { ...prev, input: String(parseInt(prev.input || '0') + 1) } : prev)}
+                className="w-10 h-10 rounded-xl bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] flex items-center justify-center hover:border-[#7B4CFF]/40 transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+          <div className="px-6 py-5 flex gap-3">
+            <Button variant="outline" onClick={() => setQrStockModal(null)} className="flex-1 h-11 rounded-xl font-bold border-[--lumin-border] text-[--lumin-muted] hover:bg-[--lumin-hover]">
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmarSumarStock} className="flex-1 h-11 bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white rounded-xl font-bold shadow-lg shadow-[#7B4CFF]/25 border-0">
+              Confirmar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Modal: Agregar joya nueva desde QR ──────────────────────────────── */}
+      <Dialog open={qrAddModal !== null} onOpenChange={(v) => { if (!v) setQrAddModal(null); }}>
+        <DialogContent className="max-w-sm bg-[--lumin-surface] border border-[--lumin-border] shadow-2xl rounded-3xl p-0 overflow-hidden gap-0 font-body">
+          <DialogTitle className="sr-only">Agregar joya al inventario</DialogTitle>
+          <DialogDescription className="sr-only">Configura el stock y precio de la joya detectada.</DialogDescription>
+          <div className="px-6 pt-7 pb-4 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#7B4CFF] flex items-center justify-center mx-auto mb-4">
+              <PlusCircle size={22} />
+            </div>
+            <h2 className="text-lg font-bold text-[--lumin-text]">¡Joya nueva detectada!</h2>
+            <p className="text-sm text-[--lumin-muted] mt-1">
+              <span className="font-semibold text-[--lumin-text]">{qrAddModal?.item.nombre}</span>
+              {qrAddModal?.item.sku && hasTalla(qrAddModal.item.sku) ? ` · Talla ${getTalla(qrAddModal.item.sku)}` : ''}
+            </p>
+          </div>
+          <div className="px-6 pb-2 space-y-4">
+            <div>
+              <label className="text-[0.65rem] font-bold uppercase tracking-widest text-[--lumin-muted] block mb-1.5">Piezas físicas a registrar</label>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setQrAddModal((prev) => prev ? { ...prev, stock: String(Math.max(1, parseInt(prev.stock || '1') - 1)) } : prev)}
+                  className="w-10 h-10 rounded-xl bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] flex items-center justify-center hover:border-[#7B4CFF]/40 transition-colors flex-shrink-0"
+                >
+                  <Minus size={16} />
+                </button>
+                <Input
+                  type="number" min="1"
+                  value={qrAddModal?.stock ?? '1'}
+                  onChange={(e) => setQrAddModal((prev) => prev ? { ...prev, stock: e.target.value } : prev)}
+                  className="flex-1 text-center text-lg font-extrabold h-11 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] rounded-xl focus-visible:ring-[#7B4CFF]"
+                />
+                <button
+                  onClick={() => setQrAddModal((prev) => prev ? { ...prev, stock: String(parseInt(prev.stock || '0') + 1) } : prev)}
+                  className="w-10 h-10 rounded-xl bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] flex items-center justify-center hover:border-[#7B4CFF]/40 transition-colors flex-shrink-0"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-[0.65rem] font-bold uppercase tracking-widest text-[--lumin-muted] block mb-1.5">Precio de venta (MXN)</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[--lumin-muted] font-bold text-sm">$</span>
+                <Input
+                  type="number" min="0" step="0.01"
+                  value={qrAddModal?.precio ?? ''}
+                  onChange={(e) => setQrAddModal((prev) => prev ? { ...prev, precio: e.target.value } : prev)}
+                  placeholder={`Sugerido: $${qrAddModal?.item.precio_sugerido ?? 0}`}
+                  className="pl-8 h-11 bg-[--lumin-bg] border-[--lumin-border] text-[--lumin-text] rounded-xl font-bold focus-visible:ring-[#7B4CFF] placeholder:text-[--lumin-muted]/40"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="px-6 py-5 flex gap-3">
+            <Button variant="outline" onClick={() => setQrAddModal(null)} className="flex-1 h-11 rounded-xl font-bold border-[--lumin-border] text-[--lumin-muted] hover:bg-[--lumin-hover]">
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmarAgregarDesdeQr} className="flex-1 h-11 bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white rounded-xl font-bold shadow-lg shadow-[#7B4CFF]/25 border-0">
+              Agregar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AppFooter />
     </div>

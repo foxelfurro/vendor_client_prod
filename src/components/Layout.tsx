@@ -11,8 +11,9 @@
  * los administradores ven rutas de /admin adicionales.
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import api from '@/lib/api';
 import {
   LayoutDashboard,
   Library,
@@ -40,6 +41,19 @@ const Layout = () => {
   const { isDark, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [stockBajoCount, setStockBajoCount] = useState(0);
+
+  const fetchStockAlerts = useCallback(async () => {
+    if (!user) return;
+    try {
+      const { data } = await api.get<{ count: number }>('/vendor/stock-alerts');
+      setStockBajoCount(data.count);
+    } catch {
+      // silencioso — el badge simplemente no aparece
+    }
+  }, [user]);
+
+  useEffect(() => { fetchStockAlerts(); }, [fetchStockAlerts]);
 
   // 1. Lógica de Administrador
   const userRole = user?.rol;
@@ -156,7 +170,12 @@ const Layout = () => {
                 className={cn("flex-shrink-0 transition-colors", "group-hover:text-[#7B4CFF]")}
                 aria-hidden="true"
               />
-              <span className="tracking-wide">{name}</span>
+              <span className="tracking-wide flex-1">{name}</span>
+              {path === '/inventario' && stockBajoCount > 0 && (
+                <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center leading-none">
+                  {stockBajoCount}
+                </span>
+              )}
             </NavLink>
           ))}
 
