@@ -99,7 +99,7 @@ const HISTORY_PAGE_SIZE = 50;
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { open: onboardingOpen, dismiss: dismissOnboarding } = useOnboarding();
+  const { open: onboardingOpen, dismiss: dismissOnboarding, pause: pauseOnboarding, initialStep: onboardingInitialStep } = useOnboarding();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -690,6 +690,8 @@ const Dashboard = () => {
       <OnboardingModal
         open={onboardingOpen}
         onDismiss={dismissOnboarding}
+        onPause={pauseOnboarding}
+        initialStep={onboardingInitialStep}
         storeSlug={user?.store_slug || ''}
       />
 
