@@ -1,17 +1,9 @@
 import { WhatsAppCTA } from './ui/WhatsAppCTA';
 import type { CardStyle, StoreTheme } from '@/lib/personalization';
+import type { StoreProduct } from '@/lib/types';
 
 interface ProductCardProps {
-  product: {
-    inventario_id: string;
-    nombre: string;
-    sku: string;
-    descripcion: string;
-    ruta_imagen: string;
-    precio_sugerido: number;
-    precio_personalizado: number | null;
-    stock: number;
-  };
+  product: StoreProduct;
   vendorPhone: string;
   /** Forma de la tarjeta (personalización visual de la tienda). */
   cardStyle?: CardStyle;
