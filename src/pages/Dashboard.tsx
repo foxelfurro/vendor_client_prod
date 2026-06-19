@@ -746,7 +746,7 @@ const Dashboard = () => {
       <Dialog open={showHistorial} onOpenChange={setShowHistorial}>
         <DialogContent className="sm:max-w-[680px] bg-[--lumin-surface] border border-[--lumin-border] shadow-2xl rounded-3xl p-0 font-body gap-0 flex flex-col max-h-[90dvh]">
           <DialogHeader className="px-6 py-5 border-b border-[--lumin-border] flex-shrink-0">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 pr-6">
               <div className="p-2.5 rounded-xl bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#7B4CFF] flex-shrink-0">
                 <History size={20} strokeWidth={1.5} />
               </div>
@@ -758,18 +758,6 @@ const Dashboard = () => {
                   {historialTotal > 0 ? `${historialTotal} ventas registradas` : 'Cargando…'}
                 </p>
               </div>
-              <button
-                onClick={exportarCSV}
-                disabled={exportandoCSV || historialTotal === 0}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-muted] hover:text-[--lumin-text] hover:border-[#7B4CFF]/40 transition-all text-xs font-bold disabled:opacity-40 flex-shrink-0"
-                title="Exportar todas las ventas a CSV"
-              >
-                {exportandoCSV ? (
-                  <><History size={14} className="animate-spin" /><span className="hidden sm:inline">Exportando…</span></>
-                ) : (
-                  <><Download size={14} /><span className="hidden sm:inline">Exportar CSV</span></>
-                )}
-              </button>
             </div>
           </DialogHeader>
 
@@ -812,28 +800,42 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Paginación */}
-          {historialTotalPages > 1 && (
-            <div className="px-6 py-4 border-t border-[--lumin-border] flex items-center justify-between flex-shrink-0">
-              <span className="text-xs text-[--lumin-muted]">
-                Pág. {historialPage} de {historialTotalPages}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => fetchHistorial(historialPage - 1)}
-                  disabled={historialPage <= 1 || loadingHistorial}
-                  className="w-9 h-9 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 disabled:opacity-40 transition-all active:scale-95"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <button
-                  onClick={() => fetchHistorial(historialPage + 1)}
-                  disabled={historialPage >= historialTotalPages || loadingHistorial}
-                  className="w-9 h-9 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 disabled:opacity-40 transition-all active:scale-95"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
+          {/* Footer: exportar + paginación */}
+          {historialTotal > 0 && (
+            <div className="px-6 py-4 border-t border-[--lumin-border] flex items-center justify-between gap-3 flex-shrink-0">
+              <button
+                onClick={exportarCSV}
+                disabled={exportandoCSV}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7B4CFF]/10 border border-[#7B4CFF]/30 text-[#7B4CFF] hover:bg-[#7B4CFF] hover:text-white hover:border-[#7B4CFF] transition-all text-xs font-bold disabled:opacity-40"
+              >
+                {exportandoCSV ? (
+                  <><History size={14} className="animate-spin" /><span>Exportando…</span></>
+                ) : (
+                  <><Download size={14} /><span>Exportar CSV</span></>
+                )}
+              </button>
+
+              {historialTotalPages > 1 && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <span className="text-xs text-[--lumin-muted]">
+                    Pág. {historialPage} de {historialTotalPages}
+                  </span>
+                  <button
+                    onClick={() => fetchHistorial(historialPage - 1)}
+                    disabled={historialPage <= 1 || loadingHistorial}
+                    className="w-9 h-9 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 disabled:opacity-40 transition-all active:scale-95"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    onClick={() => fetchHistorial(historialPage + 1)}
+                    disabled={historialPage >= historialTotalPages || loadingHistorial}
+                    className="w-9 h-9 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 disabled:opacity-40 transition-all active:scale-95"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
