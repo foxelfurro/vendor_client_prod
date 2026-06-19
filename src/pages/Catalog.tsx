@@ -370,25 +370,30 @@ const Catalog = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    /*
-     * IMPORTANTE: no usar overflow-hidden aquí; dejar que el body/root sea
-     * el scroll container para que el sidebar sticky funcione correctamente.
-     */
-    <div className="bg-[--lumin-bg] min-h-screen font-body text-[--lumin-text]">
+    <div className="bg-[--lumin-bg] min-h-screen font-body text-[--lumin-text] antialiased">
+
+      {/* ── Header editorial ───────────────────────────────────────────────── */}
+      <header className="border-b border-[--lumin-border] bg-[--lumin-surface]">
+        <div className="max-w-7xl mx-auto px-5 py-8 md:py-12">
+          <div className="space-y-1">
+            <span className="text-[0.6rem] tracking-[0.3em] uppercase font-bold text-[#7B4CFF]">
+              Joyería & Accesorios
+            </span>
+            <h1 className="text-4xl sm:text-5xl font-headline font-extrabold tracking-tighter leading-tight text-[--lumin-text]">
+              Catálogo Maestro
+            </h1>
+            <p className="text-sm text-[--lumin-muted] max-w-lg leading-relaxed">
+              Explora las joyas de la marca y agrégalas a tu vitrina personal.
+            </p>
+          </div>
+        </div>
+      </header>
 
       {/* ── Contenido principal ────────────────────────────────────────────── */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-
-        {/* Cabecera */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-[--lumin-text]">Catálogo Maestro</h1>
-          <p className="text-sm text-[--lumin-muted]">
-            Explora las joyas de la marca y agrégalas a tu vitrina personal.
-          </p>
-        </div>
+      <div className="max-w-7xl mx-auto px-5 py-8 md:py-12 space-y-6">
 
         {/* Barra de búsqueda y acciones */}
-        <div className="mb-6 bg-[--lumin-surface] p-4 rounded-xl border border-[--lumin-border]">
+        <div className="bg-[--lumin-surface] p-4 rounded-xl border border-[--lumin-border]">
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
 
             {/* Título con contador */}
@@ -602,7 +607,7 @@ const Catalog = () => {
             ) : (
               <>
                 {/* Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {productosMostrados.map((prod) => (
                     <ProductCard
                       key={prod.id}

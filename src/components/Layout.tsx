@@ -26,6 +26,8 @@ import {
   UserCircle,
   Sun,
   Moon,
+  Store,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useAlert } from '@/context/AlertContext';
@@ -157,6 +159,26 @@ const Layout = () => {
               <span className="tracking-wide">{name}</span>
             </NavLink>
           ))}
+
+          {/* Botón destacado: Mi Tienda Digital */}
+          <div className="pt-4 mt-2 border-t border-gray-200 dark:border-[--lumin-border]">
+            <NavLink
+              to="/tienda"
+              onClick={handleLinkClick}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group font-bold text-sm border",
+                  isActive
+                    ? "bg-[#7B4CFF] text-white border-[#7B4CFF] shadow-lg shadow-[#7B4CFF]/25"
+                    : "bg-[#7B4CFF]/10 dark:bg-[#7B4CFF]/15 text-[#7B4CFF] border-[#7B4CFF]/30 hover:bg-[#7B4CFF] hover:text-white hover:border-[#7B4CFF] hover:shadow-lg hover:shadow-[#7B4CFF]/25"
+                )
+              }
+            >
+              <Store size={18} className="flex-shrink-0" aria-hidden="true" />
+              <span className="tracking-wide flex-1">Mi Tienda Digital</span>
+              <ExternalLink size={14} className="flex-shrink-0 opacity-60" aria-hidden="true" />
+            </NavLink>
+          </div>
         </nav>
 
         {/* Usuario, toggle y logout */}

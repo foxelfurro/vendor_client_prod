@@ -7,23 +7,36 @@ import {
 } from 'lucide-react';
 
 const STORAGE_KEY = 'lumin_onboarding_done';
+const STEP_KEY = 'lumin_onboarding_step';
 
 export function useOnboarding() {
   const [open, setOpen] = useState(() => {
     return localStorage.getItem(STORAGE_KEY) !== 'true';
   });
 
+  /** Marca el tutorial como completado/saltado permanentemente. */
   const dismiss = () => {
     localStorage.setItem(STORAGE_KEY, 'true');
+    localStorage.removeItem(STEP_KEY);
     setOpen(false);
   };
 
-  return { open, dismiss };
+  /** Cierra el modal temporalmente guardando el paso actual — reabre al volver al dashboard. */
+  const pause = (step: number) => {
+    localStorage.setItem(STEP_KEY, String(step));
+    setOpen(false);
+  };
+
+  const initialStep = parseInt(localStorage.getItem(STEP_KEY) || '0');
+
+  return { open, dismiss, pause, initialStep };
 }
 
 interface OnboardingModalProps {
   open: boolean;
   onDismiss: () => void;
+  onPause: (step: number) => void;
+  initialStep?: number;
   storeSlug?: string;
 }
 
@@ -136,8 +149,8 @@ const SellDemo = () => (
   </div>
 );
 
-export function OnboardingModal({ open, onDismiss, storeSlug }: OnboardingModalProps) {
-  const [step, setStep] = useState(0);
+export function OnboardingModal({ open, onDismiss, onPause, initialStep = 0, storeSlug }: OnboardingModalProps) {
+  const [step, setStep] = useState(initialStep);
   const navigate = useNavigate();
 
   const current = steps[step];
@@ -147,7 +160,7 @@ export function OnboardingModal({ open, onDismiss, storeSlug }: OnboardingModalP
 
   const handleAction = () => {
     if ('action' in current && current.action) {
-      onDismiss();
+      onPause(step);
       navigate(current.action.href);
     }
   };
