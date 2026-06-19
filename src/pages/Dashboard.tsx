@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from 'react';
-import PageLoader from '@/components/ui/PageLoader';
 import AppFooter from '@/components/AppFooter';
 import api from '@/lib/api';
 import { Button } from "@/components/ui/button";
