@@ -29,6 +29,7 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -121,6 +122,7 @@ const Dashboard = () => {
   const [historialPage, setHistorialPage] = useState(1);
   const [historialTotal, setHistorialTotal] = useState(0);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
+  const [exportandoCSV, setExportandoCSV] = useState(false);
 
   const resultadosBusqueda = useMemo(() => {
     if (!searchTerm || productoSeleccionado) return [];
@@ -250,6 +252,41 @@ const Dashboard = () => {
   const handleVerHistorial = () => {
     setShowHistorial(true);
     if (historialItems.length === 0) fetchHistorial(1);
+  };
+
+  const exportarCSV = async () => {
+    setExportandoCSV(true);
+    try {
+      const { data: todas } = await api.get<SaleHistoryItem[]>('/sales/export');
+
+      // Construye el CSV con BOM para que Excel lo abra en UTF-8
+      const cabecera = ['ID', 'Producto', 'SKU', 'Cantidad', 'Total (MXN)', 'Fecha', 'Hora'];
+      const filas = todas.map((item) => {
+        const { fecha, hora } = formatFechaHistorial(item.fecha);
+        return [
+          item.venta_id,
+          `"${item.producto_nombre.replace(/"/g, '""')}"`,
+          item.sku,
+          item.cantidad,
+          Number(item.precio_total).toFixed(2),
+          fecha,
+          hora,
+        ].join(',');
+      });
+
+      const csv = '﻿' + [cabecera.join(','), ...filas].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ventas_lumin_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Error al exportar CSV:', e);
+    } finally {
+      setExportandoCSV(false);
+    }
   };
 
   if (loading) return <PageLoader message="Cargando panel de control…" />;
@@ -713,7 +750,7 @@ const Dashboard = () => {
               <div className="p-2.5 rounded-xl bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#7B4CFF] flex-shrink-0">
                 <History size={20} strokeWidth={1.5} />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <DialogTitle className="text-lg font-headline font-bold text-[--lumin-text] tracking-tight">
                   Historial de Ventas
                 </DialogTitle>
@@ -721,6 +758,18 @@ const Dashboard = () => {
                   {historialTotal > 0 ? `${historialTotal} ventas registradas` : 'Cargando…'}
                 </p>
               </div>
+              <button
+                onClick={exportarCSV}
+                disabled={exportandoCSV || historialTotal === 0}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-muted] hover:text-[--lumin-text] hover:border-[#7B4CFF]/40 transition-all text-xs font-bold disabled:opacity-40 flex-shrink-0"
+                title="Exportar todas las ventas a CSV"
+              >
+                {exportandoCSV ? (
+                  <><History size={14} className="animate-spin" /><span className="hidden sm:inline">Exportando…</span></>
+                ) : (
+                  <><Download size={14} /><span className="hidden sm:inline">Exportar CSV</span></>
+                )}
+              </button>
             </div>
           </DialogHeader>
 
