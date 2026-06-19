@@ -9,6 +9,7 @@ import QrScanner from '@/components/QrScanner';
 import { matchSku, extractSkuCandidates } from '@/lib/sku';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { OnboardingModal, useOnboarding } from '@/components/OnboardingModal';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import {
   DollarSign,
@@ -77,6 +78,7 @@ interface SaleHistoryItem {
   fecha: string;
   producto_nombre: string;
   sku: string;
+  ruta_imagen?: string | null;
 }
 
 /** Convierte "DD/MM/YYYY HH:MM" (formato del backend) a Date. */
@@ -289,17 +291,16 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) return <PageLoader message="Cargando panel de control…" />;
-  if (!stats) return <PageLoader message="Preparando estadísticas…" />;
+  const isLoading = loading || !stats;
 
-  const kpis = [
+  const kpis = stats ? [
     { id: 'ingresos', label: 'Ventas Totales', value: `$${stats.resumen.total_ingresos.toLocaleString('es-MX')}`, icon: DollarSign, trend: '+12.5% vs mes anterior', trendType: 'up' },
     { id: 'unidades', label: 'Unidades Vendidas', value: stats.resumen.unidades_vendidas.toLocaleString(), icon: Package, trend: 'piezas entregadas', trendType: 'neutral' },
     { id: 'stock', label: 'Productos en Stock', value: stats.inventario.total_productos.toLocaleString(), icon: Layers, trend: 'unidades disponibles', trendType: 'neutral' },
     { id: 'valor', label: 'Valor del Inventario', value: `$${stats.inventario.valor_total.toLocaleString('es-MX')}`, icon: Coins, trend: 'capital en almacén', trendType: 'neutral' },
     { id: 'critico', label: 'Stock Crítico', value: stats.alertas.productos_criticos.toLocaleString(), icon: AlertTriangle, trend: 'productos por agotarse', trendType: 'warning' },
     { id: 'top', label: 'Top Producto', value: stats.top_productos[0]?.nombre || 'Sin ventas aún', icon: TrendingUp, trend: 'el más pedido', trendType: 'info' },
-  ];
+  ] : [];
 
   const historialTotalPages = Math.ceil(historialTotal / HISTORY_PAGE_SIZE);
 
@@ -525,53 +526,69 @@ const Dashboard = () => {
 
         {/* KPI Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-          {kpis.map((kpi) => {
-            const Icon = kpi.icon;
-            const isWarning = kpi.trendType === 'warning';
-            const isUp = kpi.trendType === 'up';
-            return (
-              <div
-                key={kpi.id}
-                className={`relative bg-[--lumin-surface] rounded-2xl p-4 md:p-5 border overflow-hidden transition-all hover:scale-[1.015] ${
-                  isWarning
-                    ? 'border-[--lumin-warn-bd] shadow-[0_0_28px_rgba(255,214,0,0.07)]'
-                    : 'border-[--lumin-border] hover:border-[#7B4CFF]/30'
-                }`}
-              >
-                {isWarning && <div className="absolute inset-0 bg-[#FFD600]/5 pointer-events-none" />}
-                <div className="relative space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className={`p-2.5 rounded-xl flex-shrink-0 ${
-                      isWarning ? 'bg-[--lumin-warn-bg] text-[--lumin-warn]' : 'bg-[#7B4CFF]/15 text-[#7B4CFF]'
-                    }`}>
-                      <Icon size={17} />
-                    </div>
-                    {isWarning && (
-                      <span className="text-[0.55rem] font-extrabold px-2 py-0.5 bg-[#FFD600] text-[#1A1C2C] rounded-full tracking-wider uppercase flex-shrink-0">
-                        Crítico
-                      </span>
-                    )}
-                    {isUp && (
-                      <span className="text-[0.55rem] font-extrabold px-2 py-0.5 bg-[#7B4CFF]/20 text-[#C4B5FD] rounded-full tracking-wider uppercase flex-shrink-0 flex items-center gap-0.5">
-                        <TrendingUp size={9} /> +12.5%
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-xl md:text-2xl font-headline font-extrabold tracking-tight text-[--lumin-text] truncate">
-                      {kpi.value}
-                    </p>
-                    <p className="text-[0.7rem] text-[--lumin-muted] mt-0.5 truncate font-medium">{kpi.label}</p>
-                  </div>
-                  <p className={`text-[0.7rem] font-medium truncate ${
-                    isWarning ? 'text-[--lumin-warn]/70' : 'text-[--lumin-muted]/70'
-                  }`}>
-                    {kpi.trend}
-                  </p>
+          {isLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-[--lumin-surface] rounded-2xl p-4 md:p-5 border border-[--lumin-border] space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <Skeleton className="w-10 h-10 rounded-xl" />
+                  <Skeleton className="w-14 h-4 rounded-full" />
                 </div>
+                <div className="space-y-1.5">
+                  <Skeleton className="h-7 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+                <Skeleton className="h-3 w-2/3" />
               </div>
-            );
-          })}
+            ))
+          ) : (
+            kpis.map((kpi) => {
+              const Icon = kpi.icon;
+              const isWarning = kpi.trendType === 'warning';
+              const isUp = kpi.trendType === 'up';
+              return (
+                <div
+                  key={kpi.id}
+                  className={`relative bg-[--lumin-surface] rounded-2xl p-4 md:p-5 border overflow-hidden transition-all hover:scale-[1.015] ${
+                    isWarning
+                      ? 'border-[--lumin-warn-bd] shadow-[0_0_28px_rgba(255,214,0,0.07)]'
+                      : 'border-[--lumin-border] hover:border-[#7B4CFF]/30'
+                  }`}
+                >
+                  {isWarning && <div className="absolute inset-0 bg-[#FFD600]/5 pointer-events-none" />}
+                  <div className="relative space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${
+                        isWarning ? 'bg-[--lumin-warn-bg] text-[--lumin-warn]' : 'bg-[#7B4CFF]/15 text-[#7B4CFF]'
+                      }`}>
+                        <Icon size={17} />
+                      </div>
+                      {isWarning && (
+                        <span className="text-[0.55rem] font-extrabold px-2 py-0.5 bg-[#FFD600] text-[#1A1C2C] rounded-full tracking-wider uppercase flex-shrink-0">
+                          Crítico
+                        </span>
+                      )}
+                      {isUp && (
+                        <span className="text-[0.55rem] font-extrabold px-2 py-0.5 bg-[#7B4CFF]/20 text-[#C4B5FD] rounded-full tracking-wider uppercase flex-shrink-0 flex items-center gap-0.5">
+                          <TrendingUp size={9} /> +12.5%
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xl md:text-2xl font-headline font-extrabold tracking-tight text-[--lumin-text] truncate">
+                        {kpi.value}
+                      </p>
+                      <p className="text-[0.7rem] text-[--lumin-muted] mt-0.5 truncate font-medium">{kpi.label}</p>
+                    </div>
+                    <p className={`text-[0.7rem] font-medium truncate ${
+                      isWarning ? 'text-[--lumin-warn]/70' : 'text-[--lumin-muted]/70'
+                    }`}>
+                      {kpi.trend}
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Actividad Reciente + Gráfico */}
@@ -592,11 +609,26 @@ const Dashboard = () => {
               </button>
             </div>
 
-            {ventasAgrupadas.length > 0 ? (
+            {isLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 pb-3 border-b border-[--lumin-border] last:border-b-0 last:pb-0">
+                    <Skeleton className="w-11 h-11 rounded-xl flex-shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-3/4" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                    <div className="space-y-1.5 items-end flex flex-col flex-shrink-0">
+                      <Skeleton className="h-3.5 w-16" />
+                      <Skeleton className="h-3 w-10" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : ventasAgrupadas.length > 0 ? (
               <div className="space-y-1">
                 {ventasAgrupadas.map(([dia, ventas]) => (
                   <div key={dia}>
-                    {/* Separador de día */}
                     <div className="flex items-center gap-2 py-2">
                       <span className="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-[--lumin-muted]/60 flex-shrink-0">
                         {dia}
@@ -645,9 +677,18 @@ const Dashboard = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center text-[--lumin-muted] py-10">
-                <Package size={40} className="mx-auto opacity-25 mb-3" />
-                <p className="text-sm">No hay actividad reciente. Realiza tu primera venta.</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center space-y-4">
+                <div className="p-4 rounded-2xl bg-[#7B4CFF]/10 border border-[#7B4CFF]/20">
+                  <ShoppingCart size={32} className="text-[#7B4CFF] opacity-70" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-[--lumin-text]">Aún no hay ventas registradas</p>
+                  <p className="text-xs text-[--lumin-muted] max-w-[200px]">Usa el formulario de arriba para registrar tu primera venta.</p>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-[#7B4CFF] font-bold animate-bounce">
+                  <ArrowRight size={13} className="rotate-[-90deg]" />
+                  <span>Busca una joya arriba</span>
+                </div>
               </div>
             )}
           </div>
@@ -681,13 +722,19 @@ const Dashboard = () => {
             </div>
 
             <div className="h-[280px] w-full">
-              {(() => {
+              {isLoading ? (
+                <div className="h-full flex items-end gap-2 pb-6 px-2">
+                  {[60, 85, 40, 95, 70, 55, 80].map((h, i) => (
+                    <Skeleton key={i} className="flex-1 rounded-t-lg" style={{ height: `${h}%` }} />
+                  ))}
+                </div>
+              ) : (() => {
                 const data =
                   chartPeriod === 'dias'
-                    ? stats.grafica_reciente.map(d => ({ label: d.etiqueta, total: d.total }))
+                    ? stats!.grafica_reciente.map(d => ({ label: d.etiqueta, total: d.total }))
                     : chartPeriod === 'meses'
-                    ? stats.grafica_mensual.map(d => ({ label: d.mes.trim(), total: d.total }))
-                    : (stats.grafica_anual || []).map(d => ({ label: String(d.anio), total: d.total }));
+                    ? stats!.grafica_mensual.map(d => ({ label: d.mes.trim(), total: d.total }))
+                    : (stats!.grafica_anual || []).map(d => ({ label: String(d.anio), total: d.total }));
 
                 if (data.length === 0) {
                   return (
@@ -763,8 +810,20 @@ const Dashboard = () => {
 
           <div className="overflow-y-auto flex-1 p-6 overscroll-contain">
             {loadingHistorial ? (
-              <div className="flex items-center justify-center py-16 text-[--lumin-muted] text-sm">
-                Cargando historial…
+              <div className="space-y-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl bg-[--lumin-bg] border border-[--lumin-border]">
+                    <Skeleton className="w-9 h-9 rounded-lg flex-shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                    <div className="space-y-1.5 flex flex-col items-end flex-shrink-0">
+                      <Skeleton className="h-3.5 w-16" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : historialItems.length === 0 ? (
               <div className="text-center text-[--lumin-muted] py-16">
@@ -778,8 +837,15 @@ const Dashboard = () => {
                   return (
                     <div
                       key={item.venta_id}
-                      className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-[--lumin-bg] border border-[--lumin-border] hover:border-[#7B4CFF]/25 transition-colors"
+                      className="flex items-center gap-3 p-3.5 rounded-xl bg-[--lumin-bg] border border-[--lumin-border] hover:border-[#7B4CFF]/25 transition-colors"
                     >
+                      <div className="w-9 h-9 rounded-lg overflow-hidden bg-[--lumin-surface] border border-[--lumin-border] flex-shrink-0 flex items-center justify-center">
+                        {item.ruta_imagen ? (
+                          <img src={item.ruta_imagen} alt={item.producto_nombre} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package size={14} className="text-[--lumin-muted]/40" />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-[--lumin-text] truncate">{item.producto_nombre}</p>
                         <p className="text-xs text-[--lumin-muted] mt-0.5">
