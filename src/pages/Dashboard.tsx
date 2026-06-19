@@ -64,6 +64,7 @@ interface DashboardStats {
   }>;
   grafica_mensual: Array<{ mes: string; total: number }>;
   grafica_reciente: Array<{ etiqueta: string; total: number }>;
+  grafica_anual: Array<{ anio: number; total: number }>;
 }
 
 interface SaleHistoryItem {
@@ -106,6 +107,9 @@ const Dashboard = () => {
   const [procesando, setProcesando] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [ventaMsg, setVentaMsg] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
+
+  // Tab de la gráfica
+  const [chartPeriod, setChartPeriod] = useState<'dias' | 'meses' | 'anios'>('meses');
 
   // Estados del historial de ventas
   const [showHistorial, setShowHistorial] = useState(false);
@@ -607,35 +611,72 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Gráfico de Rendimiento Mensual */}
+          {/* Gráfico de Rendimiento */}
           <div className="bg-[--lumin-surface] rounded-2xl p-5 md:p-7 border border-[--lumin-border] space-y-5">
-            <h3 className="text-base md:text-lg font-headline font-bold tracking-tight text-[--lumin-text]">
-              Rendimiento (Mes)
-            </h3>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <h3 className="text-base md:text-lg font-headline font-bold tracking-tight text-[--lumin-text]">
+                Rendimiento
+              </h3>
+              {/* Tabs de período */}
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-[--lumin-bg] border border-[--lumin-border]">
+                {([
+                  { key: 'dias', label: '7 días' },
+                  { key: 'meses', label: 'Mes' },
+                  { key: 'anios', label: 'Año' },
+                ] as const).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setChartPeriod(key)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      chartPeriod === key
+                        ? 'bg-[#7B4CFF] text-white shadow-sm'
+                        : 'text-[--lumin-muted] hover:text-[--lumin-text]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="h-[280px] w-full">
-              {stats.grafica_mensual && stats.grafica_mensual.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.grafica_mensual} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#2E3050" />
-                    <XAxis dataKey="mes" stroke="#A0A3B1" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#A0A3B1" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                    <Tooltip
-                      formatter={(value, name) => {
-                        if (typeof value === 'number') return [`$${value.toLocaleString('es-MX')}`, 'Ventas'];
-                        return [`${value}`, `${name}`];
-                      }}
-                      contentStyle={{ backgroundColor: '#20223A', borderRadius: '12px', border: '1px solid #2E3050', color: '#fff' }}
-                      cursor={{ fill: 'rgba(123,76,255,0.08)' }}
-                    />
-                    <Bar dataKey="total" fill="#7B4CFF" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center text-[--lumin-muted] space-y-3">
-                  <TrendingUp size={40} className="opacity-25" />
-                  <p className="text-sm text-center">Aún no hay ventas registradas este año.</p>
-                </div>
-              )}
+              {(() => {
+                const data =
+                  chartPeriod === 'dias'
+                    ? stats.grafica_reciente.map(d => ({ label: d.etiqueta, total: d.total }))
+                    : chartPeriod === 'meses'
+                    ? stats.grafica_mensual.map(d => ({ label: d.mes.trim(), total: d.total }))
+                    : (stats.grafica_anual || []).map(d => ({ label: String(d.anio), total: d.total }));
+
+                if (data.length === 0) {
+                  return (
+                    <div className="h-full flex flex-col items-center justify-center text-[--lumin-muted] space-y-3">
+                      <TrendingUp size={40} className="opacity-25" />
+                      <p className="text-sm text-center">Sin datos para este período.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#2E3050" />
+                      <XAxis dataKey="label" stroke="#A0A3B1" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#A0A3B1" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
+                      <Tooltip
+                        formatter={(value) =>
+                          typeof value === 'number'
+                            ? [`$${value.toLocaleString('es-MX')}`, 'Ventas']
+                            : [String(value), 'Ventas']
+                        }
+                        contentStyle={{ backgroundColor: '#20223A', borderRadius: '12px', border: '1px solid #2E3050', color: '#fff' }}
+                        cursor={{ fill: 'rgba(123,76,255,0.08)' }}
+                      />
+                      <Bar dataKey="total" fill="#7B4CFF" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                );
+              })()}
             </div>
           </div>
         </div>
