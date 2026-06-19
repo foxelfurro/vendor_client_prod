@@ -6,7 +6,8 @@ import { useAlert } from '@/context/AlertContext';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera, Plus, Minus } from "lucide-react";
+import { QrCode, X, Search, Package, Loader2, Filter, PlusCircle, Trash2, Camera, Plus, Minus, Gem, ArrowRight } from "lucide-react";
+import { Link } from 'react-router-dom';
 import PageLoader from '@/components/ui/PageLoader';
 import AppFooter from '@/components/AppFooter';
 import QrScanner from '@/components/QrScanner';
@@ -443,6 +444,7 @@ const Inventory = () => {
           </div>
 
           <button
+            id="btn-agregar-propia"
             onClick={() => setIsCustomModalOpen(true)}
             className="flex items-center gap-2.5 py-3.5 px-5 rounded-xl font-bold bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] hover:bg-[#2E3050] transition-all"
           >
@@ -583,15 +585,46 @@ const Inventory = () => {
           {/* Inventory Grid */}
           <div className="flex-1 min-w-0">
         {inventarioFiltrado.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-24 text-[--lumin-muted] space-y-6 bg-[--lumin-surface] rounded-2xl border-2 border-dashed border-[--lumin-border]">
-            <Package size={64} className="opacity-40" strokeWidth={1} />
-            <div className="text-center space-y-1">
-              <h3 className="text-xl font-headline font-bold text-[--lumin-text]">No se encontraron joyas</h3>
-              <p className="text-sm max-w-sm">
-                Aún no tienes joyas que coincidan con los criterios de búsqueda.
-              </p>
+          inventario.length === 0 ? (
+            /* Inventario completamente vacío — guía de onboarding */
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-center space-y-6 bg-[--lumin-surface] rounded-2xl border-2 border-dashed border-[#7B4CFF]/30">
+              <div className="p-5 rounded-2xl bg-[#7B4CFF]/10 border border-[#7B4CFF]/20">
+                <Gem size={48} className="text-[#7B4CFF] opacity-70" strokeWidth={1.2} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-headline font-bold text-[--lumin-text]">Tu vitrina está vacía</h3>
+                <p className="text-sm text-[--lumin-muted] max-w-xs leading-relaxed">
+                  Agrega joyas desde el catálogo maestro o registra tus propias piezas para empezar a vender.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/catalogo"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#7B4CFF] text-white font-bold text-sm hover:bg-[#6B3CEF] active:scale-95 transition-all shadow-lg shadow-[#7B4CFF]/25"
+                >
+                  <Package size={16} />
+                  Explorar Catálogo
+                  <ArrowRight size={15} />
+                </Link>
+                <button
+                  onClick={() => document.getElementById('btn-agregar-propia')?.click()}
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] font-bold text-sm hover:border-[#7B4CFF]/40 active:scale-95 transition-all"
+                >
+                  <PlusCircle size={16} />
+                  Agregar joya propia
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            /* Sin resultados de búsqueda/filtro */
+            <div className="col-span-full flex flex-col items-center justify-center py-24 text-[--lumin-muted] space-y-4 bg-[--lumin-surface] rounded-2xl border-2 border-dashed border-[--lumin-border]">
+              <Search size={40} className="opacity-30" strokeWidth={1.2} />
+              <div className="text-center space-y-1">
+                <h3 className="text-base font-headline font-bold text-[--lumin-text]">Sin resultados</h3>
+                <p className="text-sm max-w-xs">Ninguna joya coincide con tu búsqueda o filtros activos.</p>
+              </div>
+            </div>
+          )
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
