@@ -49,6 +49,7 @@ interface DashboardStats {
     unidades_vendidas: number;
     transacciones_totales: number;
     joyas_vendidas_hoy: number;
+    ingresos_hoy: number;
   };
   alertas: {
     productos_criticos: number;
@@ -296,7 +297,7 @@ const Dashboard = () => {
   const kpis = stats ? [
     { id: 'ingresos', label: 'Ventas Totales', value: `$${stats.resumen.total_ingresos.toLocaleString('es-MX')}`, icon: DollarSign, trend: '+12.5% vs mes anterior', trendType: 'up' },
     { id: 'unidades', label: 'Unidades Vendidas', value: stats.resumen.unidades_vendidas.toLocaleString(), icon: Package, trend: 'piezas entregadas', trendType: 'neutral' },
-    { id: 'hoy', label: 'Joyas Vendidas Hoy', value: stats.resumen.joyas_vendidas_hoy.toLocaleString(), icon: Package, trend: 'en el día', trendType: 'info' },
+    { id: 'hoy', label: 'Ventas de Hoy', value: `${stats.resumen.joyas_vendidas_hoy.toLocaleString()} joyas`, icon: Clock3, trend: `$${stats.resumen.ingresos_hoy.toLocaleString('es-MX')} generados`, trendType: 'info' },
     { id: 'stock', label: 'Productos en Stock', value: stats.inventario.total_productos.toLocaleString(), icon: Layers, trend: 'unidades disponibles', trendType: 'neutral' },
     { id: 'valor', label: 'Valor del Inventario', value: `$${stats.inventario.valor_total.toLocaleString('es-MX')}`, icon: Coins, trend: 'capital en almacén', trendType: 'neutral' },
     { id: 'critico', label: 'Stock Crítico', value: stats.alertas.productos_criticos.toLocaleString(), icon: AlertTriangle, trend: 'productos por agotarse', trendType: 'warning' },
