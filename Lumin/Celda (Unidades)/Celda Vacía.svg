@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="uuid-2f90a93f-902e-4a13-af8f-19379edb86ea" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 385.43 440.32">
+  <defs>
+    <style>
+      .uuid-dea5386d-52e8-4f23-a496-84602ad1ae49 {
+        stroke: #fff;
+        stroke-width: 20.48px;
+      }
+
+      .uuid-dea5386d-52e8-4f23-a496-84602ad1ae49, .uuid-379076bb-1cde-44f0-8e3a-380e7feaa943 {
+        fill: #fff;
+        stroke-linejoin: round;
+      }
+
+      .uuid-379076bb-1cde-44f0-8e3a-380e7feaa943 {
+        stroke: #862fff;
+        stroke-width: 30.72px;
+      }
+    </style>
+  </defs>
+  <polygon class="uuid-379076bb-1cde-44f0-8e3a-380e7feaa943" points="192.72 15.36 370.07 117.76 370.07 322.56 192.72 424.96 15.36 322.56 15.36 117.76 192.72 15.36"/>
+  <polygon class="uuid-dea5386d-52e8-4f23-a496-84602ad1ae49" points="192.72 128 272.54 174.08 272.54 266.24 192.72 312.32 112.9 266.24 112.9 174.08 192.72 128"/>
+</svg>
