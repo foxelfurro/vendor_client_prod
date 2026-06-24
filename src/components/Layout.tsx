@@ -133,8 +133,8 @@ const Layout = () => {
         {/* Header del Sidebar (Logo) */}
         <div className="h-20 flex items-center justify-between px-8 border-b border-gray-200 dark:border-[--lumin-border]">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gray-100 dark:bg-[--lumin-hover] border border-gray-200 dark:border-[--lumin-border] text-[#7B4CFF]">
-              <Gem size={20} strokeWidth={2} />
+            <div className="p-2 rounded-xl bg-gray-100 dark:bg-[--lumin-hover] border border-gray-200 dark:border-[--lumin-border] flex items-center justify-center">
+              <img src="/isotipo.svg" alt="Lumin Logo" className="w-5 h-5" />
             </div>
             <span className="text-sm font-headline font-extrabold tracking-[0.15em] uppercase text-gray-900 dark:text-[--lumin-text]">
               Lumin
@@ -266,8 +266,8 @@ const Layout = () => {
         {/* TopBar Móvil */}
         <header className="md:hidden h-16 border-b border-gray-200 dark:border-[--lumin-border] bg-white dark:bg-[--lumin-surface] flex items-center justify-between px-5 z-30 flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-[--lumin-hover] border border-gray-200 dark:border-[--lumin-border] text-[#7B4CFF]">
-              <Gem size={16} strokeWidth={2} />
+            <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-[--lumin-hover] border border-gray-200 dark:border-[--lumin-border] flex items-center justify-center">
+              <img src="/isotipo.svg" alt="Lumin Logo" className="w-4 h-4" />
             </div>
             <span className="text-xs font-headline font-extrabold tracking-[0.15em] uppercase text-gray-900 dark:text-[--lumin-text]">
               Lumin

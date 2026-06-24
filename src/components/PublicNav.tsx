@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Gem } from 'lucide-react';
 
 export default function PublicNav() {
   useEffect(() => {
@@ -21,8 +20,8 @@ export default function PublicNav() {
       <div className="flex justify-between items-center w-full px-5 sm:px-8 py-4 sm:py-5 max-w-screen-2xl mx-auto gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group" aria-label="Ir al inicio">
-          <div className="p-1.5 rounded-lg border border-[#ff9fab]/60 text-[#862fff]">
-            <Gem size={18} strokeWidth={2} aria-hidden="true" />
+          <div className="p-1.5 rounded-lg border border-[#ff9fab]/60 flex items-center justify-center">
+            <img src="/isotipo.svg" alt="Lumin Logo" className="w-[18px] h-[18px]" aria-hidden="true" />
           </div>
           <span className="text-sm font-headline font-extrabold tracking-[0.15em] uppercase text-[#1a0a2e]">
             Lumin
