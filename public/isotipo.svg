@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <polygon points="37.88,18.4 47.06,23.7 47.06,34.3 37.88,39.6 28.70,34.3 28.70,23.7" fill="#862FFF" stroke="#862FFF" stroke-width="2.4" stroke-linejoin="round"></polygon>
+  <polygon points="62.12,18.4 71.30,23.7 71.30,34.3 62.12,39.6 52.94,34.3 52.94,23.7" fill="#862FFF" stroke="#862FFF" stroke-width="2.4" stroke-linejoin="round"></polygon>
+  <polygon points="74.25,39.4 83.43,44.7 83.43,55.3 74.25,60.6 65.07,55.3 65.07,44.7" fill="#862FFF" stroke="#862FFF" stroke-width="2.4" stroke-linejoin="round"></polygon>
+  <polygon points="25.75,39.4 34.93,44.7 34.93,55.3 25.75,60.6 16.57,55.3 16.57,44.7" fill="#862FFF" stroke="#862FFF" stroke-width="2.4" stroke-linejoin="round"></polygon>
+  <polygon points="62.12,60.4 71.30,65.7 71.30,76.3 62.12,81.6 52.94,76.3 52.94,65.7" fill="#862FFF" stroke="#862FFF" stroke-width="2.4" stroke-linejoin="round"></polygon>
+  <polygon points="37.88,60.4 47.06,65.7 47.06,76.3 37.88,81.6 28.70,76.3 28.70,65.7" fill="#862FFF" stroke="#862FFF" stroke-width="2.4" stroke-linejoin="round"></polygon>
+  <polygon points="50,39.4 59.18,44.7 59.18,55.3 50,60.6 40.82,55.3 40.82,44.7" fill="#FF9FAB" stroke="#FF9FAB" stroke-width="2.4" stroke-linejoin="round"></polygon>
+  <ellipse cx="45.9" cy="48.7" rx="2.8" ry="3.9" fill="#FFFFFF" transform="rotate(-22 45.9 48.7)"></ellipse>
+  <ellipse cx="54.1" cy="48.7" rx="2.8" ry="3.9" fill="#FFFFFF" transform="rotate(22 54.1 48.7)"></ellipse>
+  <ellipse cx="50" cy="52.6" rx="2.9" ry="5.1" fill="#FFFFFF"></ellipse>
+  <circle cx="50" cy="45.7" r="1.75" fill="#FFFFFF"></circle>
+</svg>

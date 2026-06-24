@@ -10,7 +10,7 @@ export default defineConfig({
       registerType: "autoUpdate",
 
       // Pre-cachea todos los assets generados por Vite (JS, CSS, fuentes)
-      includeAssets: ["pwa-icon.svg", "icons.svg"],
+      includeAssets: ["pwa-icon.svg", "icons.svg", "isotipo.svg"],
 
       manifest: {
         name: "Lumin — Gestión de Joyería",
