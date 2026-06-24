@@ -19,7 +19,6 @@ import {
   Library,
   Package,
   LogOut,
-  Gem,
   Shield,
   ShieldCheck,
   Menu,
