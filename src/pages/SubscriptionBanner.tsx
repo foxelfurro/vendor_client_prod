@@ -49,26 +49,24 @@ const SubscriptionBanner: React.FC<Props> = ({ expiresAt }) => {
     }`}>
       <div>
         <h3 className="font-bold text-base">
-          {estaExpirado ? 'Suscripción Expirada' : 'Aviso de Renovación'}
+          {estaExpirado ? 'Suscripción Expirada' : 'Tu suscripción está por vencer'}
         </h3>
         <p className="text-sm mt-0.5 opacity-80">
           {estaExpirado
             ? 'Tu acceso al inventario está pausado. Renueva para seguir operando.'
-            : `Tu suscripción vence en ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}.`}
+            : `Vence en ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}. La renovación es automática, no necesitas hacer nada. Si ya no deseas continuar, puedes cancelarla en cualquier momento desde tu perfil.`}
         </p>
       </div>
 
-      <button
-        onClick={handleRenovar}
-        disabled={procesando}
-        className={`shrink-0 px-4 py-2 font-bold rounded-xl shadow transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
-          estaExpirado
-            ? 'bg-[#FFD600] text-gray-900 hover:bg-[#FFD600]/90'
-            : 'bg-[#7B4CFF] text-white hover:bg-[#6B3CEF] shadow-[#7B4CFF]/25'
-        }`}
-      >
-        {procesando ? 'Abriendo…' : 'Renovar Ahora'}
-      </button>
+      {estaExpirado && (
+        <button
+          onClick={handleRenovar}
+          disabled={procesando}
+          className="shrink-0 px-4 py-2 font-bold rounded-xl shadow transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed bg-[#FFD600] text-gray-900 hover:bg-[#FFD600]/90"
+        >
+          {procesando ? 'Abriendo…' : 'Renovar Ahora'}
+        </button>
+      )}
     </div>
   );
 };
