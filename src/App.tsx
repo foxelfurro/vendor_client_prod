@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Catalog from './pages/Catalog';
 import Inventory from './pages/Inventory';
 import Caja from './pages/Caja';
+import Clientas from './pages/Clientas';
 import AdminDashboard from './pages/AdminDashboard';
 import JewelryApproval from './pages/JewelryApproval';
 import Register from './pages/Register';
@@ -87,6 +88,7 @@ function App() {
             <Route path="/catalogo" element={<Catalog />} />
             <Route path="/inventario" element={<Inventory />} />
             <Route path="/caja" element={<Caja />} /> 
+            <Route path="/clientas" element={<Clientas />} />
             <Route path="/perfil" element={<Profile />} />
             <Route path="/tienda" element={<StoreSettings />} />
             

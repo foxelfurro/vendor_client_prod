@@ -31,26 +31,34 @@ interface InventoryItem {
 
 const Caja = () => {
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
+  const [clientas, setClientas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
+  const [clientaId, setClientaId] = useState('');
+  const [enAbonos, setEnAbonos] = useState(false);
+  const [anticipo, setAnticipo] = useState('');
   const [procesando, setProcesando] = useState(false);
   /** Mensaje de resultado inline para evitar el uso de alert(). */
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
 
   /** Carga el inventario con stock disponible al montar el componente. */
   useEffect(() => {
-    const fetchInventory = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await api.get('/vendor/inventory');
-        setInventario(data.filter((item: InventoryItem) => item.stock > 0));
+        const [invRes, cliRes] = await Promise.all([
+           api.get('/vendor/inventory'),
+           api.get('/clientas')
+        ]);
+        setInventario(invRes.data.filter((item: InventoryItem) => item.stock > 0));
+        setClientas(cliRes.data);
       } catch (error) {
-        console.error('Error al cargar inventario para la caja:', error);
+        console.error('Error al cargar datos para la caja:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchInventory();
+    fetchData();
   }, []);
 
   const productoActual = inventario.find(
@@ -83,11 +91,16 @@ const Caja = () => {
         inventario_id: productoSeleccionado,
         cantidad,
         precio_unitario: productoActual.precio_personalizado,
+        clienta_id: clientaId || null,
+        anticipo: enAbonos ? Number(anticipo) : 0
       });
 
       setMensaje({ tipo: 'success', texto: 'Venta registrada correctamente.' });
       setProductoSeleccionado('');
       setCantidad(1);
+      setClientaId('');
+      setEnAbonos(false);
+      setAnticipo('');
 
       // Refresca el inventario para mostrar el stock actualizado
       const { data } = await api.get('/vendor/inventory');
@@ -187,6 +200,55 @@ const Caja = () => {
                       className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg] text-[--lumin-text] focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
                     />
                   </div>
+
+                  {/* Selector de Clienta (Opcional) */}
+                  <div className="space-y-2.5">
+                    <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
+                      Clienta (Opcional)
+                    </label>
+                    <select
+                      value={clientaId}
+                      onChange={(e) => setClientaId(e.target.value)}
+                      className="flex h-12 w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-4 py-2 text-sm text-[--lumin-text] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7B4CFF] transition-all appearance-none"
+                    >
+                      <option value="" className="text-[--lumin-muted]">— Venta Mostrador (Sin Clienta) —</option>
+                      {clientas.map((cli) => (
+                        <option key={cli.id} value={cli.id}>{cli.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Checkbox Abonos */}
+                  {clientaId && (
+                     <div className="p-4 bg-[--lumin-hover] border border-[--lumin-border] rounded-xl space-y-4">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                           <input 
+                             type="checkbox" 
+                             checked={enAbonos} 
+                             onChange={(e) => setEnAbonos(e.target.checked)} 
+                             className="w-5 h-5 accent-[#7B4CFF] rounded"
+                           />
+                           <span className="font-bold text-sm">Venta en Abonos (Crédito)</span>
+                        </label>
+                        
+                        {enAbonos && (
+                           <div className="space-y-2.5">
+                              <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
+                                Anticipo Inicial ($)
+                              </label>
+                              <Input
+                                type="number"
+                                min="0"
+                                required={enAbonos}
+                                value={anticipo}
+                                onChange={(e) => setAnticipo(e.target.value)}
+                                className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg]"
+                                placeholder="Monto del anticipo hoy"
+                              />
+                           </div>
+                        )}
+                     </div>
+                  )}
 
                   {/* Resumen del total */}
                   {productoActual && (

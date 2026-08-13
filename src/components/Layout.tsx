@@ -28,6 +28,7 @@ import {
   Moon,
   Store,
   ExternalLink,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useAlert } from '@/context/AlertContext';
@@ -63,7 +64,8 @@ const Layout = () => {
     const items = [
       { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
       { name: 'Catálogo Maestro', path: '/catalogo', icon: Library },
-      { name: 'Mi Inventario', path: '/inventario', icon: Package }
+      { name: 'Mi Inventario', path: '/inventario', icon: Package },
+      { name: 'Mis Clientas', path: '/clientas', icon: Users }
     ];
     
     if (isAdmin) {
