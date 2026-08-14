@@ -1,8 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import AppFooter from '@/components/AppFooter';
 import api from '@/lib/api';
-import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { OnboardingModal, useOnboarding } from '@/components/OnboardingModal';
@@ -20,6 +18,9 @@ import {
   Clock3,
   History,
   Download,
+  ShoppingCart,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -95,7 +96,6 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { open: onboardingOpen, dismiss: dismissOnboarding, pause: pauseOnboarding, initialStep: onboardingInitialStep } = useOnboarding();
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Tab de la gráfica
@@ -135,24 +135,11 @@ const Dashboard = () => {
         setStats(data);
       } catch (error) {
         console.error("Error cargando estadísticas", error);
-      }
-    };
-    fetchStats();
-  }, []);
-
-  useEffect(() => {
-    const fetchInventory = async () => {
-      try {
-        const { data } = await api.get('/vendor/inventory');
-        const disponibles = data.filter((item: InventoryItem) => item.stock > 0);
-        setInventario(disponibles);
-      } catch (error) {
-        console.error("Error al cargar inventario para la caja", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchInventory();
+    fetchStats();
   }, []);
 
   const fetchHistorial = async (page: number) => {
