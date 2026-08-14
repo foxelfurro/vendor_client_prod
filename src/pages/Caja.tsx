@@ -18,7 +18,7 @@ import AppFooter from '@/components/AppFooter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ShoppingCart, BadgeDollarSign, Search, Check, ChevronDown } from 'lucide-react';
+import { ShoppingCart, BadgeDollarSign, Check, ChevronDown } from 'lucide-react';
 
 /** Tipo mínimo de ítem del inventario que necesita esta página. */
 interface InventoryItem {
