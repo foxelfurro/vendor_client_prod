@@ -3,9 +3,7 @@ import AppFooter from '@/components/AppFooter';
 import api from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { Input } from "@/components/ui/input";
-import QrScanner from '@/components/QrScanner';
-import { matchSku, extractSkuCandidates } from '@/lib/sku';
+import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { OnboardingModal, useOnboarding } from '@/components/OnboardingModal';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,18 +15,10 @@ import {
   TrendingUp,
   Layers,
   Coins,
-  ShoppingCart,
-  BadgeDollarSign,
   ArrowRight,
   Users,
   Clock3,
-  Search,
-  QrCode,
   History,
-  Minus,
-  Plus,
-  ChevronLeft,
-  ChevronRight,
   Download,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -108,14 +98,6 @@ const Dashboard = () => {
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados del formulario de venta rápida
-  const [searchTerm, setSearchTerm] = useState('');
-  const [productoSeleccionado, setProductoSeleccionado] = useState('');
-  const [cantidad, setCantidad] = useState(1);
-  const [procesando, setProcesando] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
-  const [ventaMsg, setVentaMsg] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
-
   // Tab de la gráfica
   const [chartPeriod, setChartPeriod] = useState<'dias' | 'meses' | 'anios'>('meses');
 
@@ -126,16 +108,6 @@ const Dashboard = () => {
   const [historialTotal, setHistorialTotal] = useState(0);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
   const [exportandoCSV, setExportandoCSV] = useState(false);
-
-  const resultadosBusqueda = useMemo(() => {
-    if (!searchTerm || productoSeleccionado) return [];
-    return inventario.filter((item) => {
-      const nombre = item.nombre?.toLowerCase() || "";
-      const sku = item.sku?.toLowerCase() || "";
-      const busqueda = searchTerm.toLowerCase();
-      return nombre.includes(busqueda) || sku.includes(busqueda);
-    });
-  }, [searchTerm, inventario, productoSeleccionado]);
 
   // Agrupa las últimas ventas por día (Hoy / Ayer / fecha)
   const ventasAgrupadas = useMemo(() => {
@@ -182,61 +154,6 @@ const Dashboard = () => {
     };
     fetchInventory();
   }, []);
-
-  const productoActual = inventario.find(p => String(p.inventario_id) === String(productoSeleccionado));
-  const total = productoActual ? productoActual.precio_personalizado * cantidad : 0;
-
-  const handleVender = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!productoSeleccionado || cantidad < 1) return;
-    if (!productoActual) {
-      setVentaMsg({ tipo: 'error', texto: 'Error interno: no se encontró el producto seleccionado.' });
-      return;
-    }
-    if (cantidad > productoActual.stock) {
-      setVentaMsg({ tipo: 'error', texto: `Stock insuficiente. Solo quedan ${productoActual.stock} unidades.` });
-      return;
-    }
-    setProcesando(true);
-    setVentaMsg(null);
-    try {
-      await api.post('/sales/register', {
-        inventario_id: productoSeleccionado,
-        cantidad,
-        precio_unitario: productoActual.precio_personalizado,
-      });
-      setVentaMsg({ tipo: 'success', texto: '¡Venta registrada correctamente!' });
-      setProductoSeleccionado('');
-      setSearchTerm('');
-      setCantidad(1);
-      const [{ data: newInventory }, { data: newStats }] = await Promise.all([
-        api.get('/vendor/inventory'),
-        api.get('/vendor/dashboard-stats'),
-      ]);
-      setInventario(newInventory.filter((item: InventoryItem) => item.stock > 0));
-      setStats(newStats);
-    } catch (err) {
-      console.error('Error al registrar la venta:', err);
-      const error = err as { response?: { data?: { error?: string } } };
-      setVentaMsg({ tipo: 'error', texto: error.response?.data?.error || 'Error al registrar la venta.' });
-    } finally {
-      setProcesando(false);
-    }
-  };
-
-  const handleQrScan = (decodedText: string) => {
-    setShowScanner(false);
-    const candidates = extractSkuCandidates(decodedText);
-    const joya = inventario.find(p => candidates.some(sku => matchSku(p, sku)));
-    if (joya) {
-      setProductoSeleccionado(String(joya.inventario_id));
-      setSearchTerm(`${joya.nombre} (${joya.sku || 'S/N'})`);
-      setVentaMsg(null);
-    } else {
-      setProductoSeleccionado('');
-      setVentaMsg({ tipo: 'error', texto: 'No se encontró ninguna joya con ese código en tu inventario disponible.' });
-    }
-  };
 
   const fetchHistorial = async (page: number) => {
     setLoadingHistorial(true);
@@ -334,197 +251,6 @@ const Dashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-5 py-8 md:py-12 space-y-8">
-
-        {/* Tarjeta de Nueva Venta */}
-        <div className="bg-[--lumin-surface] rounded-2xl border border-[--lumin-border] overflow-hidden">
-          <div className="flex items-center gap-4 px-5 md:px-7 py-5 border-b border-[--lumin-border]">
-            <div className="p-3 rounded-xl bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#7B4CFF] flex-shrink-0">
-              <BadgeDollarSign size={24} strokeWidth={1.5} />
-            </div>
-            <div className="space-y-0.5 min-w-0">
-              <h2 className="text-lg md:text-xl font-headline font-bold text-[--lumin-text] tracking-tight">
-                Nueva Venta
-              </h2>
-              <p className="text-[--lumin-muted] text-sm">
-                Busca o escanea una joya para registrar la salida.
-              </p>
-            </div>
-          </div>
-
-          <form onSubmit={handleVender} className="p-5 md:p-7 space-y-5">
-            {inventario.length === 0 ? (
-              <div className="text-center text-[--lumin-warn] py-6 font-medium bg-[--lumin-warn-bg] rounded-xl border border-[--lumin-warn-bd]">
-                No tienes productos con stock.
-              </div>
-            ) : (
-              <>
-                {/* Buscador por SKU / Nombre + escáner QR */}
-                <div className="space-y-2.5">
-                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
-                    Buscar Joya (Nombre o SKU)
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1 min-w-0">
-                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[--lumin-muted]" size={17} />
-                      <Input
-                        type="text"
-                        placeholder="Escribe el SKU o nombre..."
-                        className="w-full pl-10 pr-4 py-3 bg-[--lumin-bg] border border-[--lumin-border] rounded-xl text-[--lumin-text] placeholder:text-[--lumin-muted]/50 focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent outline-none transition-all"
-                        value={searchTerm}
-                        onChange={(e) => {
-                          setSearchTerm(e.target.value);
-                          if (e.target.value === "") setProductoSeleccionado("");
-                        }}
-                      />
-
-                      {/* Lista de sugerencias */}
-                      {searchTerm && !productoSeleccionado && resultadosBusqueda.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-[--lumin-surface] border border-[--lumin-border] rounded-xl shadow-2xl max-h-60 overflow-y-auto">
-                          {resultadosBusqueda.map((item) => (
-                            <button
-                              key={item.inventario_id}
-                              type="button"
-                              className="w-full text-left px-4 py-3 hover:bg-[--lumin-hover] transition-colors border-b border-[--lumin-border] last:border-0 flex justify-between items-center gap-3"
-                              onClick={() => {
-                                setProductoSeleccionado(String(item.inventario_id));
-                                setSearchTerm(`${item.nombre} (${item.sku || 'S/N'})`);
-                              }}
-                            >
-                              <div className="flex items-center gap-3 min-w-0">
-                                {item.ruta_imagen ? (
-                                  <img
-                                    src={item.ruta_imagen}
-                                    alt={item.nombre}
-                                    className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-[--lumin-border]"
-                                  />
-                                ) : (
-                                  <div className="w-9 h-9 rounded-lg bg-[--lumin-bg] border border-[--lumin-border] flex items-center justify-center flex-shrink-0">
-                                    <Package size={16} className="text-[--lumin-muted]/40" />
-                                  </div>
-                                )}
-                                <div className="min-w-0">
-                                  <p className="font-semibold text-[--lumin-text] text-sm truncate">{item.nombre}</p>
-                                  <p className="text-xs text-[--lumin-muted] mt-0.5">SKU: {item.sku || 'N/A'} · {item.stock} disp.</p>
-                                </div>
-                              </div>
-                              <span className="text-sm font-bold text-[#7B4CFF] flex-shrink-0">
-                                ${item.precio_personalizado.toLocaleString('es-MX')}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Botón de escaneo QR */}
-                    <button
-                      type="button"
-                      onClick={() => setShowScanner(true)}
-                      aria-label="Escanear código QR"
-                      className="flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-xl bg-[--lumin-bg] border border-[--lumin-border] text-[#7B4CFF] font-bold hover:border-[#7B4CFF]/50 hover:bg-[--lumin-hover] active:scale-95 transition-all"
-                    >
-                      <QrCode size={20} />
-                      <span className="hidden sm:inline text-sm">Escanear</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Vista previa del producto seleccionado */}
-                {productoActual && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[--lumin-bg] border border-[--lumin-border]">
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-[--lumin-surface] border border-[--lumin-border] flex-shrink-0 flex items-center justify-center">
-                      {productoActual.ruta_imagen ? (
-                        <img src={productoActual.ruta_imagen} alt={productoActual.nombre} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package size={20} className="text-[--lumin-muted]/40" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-[--lumin-text] truncate">{productoActual.nombre}</p>
-                      <p className="text-xs text-[--lumin-muted] mt-0.5">
-                        SKU: {productoActual.sku} ·{' '}
-                        <span className={productoActual.stock <= 3 ? 'text-[--lumin-warn] font-semibold' : ''}>
-                          {productoActual.stock} en stock
-                        </span>
-                      </p>
-                    </div>
-                    <p className="text-sm font-bold text-[#7B4CFF] flex-shrink-0">
-                      ${productoActual.precio_personalizado.toLocaleString('es-MX')} c/u
-                    </p>
-                  </div>
-                )}
-
-                {/* Cantidad con botones +/− */}
-                <div className="space-y-2.5">
-                  <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
-                    Cantidad
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setCantidad(c => Math.max(1, c - 1))}
-                      className="w-11 h-11 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 hover:text-[#7B4CFF] transition-all active:scale-95 flex-shrink-0"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      required
-                      value={cantidad}
-                      onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                      className="flex h-11 flex-1 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-4 py-2 text-sm text-center font-bold text-[--lumin-text] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setCantidad(c => productoActual ? Math.min(productoActual.stock, c + 1) : c + 1)}
-                      className="w-11 h-11 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 hover:text-[#7B4CFF] transition-all active:scale-95 flex-shrink-0"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Total a cobrar */}
-                {productoActual && (
-                  <div className="bg-[--lumin-warn-bg] p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center border border-[#FFD600]/25 gap-2">
-                    <div>
-                      <span className="text-xs font-bold tracking-[0.2em] uppercase text-[--lumin-warn]/80 block">
-                        Total a cobrar
-                      </span>
-                      <span className="text-xs text-[--lumin-warn]/60">
-                        {cantidad} × ${productoActual.precio_personalizado.toLocaleString('es-MX')}
-                      </span>
-                    </div>
-                    <span className="text-3xl font-headline font-extrabold text-[--lumin-warn]">
-                      ${total.toLocaleString('es-MX')}
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Mensaje de resultado inline */}
-            {ventaMsg && (
-              <div className={`w-full px-4 py-3 rounded-xl text-sm font-medium border ${
-                ventaMsg.tipo === 'success'
-                  ? 'bg-[#7B4CFF]/15 border-[#7B4CFF]/30 text-[#C4B5FD]'
-                  : 'bg-[--lumin-warn-bg] border-[--lumin-warn-bd] text-[--lumin-warn]'
-              }`}>
-                {ventaMsg.texto}
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full h-14 rounded-xl bg-[#7B4CFF] hover:bg-[#6B3CEF] text-[--lumin-text] font-bold text-base shadow-lg shadow-[#7B4CFF]/25 active:scale-[0.98] transition-all disabled:opacity-40"
-              disabled={procesando || !productoSeleccionado}
-            >
-              <ShoppingCart className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span className="truncate tracking-wide">{procesando ? 'Procesando…' : 'Cobrar y Registrar'}</span>
-            </Button>
-          </form>
-        </div>
 
         {/* KPI Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -780,16 +506,6 @@ const Dashboard = () => {
         initialStep={onboardingInitialStep}
         storeSlug={user?.store_slug || ''}
       />
-
-      {/* Escáner QR (modal a pantalla completa) */}
-      {showScanner && (
-        <QrScanner
-          title="Escanear venta"
-          subtitle="Escanea una joya para seleccionarla en el formulario."
-          onScan={handleQrScan}
-          onClose={() => setShowScanner(false)}
-        />
-      )}
 
       {/* Modal Historial de Ventas */}
       <Dialog open={showHistorial} onOpenChange={setShowHistorial}>

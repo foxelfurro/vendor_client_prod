@@ -1,53 +1,45 @@
-/**
- * @file Caja.tsx
- * @description Página de registro rápido de ventas (Punto de Venta).
- *
- * Permite seleccionar un producto del inventario, indicar la cantidad y
- * registrar la venta. El stock se actualiza automáticamente tras cada venta
- * exitosa. Los errores y confirmaciones se muestran de forma inline, sin
- * usar `alert()`.
- *
- * @note Esta página complementa el formulario de venta rápida del Dashboard.
- *       Aquí el vendedor puede operar de forma dedicada y enfocada.
- */
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import api from '@/lib/api';
 import PageLoader from '@/components/ui/PageLoader';
 import AppFooter from '@/components/AppFooter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ShoppingCart, BadgeDollarSign, Check, ChevronDown } from 'lucide-react';
+import { ShoppingCart, BadgeDollarSign, Check, ChevronDown, Search, QrCode, Package, Minus, Plus } from 'lucide-react';
+import QrScanner from '@/components/QrScanner';
+import { matchSku, extractSkuCandidates } from '@/lib/sku';
 
-/** Tipo mínimo de ítem del inventario que necesita esta página. */
 interface InventoryItem {
   inventario_id: number;
   nombre: string;
   sku: string;
   stock: number;
   precio_personalizado: number;
+  ruta_imagen?: string;
+  skus_anteriores?: string[];
 }
 
 const Caja = () => {
   const [inventario, setInventario] = useState<InventoryItem[]>([]);
   const [clientas, setClientas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Estados Producto
+  const [searchTerm, setSearchTerm] = useState('');
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
+  const [showScanner, setShowScanner] = useState(false);
+
+  // Estados Clienta
   const [clientaId, setClientaId] = useState('');
-  
-  // Estados para Combobox de Clientas
   const [searchClienta, setSearchClienta] = useState('');
   const [showClientaList, setShowClientaList] = useState(false);
 
   const [enAbonos, setEnAbonos] = useState(false);
   const [anticipo, setAnticipo] = useState('');
   const [procesando, setProcesando] = useState(false);
-  /** Mensaje de resultado inline para evitar el uso de alert(). */
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
 
-  /** Carga el inventario con stock disponible al montar el componente. */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -66,12 +58,35 @@ const Caja = () => {
     fetchData();
   }, []);
 
+  const resultadosBusqueda = useMemo(() => {
+    if (!searchTerm || productoSeleccionado) return [];
+    return inventario.filter((item) => {
+      const nombre = item.nombre?.toLowerCase() || "";
+      const sku = item.sku?.toLowerCase() || "";
+      const busqueda = searchTerm.toLowerCase();
+      return nombre.includes(busqueda) || sku.includes(busqueda);
+    });
+  }, [searchTerm, inventario, productoSeleccionado]);
+
   const productoActual = inventario.find(
     (p) => String(p.inventario_id) === String(productoSeleccionado),
   );
   const total = productoActual ? productoActual.precio_personalizado * cantidad : 0;
 
-  /** Registra la venta en el backend y refresca el inventario. */
+  const handleQrScan = (decodedText: string) => {
+    setShowScanner(false);
+    const candidates = extractSkuCandidates(decodedText);
+    const joya = inventario.find(p => candidates.some(sku => matchSku(p, sku)));
+    if (joya) {
+      setProductoSeleccionado(String(joya.inventario_id));
+      setSearchTerm(`${joya.nombre} (${joya.sku || 'S/N'})`);
+      setMensaje(null);
+    } else {
+      setProductoSeleccionado('');
+      setMensaje({ tipo: 'error', texto: 'No se encontró ninguna joya con ese código en tu inventario disponible.' });
+    }
+  };
+
   const handleVender = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productoSeleccionado || cantidad < 1) return;
@@ -111,13 +126,13 @@ const Caja = () => {
 
       setMensaje({ tipo: 'success', texto: 'Venta registrada correctamente.' });
       setProductoSeleccionado('');
+      setSearchTerm('');
       setCantidad(1);
       setClientaId('');
       setSearchClienta('');
       setEnAbonos(false);
       setAnticipo('');
 
-      // Refresca el inventario para mostrar el stock actualizado
       const { data } = await api.get('/vendor/inventory');
       setInventario(data.filter((item: InventoryItem) => item.stock > 0));
     } catch (err) {
@@ -136,24 +151,22 @@ const Caja = () => {
 
   return (
     <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen flex flex-col">
-      {/* Encabezado de página */}
       <header className="border-b border-[--lumin-border]">
         <div className="max-w-7xl mx-auto px-5 py-8 space-y-1.5">
           <span className="text-[0.6rem] tracking-[0.35em] uppercase font-bold text-[#7B4CFF]">
             Lumin · QLatte
           </span>
           <h1 className="text-3xl md:text-4xl font-headline font-extrabold tracking-tight text-[--lumin-text]">
-            Caja
+            Cobrar
           </h1>
           <p className="text-[--lumin-muted] text-sm max-w-md">
-            Registra salidas de inventario de forma rápida y directa.
+            Registra salidas de inventario y abonos de forma rápida.
           </p>
         </div>
       </header>
 
       <main className="flex-grow max-w-7xl mx-auto px-5 py-8 w-full flex items-start justify-center">
         <Card className="w-full max-w-md border-[--lumin-border] bg-[--lumin-surface] rounded-2xl overflow-hidden shadow-none">
-          {/* Header de la tarjeta */}
           <CardHeader className="border-b border-[--lumin-border] pb-5 px-5">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-[#7B4CFF]/15 border border-[#7B4CFF]/30 text-[#7B4CFF] flex-shrink-0">
@@ -164,7 +177,7 @@ const Caja = () => {
                   Nueva Venta
                 </CardTitle>
                 <CardDescription className="text-[--lumin-muted] text-sm">
-                  Selecciona un producto y registra la salida.
+                  Selecciona una joya y un cliente.
                 </CardDescription>
               </div>
             </div>
@@ -178,42 +191,128 @@ const Caja = () => {
                 </div>
               ) : (
                 <>
-                  {/* Selector de producto */}
+                  {/* Buscador de Producto */}
                   <div className="space-y-2.5">
                     <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
-                      Producto
+                      Buscar Joya (Nombre o SKU)
                     </label>
-                    <select
-                      required
-                      value={productoSeleccionado}
-                      onChange={(e) => {
-                        setProductoSeleccionado(e.target.value);
-                        setMensaje(null);
-                      }}
-                      className="flex h-12 w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-4 py-2 text-sm text-[--lumin-text] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent transition-all appearance-none"
-                    >
-                      <option value="" disabled className="text-[--lumin-muted] bg-[--lumin-surface]">— Elige un producto —</option>
-                      {inventario.map((item) => (
-                        <option key={item.inventario_id} value={item.inventario_id} className="bg-[--lumin-surface] text-[--lumin-text]">
-                          {item.nombre} (Stock: {item.stock}) — ${item.precio_personalizado}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1 min-w-0">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[--lumin-muted]" size={17} />
+                        <Input
+                          type="text"
+                          placeholder="Escribe el SKU o nombre..."
+                          className="w-full pl-10 pr-4 py-3 bg-[--lumin-bg] border border-[--lumin-border] rounded-xl text-[--lumin-text] placeholder:text-[--lumin-muted]/50 focus:ring-2 focus:ring-[#7B4CFF] focus:border-transparent outline-none transition-all"
+                          value={searchTerm}
+                          onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            if (e.target.value === "") setProductoSeleccionado("");
+                          }}
+                        />
+
+                        {searchTerm && !productoSeleccionado && resultadosBusqueda.length > 0 && (
+                          <div className="absolute z-10 w-full mt-1 bg-[--lumin-surface] border border-[--lumin-border] rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+                            {resultadosBusqueda.map((item) => (
+                              <button
+                                key={item.inventario_id}
+                                type="button"
+                                className="w-full text-left px-4 py-3 hover:bg-[--lumin-hover] transition-colors border-b border-[--lumin-border] last:border-0 flex justify-between items-center gap-3"
+                                onClick={() => {
+                                  setProductoSeleccionado(String(item.inventario_id));
+                                  setSearchTerm(`${item.nombre} (${item.sku || 'S/N'})`);
+                                }}
+                              >
+                                <div className="flex items-center gap-3 min-w-0">
+                                  {item.ruta_imagen ? (
+                                    <img
+                                      src={item.ruta_imagen}
+                                      alt={item.nombre}
+                                      className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-[--lumin-border]"
+                                    />
+                                  ) : (
+                                    <div className="w-9 h-9 rounded-lg bg-[--lumin-bg] border border-[--lumin-border] flex items-center justify-center flex-shrink-0">
+                                      <Package size={16} className="text-[--lumin-muted]/40" />
+                                    </div>
+                                  )}
+                                  <div className="min-w-0">
+                                    <p className="font-semibold text-[--lumin-text] text-sm truncate">{item.nombre}</p>
+                                    <p className="text-xs text-[--lumin-muted] mt-0.5">SKU: {item.sku || 'N/A'} · {item.stock} disp.</p>
+                                  </div>
+                                </div>
+                                <span className="text-sm font-bold text-[#7B4CFF] flex-shrink-0">
+                                  ${item.precio_personalizado.toLocaleString('es-MX')}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowScanner(true)}
+                        aria-label="Escanear código QR"
+                        className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[--lumin-bg] border border-[--lumin-border] text-[#7B4CFF] font-bold hover:border-[#7B4CFF]/50 hover:bg-[--lumin-hover] active:scale-95 transition-all"
+                      >
+                        <QrCode size={20} />
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Preview del Producto */}
+                  {productoActual && (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-[--lumin-bg] border border-[--lumin-border]">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-[--lumin-surface] border border-[--lumin-border] flex-shrink-0 flex items-center justify-center">
+                        {productoActual.ruta_imagen ? (
+                          <img src={productoActual.ruta_imagen} alt={productoActual.nombre} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package size={20} className="text-[--lumin-muted]/40" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-[--lumin-text] truncate">{productoActual.nombre}</p>
+                        <p className="text-xs text-[--lumin-muted] mt-0.5">
+                          SKU: {productoActual.sku} ·{' '}
+                          <span className={productoActual.stock <= 3 ? 'text-[--lumin-warn] font-semibold' : ''}>
+                            {productoActual.stock} en stock
+                          </span>
+                        </p>
+                      </div>
+                      <p className="text-sm font-bold text-[#7B4CFF] flex-shrink-0">
+                        ${productoActual.precio_personalizado.toLocaleString('es-MX')} c/u
+                      </p>
+                    </div>
+                  )}
 
                   {/* Cantidad */}
                   <div className="space-y-2.5">
                     <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
                       Cantidad
                     </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      required
-                      value={cantidad}
-                      onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                      className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg] text-[--lumin-text] focus-visible:ring-[#7B4CFF] focus-visible:border-transparent"
-                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setCantidad(c => Math.max(1, c - 1))}
+                        className="w-12 h-12 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 hover:text-[#7B4CFF] transition-all active:scale-95 flex-shrink-0"
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        required
+                        value={cantidad}
+                        onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
+                        className="flex h-12 flex-1 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-4 py-2 text-sm text-center font-bold text-[--lumin-text] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7B4CFF] focus-visible:border-transparent transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setCantidad(c => productoActual ? Math.min(productoActual.stock, c + 1) : c + 1)}
+                        className="w-12 h-12 rounded-xl border border-[--lumin-border] bg-[--lumin-bg] flex items-center justify-center text-[--lumin-text] hover:border-[#7B4CFF]/50 hover:text-[#7B4CFF] transition-all active:scale-95 flex-shrink-0"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Selector de Clienta (Combobox Custom) */}
@@ -332,7 +431,6 @@ const Caja = () => {
             </CardContent>
 
             <CardFooter className="px-5 pb-6 pt-2 flex-col gap-3">
-              {/* Notificación de resultado inline */}
               {mensaje && (
                 <div
                   className={`w-full px-4 py-3 rounded-xl text-sm font-medium border ${
@@ -356,6 +454,16 @@ const Caja = () => {
           </form>
         </Card>
       </main>
+
+      {/* Escáner QR */}
+      {showScanner && (
+        <QrScanner
+          title="Escanear venta"
+          subtitle="Escanea una joya para seleccionarla en el formulario."
+          onScan={handleQrScan}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
 
       <AppFooter />
     </div>
