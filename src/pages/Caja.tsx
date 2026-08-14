@@ -18,7 +18,7 @@ import AppFooter from '@/components/AppFooter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ShoppingCart, BadgeDollarSign } from 'lucide-react';
+import { ShoppingCart, BadgeDollarSign, Search, Check, ChevronDown } from 'lucide-react';
 
 /** Tipo mínimo de ítem del inventario que necesita esta página. */
 interface InventoryItem {
@@ -36,6 +36,11 @@ const Caja = () => {
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [clientaId, setClientaId] = useState('');
+  
+  // Estados para Combobox de Clientas
+  const [searchClienta, setSearchClienta] = useState('');
+  const [showClientaList, setShowClientaList] = useState(false);
+
   const [enAbonos, setEnAbonos] = useState(false);
   const [anticipo, setAnticipo] = useState('');
   const [procesando, setProcesando] = useState(false);
@@ -83,6 +88,15 @@ const Caja = () => {
       return;
     }
 
+    const anticipoNum = Number(anticipo) || 0;
+    if (enAbonos && anticipoNum > total) {
+      setMensaje({
+        tipo: 'error',
+        texto: `El anticipo ($${anticipoNum}) no puede ser mayor al total ($${total}).`,
+      });
+      return;
+    }
+
     setProcesando(true);
     setMensaje(null);
 
@@ -99,6 +113,7 @@ const Caja = () => {
       setProductoSeleccionado('');
       setCantidad(1);
       setClientaId('');
+      setSearchClienta('');
       setEnAbonos(false);
       setAnticipo('');
 
@@ -201,21 +216,72 @@ const Caja = () => {
                     />
                   </div>
 
-                  {/* Selector de Clienta (Opcional) */}
-                  <div className="space-y-2.5">
+                  {/* Selector de Clienta (Combobox Custom) */}
+                  <div className="space-y-2.5 relative">
                     <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
                       Clienta (Opcional)
                     </label>
-                    <select
-                      value={clientaId}
-                      onChange={(e) => setClientaId(e.target.value)}
-                      className="flex h-12 w-full rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-4 py-2 text-sm text-[--lumin-text] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7B4CFF] transition-all appearance-none"
-                    >
-                      <option value="" className="text-[--lumin-muted]">— Venta Mostrador (Sin Clienta) —</option>
-                      {clientas.map((cli) => (
-                        <option key={cli.id} value={cli.id}>{cli.nombre}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <div 
+                        className="flex h-12 w-full items-center justify-between rounded-xl border border-[--lumin-border] bg-[--lumin-bg] px-4 py-2 text-sm text-[--lumin-text] focus-within:ring-2 focus-within:ring-[#7B4CFF] cursor-text"
+                        onClick={() => setShowClientaList(true)}
+                      >
+                        <input 
+                          type="text" 
+                          placeholder="Buscar o elegir clienta..."
+                          className="bg-transparent outline-none w-full"
+                          value={searchClienta}
+                          onChange={(e) => {
+                            setSearchClienta(e.target.value);
+                            setShowClientaList(true);
+                            if (e.target.value === '') setClientaId('');
+                          }}
+                          onFocus={() => setShowClientaList(true)}
+                          onBlur={() => setTimeout(() => setShowClientaList(false), 200)}
+                        />
+                        <ChevronDown size={16} className="text-[--lumin-muted] flex-shrink-0" />
+                      </div>
+                      
+                      {showClientaList && (
+                        <div className="absolute z-10 w-full mt-1 bg-[--lumin-surface] border border-[--lumin-border] rounded-xl shadow-2xl max-h-48 overflow-y-auto">
+                          <button
+                            type="button"
+                            className="w-full text-left px-4 py-3 hover:bg-[--lumin-hover] transition-colors border-b border-[--lumin-border] text-[--lumin-muted] text-sm"
+                            onMouseDown={() => {
+                              setClientaId('');
+                              setSearchClienta('');
+                              setShowClientaList(false);
+                            }}
+                          >
+                            — Venta Mostrador (Sin Clienta) —
+                          </button>
+                          {clientas
+                            .filter(cli => cli.nombre.toLowerCase().includes(searchClienta.toLowerCase()))
+                            .map((cli) => (
+                              <button
+                                key={cli.id}
+                                type="button"
+                                className="w-full flex items-center justify-between px-4 py-3 hover:bg-[--lumin-hover] transition-colors border-b border-[--lumin-border] last:border-0 text-sm"
+                                onMouseDown={() => {
+                                  setClientaId(cli.id);
+                                  setSearchClienta(cli.nombre);
+                                  setShowClientaList(false);
+                                }}
+                              >
+                                <span className={clientaId === cli.id ? "font-bold text-[#7B4CFF]" : "text-[--lumin-text]"}>
+                                  {cli.nombre}
+                                </span>
+                                {clientaId === cli.id && <Check size={16} className="text-[#7B4CFF]" />}
+                              </button>
+                          ))}
+                          {clientas.filter(cli => cli.nombre.toLowerCase().includes(searchClienta.toLowerCase())).length === 0 && (
+                            <div className="px-4 py-3 text-sm text-[--lumin-muted] text-center">
+                              No se encontraron clientas.
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Checkbox Abonos */}
