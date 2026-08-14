@@ -64,7 +64,7 @@ const Layout = () => {
   const navItems = useMemo(() => {
     const items = [
       { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-      { name: 'Punto de Venta', path: '/caja', icon: ShoppingCart },
+      { name: 'Cobrar', path: '/caja', icon: ShoppingCart },
       { name: 'Catálogo Maestro', path: '/catalogo', icon: Library },
       { name: 'Mi Inventario', path: '/inventario', icon: Package },
       { name: 'Mis Clientas', path: '/clientas', icon: Users }
