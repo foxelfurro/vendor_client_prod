@@ -24,16 +24,6 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-interface InventoryItem {
-  inventario_id: number;
-  sku: string;
-  skus_anteriores?: string[];
-  nombre: string;
-  stock: number;
-  precio_personalizado: number;
-  ruta_imagen?: string;
-}
-
 interface DashboardStats {
   resumen: {
     total_ingresos: number;
