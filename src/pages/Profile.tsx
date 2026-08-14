@@ -4,7 +4,7 @@ import AppFooter from '@/components/AppFooter';
 import { useAuth } from '@/context/AuthContext';
 import {
   User, Mail, KeyRound, CalendarDays, ShieldCheck, Loader2, Store, ArrowRight,
-  CreditCard, ExternalLink,
+  CreditCard, ExternalLink, BellRing
 } from 'lucide-react';
 import api from '@/lib/api';
 import SubscriptionBanner from '@/pages/SubscriptionBanner';
@@ -17,6 +17,52 @@ const Profile = () => {
 
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState('');
+
+  const [pushLoading, setPushLoading] = useState(false);
+  const [pushMessage, setPushMessage] = useState({ type: '', text: '' });
+
+  function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  const handleEnableNotifications = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setPushMessage({ type: 'error', text: 'Tu navegador no soporta notificaciones push.' });
+      return;
+    }
+    setPushLoading(true);
+    setPushMessage({ type: '', text: '' });
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+         setPushMessage({ type: 'error', text: 'Permiso de notificaciones denegado.' });
+         return;
+      }
+      const registration = await navigator.serviceWorker.ready;
+      const { data } = await api.get('/push/vapid-public-key');
+      const applicationServerKey = urlBase64ToUint8Array(data.publicKey);
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey
+      });
+      await api.post('/push/subscribe', { subscription });
+      setPushMessage({ type: 'success', text: 'Notificaciones activadas exitosamente.' });
+    } catch (err) {
+      console.error(err);
+      setPushMessage({ type: 'error', text: 'No se pudo activar las notificaciones.' });
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const userInfo = {
     nombre: user?.nombre || 'Cargando...',
@@ -136,6 +182,35 @@ const Profile = () => {
                 {passMessage.text && (
                   <p className={`text-sm font-medium mt-1 ${passMessage.type === 'error' ? 'text-[--lumin-warn]' : 'text-[#7B4CFF]'}`}>
                     {passMessage.text}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Notificaciones */}
+            <div className="pt-5 mt-2 border-t border-[--lumin-border]">
+              <div className="flex flex-col gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-[--lumin-text]">Notificaciones Push</h3>
+                  <p className="text-sm text-[--lumin-muted] mt-1">
+                    Recibe recordatorios de cobro y alertas directamente en tu celular o computadora.
+                  </p>
+                </div>
+                <button
+                  onClick={handleEnableNotifications}
+                  disabled={pushLoading}
+                  className="flex items-center justify-center gap-2 bg-[#7B4CFF] text-white font-bold px-4 py-2.5 rounded-xl hover:bg-[#6B3CEF] transition-colors w-full md:w-auto disabled:opacity-50 mt-1 text-sm shadow-md"
+                >
+                  {pushLoading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <BellRing size={16} />
+                  )}
+                  Habilitar Notificaciones
+                </button>
+                {pushMessage.text && (
+                  <p className={`text-sm font-medium mt-1 ${pushMessage.type === 'error' ? 'text-[--lumin-warn]' : 'text-[#25D366]'}`}>
+                    {pushMessage.text}
                   </p>
                 )}
               </div>

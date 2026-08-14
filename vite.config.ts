@@ -40,6 +40,7 @@ export default defineConfig({
       },
 
       workbox: {
+        importScripts: ['/push-sw.js'],
         // Archivos que el service worker pre-cachea al instalarse
         globPatterns: ["**/*.{js,css,html,svg,woff2}"],
 
