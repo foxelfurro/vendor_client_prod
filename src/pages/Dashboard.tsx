@@ -240,17 +240,17 @@ const Dashboard = () => {
 
         {/* Alertas de Cobro */}
         {!isLoading && stats?.cobros_hoy && stats.cobros_hoy.length > 0 && (
-          <div className="bg-red-50 dark:bg-[--lumin-warn-bg]/50 border border-red-200 dark:border-red-900/50 rounded-2xl p-5 shadow-sm">
-             <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
-                   <BellRing size={20} />
+          <div className="bg-red-50 dark:bg-[#3b0a0a]/40 border border-red-200 dark:border-[#7f1d1d] rounded-xl p-3.5 shadow-sm">
+             <div className="flex items-center gap-2.5 mb-3">
+                <div className="p-1.5 bg-red-100 dark:bg-[#7f1d1d]/50 rounded-lg text-red-600 dark:text-[#fca5a5]">
+                   <BellRing size={16} />
                 </div>
                 <div>
-                   <h2 className="font-bold text-red-800 dark:text-red-300 text-lg">Recordatorios de Cobro</h2>
-                   <p className="text-sm text-red-600 dark:text-red-400">Tienes {stats.cobros_hoy.length} clientas con pagos programados para hoy o vencidos.</p>
+                   <h2 className="font-bold text-red-800 dark:text-[#fecaca] text-sm leading-tight">Recordatorios de Cobro</h2>
+                   <p className="text-xs text-red-600 dark:text-[#fca5a5]">Tienes {stats.cobros_hoy.length} pagos programados para hoy o vencidos.</p>
                 </div>
              </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
                 {stats.cobros_hoy.map((cobro) => {
                    let dateText = 'hoy';
                    const d = new Date(cobro.fecha_proximo_pago);
@@ -268,16 +268,16 @@ const Dashboard = () => {
                    };
 
                    return (
-                     <div key={cobro.id} className="bg-white dark:bg-[--lumin-surface] border border-red-100 dark:border-red-900/30 rounded-xl p-4 flex items-center justify-between shadow-sm">
-                        <div>
-                           <p className="font-bold text-[--lumin-text]">{cobro.nombre}</p>
-                           <p className="text-sm font-mono font-bold text-[--lumin-warn]">${Number(cobro.deuda).toLocaleString('es-MX')}</p>
+                     <div key={cobro.id} className="bg-white dark:bg-[--lumin-surface] border border-red-100 dark:border-[#7f1d1d]/70 rounded-lg p-2.5 flex items-center justify-between shadow-sm hover:border-red-300 transition-colors">
+                        <div className="min-w-0 pr-2">
+                           <p className="font-bold text-[--lumin-text] text-xs truncate">{cobro.nombre}</p>
+                           <p className="text-[0.65rem] font-mono font-bold text-red-600 dark:text-[#fca5a5] truncate">${Number(cobro.deuda).toLocaleString('es-MX')}</p>
                         </div>
                         <button 
                           onClick={sendWhatsApp}
-                          className="flex items-center gap-2 px-3 py-2 bg-[#25D366] hover:bg-[#1DA851] text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                          className="flex items-center justify-center flex-shrink-0 gap-1.5 px-2.5 py-1.5 bg-[#25D366] hover:bg-[#1DA851] text-white text-[0.65rem] font-bold rounded-md transition-colors shadow-sm"
                         >
-                          <MessageCircle size={14} /> Recordar
+                          <MessageCircle size={12} /> Recordar
                         </button>
                      </div>
                    );
