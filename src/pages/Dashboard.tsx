@@ -21,6 +21,8 @@ import {
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
+  BellRing
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -51,6 +53,13 @@ interface DashboardStats {
   grafica_mensual: Array<{ mes: string; total: number }>;
   grafica_reciente: Array<{ etiqueta: string; total: number }>;
   grafica_anual: Array<{ anio: number; total: number }>;
+  cobros_hoy: Array<{
+    id: string;
+    nombre: string;
+    telefono: string;
+    deuda: number;
+    fecha_proximo_pago: string;
+  }>;
 }
 
 interface SaleHistoryItem {
@@ -228,6 +237,54 @@ const Dashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-5 py-8 md:py-12 space-y-8">
+
+        {/* Alertas de Cobro */}
+        {!isLoading && stats?.cobros_hoy && stats.cobros_hoy.length > 0 && (
+          <div className="bg-red-50 dark:bg-[--lumin-warn-bg]/50 border border-red-200 dark:border-red-900/50 rounded-2xl p-5 shadow-sm">
+             <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
+                   <BellRing size={20} />
+                </div>
+                <div>
+                   <h2 className="font-bold text-red-800 dark:text-red-300 text-lg">Recordatorios de Cobro</h2>
+                   <p className="text-sm text-red-600 dark:text-red-400">Tienes {stats.cobros_hoy.length} clientas con pagos programados para hoy o vencidos.</p>
+                </div>
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {stats.cobros_hoy.map((cobro) => {
+                   let dateText = 'hoy';
+                   const d = new Date(cobro.fecha_proximo_pago);
+                   const localDate = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+                   if (localDate.toDateString() !== new Date().toDateString()) {
+                      dateText = `el ${localDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}`;
+                   }
+                   
+                   const sendWhatsApp = () => {
+                     if (!cobro.telefono) return alert('Sin número registrado');
+                     let num = cobro.telefono.replace(/\D/g, '');
+                     if (num.length === 10) num = '52' + num; 
+                     const text = `Hola ${cobro.nombre}, espero te encuentres muy bien. Te escribo de Lumin para recordarte amablemente sobre tu abono pendiente de $${Number(cobro.deuda).toLocaleString('es-MX')} que toca ${dateText}. ¡Muchas gracias por tu preferencia!`;
+                     window.open(`https://wa.me/${num}?text=${encodeURIComponent(text)}`, '_blank');
+                   };
+
+                   return (
+                     <div key={cobro.id} className="bg-white dark:bg-[--lumin-surface] border border-red-100 dark:border-red-900/30 rounded-xl p-4 flex items-center justify-between shadow-sm">
+                        <div>
+                           <p className="font-bold text-[--lumin-text]">{cobro.nombre}</p>
+                           <p className="text-sm font-mono font-bold text-[--lumin-warn]">${Number(cobro.deuda).toLocaleString('es-MX')}</p>
+                        </div>
+                        <button 
+                          onClick={sendWhatsApp}
+                          className="flex items-center gap-2 px-3 py-2 bg-[#25D366] hover:bg-[#1DA851] text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                        >
+                          <MessageCircle size={14} /> Recordar
+                        </button>
+                     </div>
+                   );
+                })}
+             </div>
+          </div>
+        )}
 
         {/* KPI Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">

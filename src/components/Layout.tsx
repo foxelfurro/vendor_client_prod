@@ -43,14 +43,19 @@ const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [stockBajoCount, setStockBajoCount] = useState(0);
+  const [cobrosHoyCount, setCobrosHoyCount] = useState(0);
 
   const fetchStockAlerts = useCallback(async () => {
     if (!user) return;
     try {
-      const { data } = await api.get<{ count: number }>('/vendor/stock-alerts');
-      setStockBajoCount(data.count);
+      const [stockRes, cobrosRes] = await Promise.all([
+        api.get<{ count: number }>('/vendor/stock-alerts'),
+        api.get<{ count: number }>('/clientas/alertas/cobros-hoy')
+      ]);
+      setStockBajoCount(stockRes.data.count);
+      setCobrosHoyCount(cobrosRes.data.count);
     } catch {
-      // silencioso — el badge simplemente no aparece
+      // silencioso
     }
   }, [user]);
 
@@ -177,6 +182,11 @@ const Layout = () => {
               {path === '/inventario' && stockBajoCount > 0 && (
                 <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center leading-none">
                   {stockBajoCount}
+                </span>
+              )}
+              {path === '/clientas' && cobrosHoyCount > 0 && (
+                <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center leading-none shadow-sm shadow-red-500/50">
+                  {cobrosHoyCount}
                 </span>
               )}
             </NavLink>
