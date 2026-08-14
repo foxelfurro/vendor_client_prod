@@ -5,13 +5,14 @@ import AppFooter from '@/components/AppFooter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Users, DollarSign, Plus } from 'lucide-react';
+import { Users, DollarSign, Plus, MessageCircle, Calendar } from 'lucide-react';
 
 interface Clienta {
   id: string;
   nombre: string;
   telefono: string;
   saldo_pendiente: string;
+  fecha_proximo_pago?: string;
   created_at: string;
 }
 
@@ -28,6 +29,9 @@ const Clientas = () => {
   const [abonoMonto, setAbonoMonto] = useState('');
   const [procesandoAbono, setProcesandoAbono] = useState(false);
   const [abonoVentaId, setAbonoVentaId] = useState('');
+
+  const [editFechaPago, setEditFechaPago] = useState('');
+  const [isEditingFecha, setIsEditingFecha] = useState(false);
 
   const fetchClientas = async () => {
     try {
@@ -62,9 +66,42 @@ const Clientas = () => {
     try {
       const { data } = await api.get(`/clientas/${id}`);
       setClientaDetalle(data);
+      setEditFechaPago(data.clienta.fecha_proximo_pago ? new Date(data.clienta.fecha_proximo_pago).toISOString().split('T')[0] : '');
+      setIsEditingFecha(false);
     } catch (error) {
       console.error('Error al ver detalle', error);
     }
+  };
+
+  const handleUpdateFecha = async () => {
+    if (!selectedClienta) return;
+    try {
+      await api.put(`/clientas/${selectedClienta}`, { fecha_proximo_pago: editFechaPago || null });
+      handleViewDetalle(selectedClienta);
+      fetchClientas();
+      setIsEditingFecha(false);
+    } catch (error) {
+      console.error('Error al actualizar fecha', error);
+    }
+  };
+
+  const sendWhatsApp = (clienta: Clienta) => {
+    if (!clienta.telefono) return alert('La clienta no tiene número de teléfono registrado.');
+    let num = clienta.telefono.replace(/\D/g, '');
+    if (num.length === 10) num = '52' + num; 
+    
+    let dateText = 'pronto';
+    if (clienta.fecha_proximo_pago) {
+        // Formatear como si fuera UTC para no perder el día por zona horaria
+        const d = new Date(clienta.fecha_proximo_pago);
+        const userTimezoneOffset = d.getTimezoneOffset() * 60000;
+        const localDate = new Date(d.getTime() + userTimezoneOffset);
+        dateText = `el próximo ${localDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })}`;
+    }
+
+    const text = `Hola ${clienta.nombre}, espero te encuentres muy bien. Te escribo de Lumin para recordarte amablemente sobre tu abono pendiente de $${Number(clienta.saldo_pendiente).toLocaleString('es-MX')} que toca ${dateText}. ¡Muchas gracias por tu preferencia!`;
+    const url = `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
   };
 
   const handleRegistrarAbono = async (e: React.FormEvent) => {
@@ -159,9 +196,16 @@ const Clientas = () => {
                       ${Number(c.saldo_pendiente).toLocaleString('es-MX')}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <Button variant="outline" size="sm" onClick={() => handleViewDetalle(c.id)}>
-                         Ver Perfil
-                      </Button>
+                      <div className="flex items-center justify-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleViewDetalle(c.id)}>
+                           Ver Perfil
+                        </Button>
+                        {Number(c.saldo_pendiente) > 0 && c.telefono && (
+                          <Button size="icon" className="h-8 w-8 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-full shadow-lg" onClick={() => sendWhatsApp(c)} title="Recordatorio por WhatsApp">
+                            <MessageCircle size={14} />
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -189,6 +233,42 @@ const Clientas = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-6">
+                   {Number(clientaDetalle.clienta.saldo_pendiente) > 0 && (
+                     <div className="bg-[#7B4CFF]/10 border border-[#7B4CFF]/20 rounded-xl p-4 flex flex-col gap-3">
+                       <div className="flex items-center gap-2 text-[#7B4CFF] font-bold text-sm">
+                         <Calendar size={16} />
+                         Siguiente Fecha de Cobro
+                       </div>
+                       {isEditingFecha ? (
+                         <div className="flex gap-2">
+                           <Input 
+                             type="date" 
+                             value={editFechaPago} 
+                             onChange={e => setEditFechaPago(e.target.value)} 
+                             className="h-9 text-sm flex-1 dark:[color-scheme:dark]"
+                           />
+                           <Button size="sm" onClick={handleUpdateFecha} className="bg-[#7B4CFF] text-white">
+                             Guardar
+                           </Button>
+                           <Button size="sm" variant="ghost" onClick={() => setIsEditingFecha(false)}>
+                             Cancelar
+                           </Button>
+                         </div>
+                       ) : (
+                         <div className="flex items-center justify-between">
+                           <span className="text-[--lumin-text] text-sm">
+                             {clientaDetalle.clienta.fecha_proximo_pago 
+                               ? new Date(new Date(clientaDetalle.clienta.fecha_proximo_pago).getTime() + new Date().getTimezoneOffset() * 60000).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }) 
+                               : 'Sin fecha asignada'}
+                           </span>
+                           <Button size="sm" variant="outline" onClick={() => setIsEditingFecha(true)} className="h-8 text-xs">
+                             {clientaDetalle.clienta.fecha_proximo_pago ? 'Cambiar' : 'Asignar'}
+                           </Button>
+                         </div>
+                       )}
+                     </div>
+                   )}
+
                    <div>
                       <h3 className="text-sm font-bold text-[--lumin-muted] uppercase mb-2">Historial de Compras</h3>
                       <div className="space-y-3">

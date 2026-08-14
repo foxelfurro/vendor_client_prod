@@ -37,6 +37,7 @@ const Caja = () => {
 
   const [enAbonos, setEnAbonos] = useState(false);
   const [anticipo, setAnticipo] = useState('');
+  const [fechaProximoPago, setFechaProximoPago] = useState('');
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
 
@@ -121,7 +122,8 @@ const Caja = () => {
         cantidad,
         precio_unitario: productoActual.precio_personalizado,
         clienta_id: clientaId || null,
-        anticipo: enAbonos ? Number(anticipo) : 0
+        anticipo: enAbonos ? Number(anticipo) : 0,
+        fecha_proximo_pago: (enAbonos && fechaProximoPago) ? fechaProximoPago : null
       });
 
       setMensaje({ tipo: 'success', texto: 'Venta registrada correctamente.' });
@@ -132,6 +134,7 @@ const Caja = () => {
       setSearchClienta('');
       setEnAbonos(false);
       setAnticipo('');
+      setFechaProximoPago('');
 
       const { data } = await api.get('/vendor/inventory');
       setInventario(data.filter((item: InventoryItem) => item.stock > 0));
@@ -409,6 +412,17 @@ const Caja = () => {
                                 onChange={(e) => setAnticipo(e.target.value)}
                                 className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg]"
                                 placeholder="Monto del anticipo hoy"
+                              />
+                           </div>
+                           <div className="space-y-2.5 pt-2">
+                              <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
+                                Fecha del próximo cobro (Opcional)
+                              </label>
+                              <Input
+                                type="date"
+                                value={fechaProximoPago}
+                                onChange={(e) => setFechaProximoPago(e.target.value)}
+                                className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg] text-[--lumin-text] focus-visible:ring-[#7B4CFF] block w-full dark:[color-scheme:dark]"
                               />
                            </div>
                         )}
