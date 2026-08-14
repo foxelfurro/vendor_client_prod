@@ -177,46 +177,52 @@ const Clientas = () => {
              </Card>
           )}
 
-          <Card className="bg-[--lumin-surface] border-[--lumin-border] overflow-hidden">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[--lumin-hover] text-[--lumin-muted]">
-                <tr>
-                  <th className="px-4 py-3">Nombre</th>
-                  <th className="px-4 py-3">Teléfono</th>
-                  <th className="px-4 py-3 text-right">Deuda</th>
-                  <th className="px-4 py-3 text-center">Acción</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[--lumin-border]">
-                {clientas.map(c => (
-                  <tr key={c.id} className="hover:bg-[--lumin-hover] transition-colors">
-                    <td className="px-4 py-3 font-bold">{c.nombre}</td>
-                    <td className="px-4 py-3">{c.telefono || '-'}</td>
-                    <td className="px-4 py-3 text-right font-mono font-bold text-[--lumin-warn]">
-                      ${Number(c.saldo_pendiente).toLocaleString('es-MX')}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleViewDetalle(c.id)}>
-                           Ver Perfil
-                        </Button>
-                        {Number(c.saldo_pendiente) > 0 && c.telefono && (
-                          <Button size="icon" className="h-8 w-8 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-full shadow-lg" onClick={() => sendWhatsApp(c)} title="Recordatorio por WhatsApp">
-                            <MessageCircle size={14} />
+          <div className="grid grid-cols-1 gap-3">
+            {clientas.map(c => (
+               <div key={c.id} className="bg-[--lumin-surface] border border-[--lumin-border] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#7B4CFF]/50 transition-colors shadow-sm">
+                  <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 shrink-0 rounded-full bg-[#7B4CFF]/10 flex items-center justify-center text-[#7B4CFF] font-bold text-lg">
+                       {c.nombre.charAt(0).toUpperCase()}
+                     </div>
+                     <div>
+                        <h3 className="font-bold text-[--lumin-text] text-base">{c.nombre}</h3>
+                        <p className="text-sm text-[--lumin-muted]">{c.telefono || 'Sin teléfono registrado'}</p>
+                     </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-auto w-full border-t border-[--lumin-border] sm:border-0 pt-4 sm:pt-0">
+                     <div className="text-left sm:text-right">
+                       <p className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted] mb-0.5">Deuda</p>
+                       <p className={`font-mono font-bold text-lg leading-none ${Number(c.saldo_pendiente) > 0 ? 'text-[--lumin-warn]' : 'text-green-500'}`}>
+                         ${Number(c.saldo_pendiente).toLocaleString('es-MX')}
+                       </p>
+                     </div>
+                     <div className="flex items-center gap-2">
+                       {Number(c.saldo_pendiente) > 0 && c.telefono && (
+                          <Button size="icon" className="h-10 w-10 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-full shadow-lg" onClick={() => sendWhatsApp(c)} title="Recordatorio por WhatsApp">
+                            <MessageCircle size={18} />
                           </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {clientas.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="text-center py-6 text-[--lumin-muted]">No tienes clientas registradas aún.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </Card>
+                       )}
+                       <Button variant="outline" onClick={() => handleViewDetalle(c.id)} className="h-10 border-[--lumin-border] hover:bg-[--lumin-hover]">
+                          Ver Perfil
+                       </Button>
+                     </div>
+                  </div>
+               </div>
+            ))}
+            
+            {clientas.length === 0 && (
+               <div className="bg-[--lumin-surface] border border-[--lumin-border] rounded-xl p-8 text-center">
+                 <div className="w-16 h-16 rounded-full bg-[--lumin-hover] flex items-center justify-center mx-auto mb-4">
+                   <Users className="text-[--lumin-muted]" size={32} />
+                 </div>
+                 <h3 className="font-bold text-lg mb-2">Aún no tienes clientas</h3>
+                 <p className="text-[--lumin-muted] max-w-sm mx-auto">
+                   Agrega a tu primera clienta para empezar a llevar el control de sus compras y abonos.
+                 </p>
+               </div>
+            )}
+          </div>
         </div>
 
         {/* Panel lateral: Perfil de la Clienta */}
