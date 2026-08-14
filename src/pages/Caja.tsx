@@ -400,31 +400,33 @@ const Caja = () => {
                         </label>
                         
                         {enAbonos && (
-                           <div className="space-y-2.5">
-                              <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
-                                Anticipo Inicial ($)
-                              </label>
-                              <Input
-                                type="number"
-                                min="0"
-                                required={enAbonos}
-                                value={anticipo}
-                                onChange={(e) => setAnticipo(e.target.value)}
-                                className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg]"
-                                placeholder="Monto del anticipo hoy"
-                              />
-                           </div>
-                           <div className="space-y-2.5 pt-2">
-                              <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
-                                Fecha del próximo cobro (Opcional)
-                              </label>
-                              <Input
-                                type="date"
-                                value={fechaProximoPago}
-                                onChange={(e) => setFechaProximoPago(e.target.value)}
-                                className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg] text-[--lumin-text] focus-visible:ring-[#7B4CFF] block w-full dark:[color-scheme:dark]"
-                              />
-                           </div>
+                           <>
+                             <div className="space-y-2.5">
+                                <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
+                                  Anticipo Inicial ($)
+                                </label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  required={enAbonos}
+                                  value={anticipo}
+                                  onChange={(e) => setAnticipo(e.target.value)}
+                                  className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg]"
+                                  placeholder="Monto del anticipo hoy"
+                                />
+                             </div>
+                             <div className="space-y-2.5 pt-2">
+                                <label className="text-xs font-bold tracking-[0.1em] uppercase text-[--lumin-muted]">
+                                  Fecha del próximo cobro (Opcional)
+                                </label>
+                                <Input
+                                  type="date"
+                                  value={fechaProximoPago}
+                                  onChange={(e) => setFechaProximoPago(e.target.value)}
+                                  className="h-12 rounded-xl border-[--lumin-border] bg-[--lumin-bg] text-[--lumin-text] focus-visible:ring-[#7B4CFF] block w-full dark:[color-scheme:dark]"
+                                />
+                             </div>
+                           </>
                         )}
                      </div>
                   )}
