@@ -5,7 +5,7 @@ import AppFooter from '@/components/AppFooter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Users, DollarSign, Plus, MessageCircle, Calendar } from 'lucide-react';
+import { Users, DollarSign, Plus, MessageCircle, Calendar, Trash2 } from 'lucide-react';
 
 interface Clienta {
   id: string;
@@ -82,6 +82,26 @@ const Clientas = () => {
       setIsEditingFecha(false);
     } catch (error) {
       console.error('Error al actualizar fecha', error);
+    }
+  };
+
+  const handleDeleteClienta = async () => {
+    if (!selectedClienta || !clientaDetalle) return;
+    
+    if (Number(clientaDetalle.clienta.saldo_pendiente) > 0) {
+      alert('No puedes eliminar a esta clienta porque aún tiene deuda pendiente. Debe liquidarla primero.');
+      return;
+    }
+
+    if (confirm(`¿Estás seguro de que quieres eliminar a ${clientaDetalle.clienta.nombre}? Esta acción no se puede deshacer.`)) {
+      try {
+        await api.delete(`/clientas/${selectedClienta}`);
+        setClientaDetalle(null);
+        setSelectedClienta(null);
+        fetchClientas();
+      } catch (error: any) {
+        alert(error.response?.data?.error || 'Error al eliminar clienta');
+      }
     }
   };
 
@@ -316,6 +336,16 @@ const Clientas = () => {
                          ))}
                          {clientaDetalle.historial.length === 0 && <p className="text-xs text-[--lumin-muted]">No hay compras registradas.</p>}
                       </div>
+                   </div>
+
+                   <div className="pt-4 border-t border-[--lumin-border] flex justify-end">
+                      <Button 
+                        variant="ghost" 
+                        className="text-red-500 hover:text-red-600 hover:bg-red-500/10 h-9" 
+                        onClick={handleDeleteClienta}
+                      >
+                         <Trash2 size={16} className="mr-2" /> Eliminar Clienta
+                      </Button>
                    </div>
                 </CardContent>
              </Card>
