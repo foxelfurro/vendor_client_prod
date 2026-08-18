@@ -122,6 +122,7 @@ const Caja = () => {
         cantidad,
         precio_unitario: productoActual.precio_personalizado,
         clienta_id: clientaId || null,
+        en_abonos: enAbonos,
         anticipo: enAbonos ? Number(anticipo) : 0,
         fecha_proximo_pago: (enAbonos && fechaProximoPago) ? fechaProximoPago : null
       });
