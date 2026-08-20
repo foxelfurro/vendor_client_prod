@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import {
   Store, Loader2, CheckCircle2, AlertCircle, Copy, QrCode, X, Sparkles,
   Palette, Check, Pipette, ImagePlus, Image as ImageIcon, Trash2,
-  Instagram, Facebook, Music2, LayoutGrid, Square, Sun, Moon, ArrowLeft, User,
+  Instagram, Facebook, Music2, LayoutGrid, Square, Sun, Moon, ArrowLeft, User, Lock
 } from 'lucide-react';
 import api from '@/lib/api';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -160,8 +160,25 @@ const StoreSettings = () => {
   const actionBtnClass =
     'flex items-center gap-1.5 px-3 py-2 bg-[--lumin-hover] border border-[--lumin-border] rounded-lg text-sm font-medium text-[--lumin-text] hover:border-[#7B4CFF]/40 transition-colors cursor-pointer';
 
+  const isPro = user?.suscripcion_plan === 'pro';
+
   return (
     <div className="p-5 md:p-8 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {!isPro && (
+        <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 flex items-start gap-4 shadow-lg shadow-amber-500/5">
+          <div className="bg-amber-500/20 p-2.5 rounded-xl shrink-0">
+            <Lock className="w-6 h-6 text-amber-500" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-[--lumin-text] text-base mb-1">Función exclusiva del Plan Pro</h3>
+            <p className="text-sm text-[--lumin-muted] mb-3">La Tienda Digital Pública te permite recibir pedidos por internet con tu propio dominio. Actualiza tu suscripción para habilitarla.</p>
+            <Link to="/suscripcion" className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors shadow-md shadow-amber-500/20">
+              Mejorar al Plan Pro
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="mb-8">
@@ -187,7 +204,7 @@ const StoreSettings = () => {
         </div>
       </div>
 
-      <form onSubmit={handleFormSubmit} className="space-y-6">
+      <form onSubmit={handleFormSubmit} className={`space-y-6 ${!isPro ? 'opacity-50 pointer-events-none' : ''}`}>
 
         {/* Sección: Datos básicos */}
         <div className="bg-[--lumin-surface] border border-[--lumin-border] rounded-2xl p-6 shadow-sm space-y-5">
@@ -545,7 +562,7 @@ const StoreSettings = () => {
 
         <button
           type="submit"
-          disabled={formStatus === 'loading'}
+          disabled={formStatus === 'loading' || !isPro}
           className="flex items-center justify-center gap-2 bg-[#7B4CFF] hover:bg-[#6B3CEF] text-[--lumin-text] font-bold px-6 py-3 rounded-xl shadow-lg shadow-[#7B4CFF]/25 transition-all active:scale-[0.98] disabled:opacity-50 text-sm w-full sm:w-auto"
         >
           {formStatus === 'loading' ? (

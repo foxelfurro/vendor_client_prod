@@ -196,22 +196,33 @@ const Profile = () => {
                     Recibe recordatorios de cobro y alertas directamente en tu celular o computadora.
                   </p>
                 </div>
-                <button
-                  onClick={handleEnableNotifications}
-                  disabled={pushLoading}
-                  className="flex items-center justify-center gap-2 bg-[#7B4CFF] text-white font-bold px-4 py-2.5 rounded-xl hover:bg-[#6B3CEF] transition-colors w-full md:w-auto disabled:opacity-50 mt-1 text-sm shadow-md"
-                >
-                  {pushLoading ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <BellRing size={16} />
-                  )}
-                  Habilitar Notificaciones
-                </button>
-                {pushMessage.text && (
-                  <p className={`text-sm font-medium mt-1 ${pushMessage.type === 'error' ? 'text-[--lumin-warn]' : 'text-[#25D366]'}`}>
-                    {pushMessage.text}
-                  </p>
+                {user?.suscripcion_plan !== 'pro' ? (
+                  <div className="flex flex-col gap-2 mt-1">
+                    <p className="text-xs font-bold text-amber-500">Función exclusiva del Plan Pro</p>
+                    <Link to="/suscripcion" className="flex items-center justify-center bg-[--lumin-hover] border border-[--lumin-border] text-[--lumin-text] font-bold px-4 py-2.5 rounded-xl text-sm transition-colors hover:border-amber-500/50">
+                      Actualizar a Plan Pro
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleEnableNotifications}
+                      disabled={pushLoading}
+                      className="flex items-center justify-center gap-2 bg-[#7B4CFF] text-white font-bold px-4 py-2.5 rounded-xl hover:bg-[#6B3CEF] transition-colors w-full md:w-auto disabled:opacity-50 mt-1 text-sm shadow-md"
+                    >
+                      {pushLoading ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <BellRing size={16} />
+                      )}
+                      Habilitar Notificaciones
+                    </button>
+                    {pushMessage.text && (
+                      <p className={`text-sm font-medium mt-1 ${pushMessage.type === 'error' ? 'text-[--lumin-warn]' : 'text-[#25D366]'}`}>
+                        {pushMessage.text}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </div>
