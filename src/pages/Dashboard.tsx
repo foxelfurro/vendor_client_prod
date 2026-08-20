@@ -93,7 +93,7 @@ const HISTORY_PAGE_SIZE = 50;
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { open: onboardingOpen, dismiss: dismissOnboarding, pause: pauseOnboarding, initialStep: onboardingInitialStep } = useOnboarding();
+  const { open: onboardingOpen, dismiss: dismissOnboarding, pause: pauseOnboarding, initialStep: onboardingInitialStep } = useOnboarding(user?.id);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 

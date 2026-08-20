@@ -1,33 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
   Sparkles, Store, Package, ShoppingCart, Share2,
-  ArrowRight, ArrowLeft, X, Search, Check, QrCode,
+  ArrowRight, ArrowLeft, X, Search, Check, QrCode, Users
 } from 'lucide-react';
 
-const STORAGE_KEY = 'lumin_onboarding_done';
-const STEP_KEY = 'lumin_onboarding_step';
+export function useOnboarding(userId?: string) {
+  const [openState, setOpenState] = useState<boolean | null>(null);
 
-export function useOnboarding() {
-  const [open, setOpen] = useState(() => {
-    return localStorage.getItem(STORAGE_KEY) !== 'true';
-  });
+  useEffect(() => {
+    if (userId && openState === null) {
+      const STORAGE_KEY = `lumin_onboarding_done_${userId}`;
+      setOpenState(localStorage.getItem(STORAGE_KEY) !== 'true');
+    }
+  }, [userId, openState]);
 
-  /** Marca el tutorial como completado/saltado permanentemente. */
+  const open = openState ?? false;
+
   const dismiss = () => {
-    localStorage.setItem(STORAGE_KEY, 'true');
-    localStorage.removeItem(STEP_KEY);
-    setOpen(false);
+    if (!userId) return;
+    localStorage.setItem(`lumin_onboarding_done_${userId}`, 'true');
+    localStorage.removeItem(`lumin_onboarding_step_${userId}`);
+    setOpenState(false);
   };
 
-  /** Cierra el modal temporalmente guardando el paso actual — reabre al volver al dashboard. */
   const pause = (step: number) => {
-    localStorage.setItem(STEP_KEY, String(step));
-    setOpen(false);
+    if (!userId) return;
+    localStorage.setItem(`lumin_onboarding_step_${userId}`, String(step));
+    setOpenState(false);
   };
 
-  const initialStep = parseInt(localStorage.getItem(STEP_KEY) || '0');
+  const initialStep = userId ? parseInt(localStorage.getItem(`lumin_onboarding_step_${userId}`) || '0') : 0;
 
   return { open, dismiss, pause, initialStep };
 }
@@ -65,11 +69,19 @@ const steps = [
     action: { label: 'Ir al Inventario', href: '/inventario' },
   },
   {
+    key: 'clients',
+    icon: Users,
+    label: 'Clientas',
+    title: 'Registra a tus clientas',
+    description: 'Lleva el control de quién te compra, su historial y los saldos pendientes de cada una.',
+    action: { label: 'Ir a Clientas', href: '/clientas' },
+  },
+  {
     key: 'sell',
     icon: ShoppingCart,
     label: 'Vender',
     title: 'Cómo registrar una venta',
-    description: 'Desde el Panel de Control puedes cobrar en segundos. Así funciona:',
+    description: 'Desde la Caja puedes cobrar de contado o en abonos. Así funciona:',
   },
   {
     key: 'share',
@@ -121,7 +133,7 @@ const SellDemo = () => (
         num: 3,
         icon: ShoppingCart,
         title: 'Cobra y registra',
-        detail: 'Presiona "Cobrar y Registrar" — el stock se descuenta automáticamente.',
+        detail: 'Elige la clienta y si te pagó de contado o dejó un anticipo (abonos). El sistema calculará la deuda restante.',
         extra: (
           <div className="mt-1.5 w-full py-2 rounded-lg bg-[#7B4CFF] text-center text-[11px] font-bold text-white">
             Cobrar y Registrar · $850
