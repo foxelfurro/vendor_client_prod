@@ -10,6 +10,7 @@ export interface User {
   personalizacion?: unknown;
   suscripcion_fin?: string;
   suscripcion_estado?: string;
+  suscripcion_plan?: string;
 }
 
 export interface CatalogProduct {

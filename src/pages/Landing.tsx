@@ -472,70 +472,152 @@ const Landing = () => {
         {/*  PRICING                                                           */}
         {/* ================================================================= */}
         <section id="precio" className="py-20 sm:py-28">
-          <div className="mx-auto max-w-3xl px-5 sm:px-8 text-center">
+          <div className="mx-auto max-w-screen-xl px-5 sm:px-8 text-center">
             <FadeIn>
               <span className="text-[0.65rem] uppercase font-bold tracking-[0.25em] text-[#862fff]">
-                Precio honesto
+                Precios y planes
               </span>
               <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-headline font-extrabold tracking-tight text-white">
-                Una sola suscripción. Todo incluido.
+                Elige el plan ideal para ti.
               </h2>
               <p className="mt-5 text-base sm:text-lg text-[#7c4cbf]">
-                Sin niveles confusos. Sin upsells. Sin sorpresas en tu recibo.
+                Sin comisiones por venta. Actualiza o cancela cuando quieras.
               </p>
             </FadeIn>
 
-            <FadeIn delay={120}>
-              <div className="mt-12 rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-8 sm:p-12 shadow-lg shadow-[#862fff]/10 text-left">
-                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pb-8 border-b border-white/50">
-                  <div>
-                    <h3 className="text-2xl font-headline font-extrabold tracking-tight text-white">
-                      Lumin · Acceso completo
-                    </h3>
-                    <p className="mt-2 text-sm text-[#7c4cbf]">
-                      Cuenta de socia con todas las funciones, actualizaciones incluidas.
-                    </p>
+            <div className="mt-12 grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto text-left">
+              
+              {/* PLAN MINI */}
+              <FadeIn delay={120}>
+                <div className="h-full flex flex-col rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-8 shadow-lg shadow-[#862fff]/5">
+                  <h3 className="text-xl font-headline font-extrabold tracking-tight text-white">
+                    Plan Mini
+                  </h3>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-4xl font-headline font-extrabold tracking-tighter text-[#862fff]">$99</span>
+                    <span className="text-sm font-bold text-[#7c4cbf]">/ mes</span>
                   </div>
-                  <div className="text-left sm:text-right">
-                    <div className="flex items-baseline gap-2 sm:justify-end">
-                      <span className="text-5xl font-headline font-extrabold tracking-tighter text-[#862fff]">
-                        $299.99
-                      </span>
-                      <span className="text-sm font-bold text-[#7c4cbf]">MXN / mes</span>
-                    </div>
-                  </div>
-                </div>
-
-                <ul className="mt-8 grid sm:grid-cols-2 gap-4">
-                  {[
-                    'Catálogo maestro ilimitado',
-                    'Tienda pública con link propio',
-                    'Caja, QR y devoluciones',
-                    'Dashboard con métricas',
-                    'Soporte por correo y WhatsApp',
-                    'Actualizaciones para siempre',
-                  ].map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
+                  <p className="mt-3 text-sm text-[#7c4cbf] min-h-[40px]">
+                    Ideal para comenzar con lo más esencial.
+                  </p>
+                  
+                  <ul className="mt-6 flex-1 space-y-4">
+                    <li className="flex items-start gap-3">
                       <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
-                      <span className="text-sm text-white">{feature}</span>
+                      <span className="text-sm text-white">Inventario de hasta 50 joyas</span>
                     </li>
-                  ))}
-                </ul>
-
-                <div className="mt-10">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm text-white">Registro de hasta 20 clientas</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm text-white">Punto de venta y tickets</span>
+                    </li>
+                    <li className="flex items-start gap-3 opacity-50">
+                      <div className="w-[18px] flex justify-center mt-0.5">-</div>
+                      <span className="text-sm text-white">Sin tienda pública</span>
+                    </li>
+                  </ul>
+                  
                   <Link
                     to="/registro"
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#862fff] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#862fff]/25 transition-all hover:bg-[#7B2EE8] active:scale-[0.98]"
+                    className="mt-8 group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white border border-[#862fff]/30 px-6 py-3.5 text-sm font-bold text-[#862fff] transition-all hover:bg-[#862fff]/5 active:scale-[0.98]"
                   >
-                    Comenzar ahora
+                    Empezar Mini
+                  </Link>
+                </div>
+              </FadeIn>
+
+              {/* PLAN AVANZADO */}
+              <FadeIn delay={220}>
+                <div className="h-full flex flex-col rounded-3xl border-2 border-[#862fff] bg-white/70 backdrop-blur-md p-8 shadow-xl shadow-[#862fff]/20 relative">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#862fff] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                    Más popular
+                  </div>
+                  <h3 className="text-xl font-headline font-extrabold tracking-tight text-[#862fff]">
+                    Plan Avanzado
+                  </h3>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-4xl font-headline font-extrabold tracking-tighter text-[#862fff]">$199</span>
+                    <span className="text-sm font-bold text-[#7c4cbf]">/ mes</span>
+                  </div>
+                  <p className="mt-3 text-sm text-[#7c4cbf] min-h-[40px]">
+                    Lleva tu negocio al siguiente nivel sin límites.
+                  </p>
+                  
+                  <ul className="mt-6 flex-1 space-y-4">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm font-medium text-black">Inventario ilimitado</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm font-medium text-black">Clientas ilimitadas</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm font-medium text-black">Catálogo maestro ilimitado</span>
+                    </li>
+                    <li className="flex items-start gap-3 opacity-50">
+                      <div className="w-[18px] flex justify-center mt-0.5">-</div>
+                      <span className="text-sm text-black">Sin tienda pública</span>
+                    </li>
+                  </ul>
+                  
+                  <Link
+                    to="/registro"
+                    className="mt-8 group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#862fff] px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-[#862fff]/25 transition-all hover:bg-[#7B2EE8] active:scale-[0.98]"
+                  >
+                    Empezar Avanzado
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                   </Link>
-                  <p className="mt-4 text-center text-xs text-[#7c4cbf]/70">
-                    Cancela cuando quieras desde tu perfil.
-                  </p>
                 </div>
-              </div>
-            </FadeIn>
+              </FadeIn>
+
+              {/* PLAN PRO */}
+              <FadeIn delay={320}>
+                <div className="h-full flex flex-col rounded-3xl border border-white/60 bg-white/50 backdrop-blur-md p-8 shadow-lg shadow-[#862fff]/5">
+                  <h3 className="text-xl font-headline font-extrabold tracking-tight text-white">
+                    Plan Pro
+                  </h3>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-4xl font-headline font-extrabold tracking-tighter text-[#862fff]">$299</span>
+                    <span className="text-sm font-bold text-[#7c4cbf]">/ mes</span>
+                  </div>
+                  <p className="mt-3 text-sm text-[#7c4cbf] min-h-[40px]">
+                    Incluye 7 días de prueba gratis. Presencia digital completa.
+                  </p>
+                  
+                  <ul className="mt-6 flex-1 space-y-4">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm text-white">Todo lo del Plan Avanzado</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm text-white font-medium">Tienda pública online</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm text-white font-medium">Notificaciones Push</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="text-[#862fff] shrink-0 mt-0.5" />
+                      <span className="text-sm text-white font-medium">Soporte prioritario</span>
+                    </li>
+                  </ul>
+                  
+                  <Link
+                    to="/registro"
+                    className="mt-8 group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white border border-[#862fff]/30 px-6 py-3.5 text-sm font-bold text-[#862fff] transition-all hover:bg-[#862fff]/5 active:scale-[0.98]"
+                  >
+                    Probar 7 días gratis
+                  </Link>
+                </div>
+              </FadeIn>
+
+            </div>
           </div>
         </section>
 
