@@ -27,6 +27,7 @@ interface InventoryItem {
   precio_personalizado: number;
   precio_sugerido: number;
   ruta_imagen: string;
+  foto_personalizada?: string;
   categoria?: string;
   categoria_id?: number | null;
   estado?: boolean;
@@ -61,6 +62,51 @@ const Inventory = () => {
   const [customImagenFile, setCustomImagenFile] = useState<File | null>(null);
   const [customImagenPreview, setCustomImagenPreview] = useState<string | null>(null);
   const [guardandoCustom, setGuardandoCustom] = useState(false);
+
+  // Estados para cambiar foto individual
+  const hiddenFileInput = useRef<HTMLInputElement>(null);
+  const [updatingPhotoId, setUpdatingPhotoId] = useState<number | null>(null);
+
+  const onPhotoClick = (id: number) => {
+    setUpdatingPhotoId(id);
+    hiddenFileInput.current?.click();
+  };
+
+  const onFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !updatingPhotoId) {
+      setUpdatingPhotoId(null);
+      return;
+    }
+    try {
+      const url = await uploadImage(file);
+      await api.put(`/vendor/inventory/${updatingPhotoId}/photo`, { foto_personalizada: url });
+      setInventario(prev => prev.map(item => 
+        item.inventario_id === updatingPhotoId ? { ...item, ruta_imagen: url, foto_personalizada: url } : item
+      ));
+    } catch (err) {
+      console.error(err);
+      alert('Error subiendo imagen');
+    } finally {
+      setUpdatingPhotoId(null);
+      if (hiddenFileInput.current) hiddenFileInput.current.value = '';
+    }
+  };
+
+  const onRemoveCustomPhoto = async (id: number) => {
+    if (!confirm('¿Restaurar la foto original de la joya?')) return;
+    try {
+      setUpdatingPhotoId(id);
+      await api.put(`/vendor/inventory/${id}/photo`, { foto_personalizada: null });
+      // Para saber la foto original tendríamos que refrescar, así que hacemos un fetch o lo recargamos.
+      fetchInventory(); 
+    } catch (err) {
+      console.error(err);
+      alert('Error al restaurar foto');
+    } finally {
+      setUpdatingPhotoId(null);
+    }
+  };
 
   // Modales QR: sumar stock a joya existente
   type CatItem = { sku: string; skus_anteriores?: string[]; nombre: string; precio_sugerido?: number; id: number };
@@ -409,9 +455,14 @@ const Inventory = () => {
 
   return (
     <div className="bg-[--lumin-bg] font-body text-[--lumin-text] antialiased min-h-screen">
-
-      {/* Editorial Header */}
-      <header className="border-b border-[--lumin-border] bg-[--lumin-surface]">
+      <input 
+        type="file" 
+        accept="image/*" 
+        ref={hiddenFileInput} 
+        onChange={onFileSelected} 
+        style={{ display: 'none' }} 
+      />
+      <header className="border-b border-[--lumin-border] relative z-10 bg-[--lumin-bg]/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-5 py-8 md:py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-1">
             <span className="text-[0.6rem] tracking-[0.3em] uppercase font-bold text-[#7B4CFF]">
@@ -651,12 +702,28 @@ const Inventory = () => {
                   )}
 
                   {/* Product Image */}
-                  <div className="aspect-[4/3] overflow-hidden bg-[--lumin-hover] flex-shrink-0">
+                  <div className="aspect-[4/3] overflow-hidden bg-[--lumin-hover] flex-shrink-0 relative group/img">
                     <img
                       src={item.ruta_imagen || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop"}
                       alt={item.nombre}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
                     />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 backdrop-blur-[2px]">
+                      {updatingPhotoId === item.inventario_id ? (
+                         <Loader2 className="animate-spin text-white w-6 h-6" />
+                      ) : (
+                         <>
+                           <Button size="sm" variant="secondary" className="h-8 rounded-full shadow-xl bg-white/90 hover:bg-white text-xs font-bold text-black border-0" onClick={() => onPhotoClick(item.inventario_id)}>
+                              <Camera size={14} className="mr-1.5" /> Cambiar foto
+                           </Button>
+                           {item.foto_personalizada && (
+                             <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-xl" onClick={(e) => { e.stopPropagation(); onRemoveCustomPhoto(item.inventario_id); }} title="Restaurar foto original">
+                                <Trash2 size={14} />
+                             </Button>
+                           )}
+                         </>
+                      )}
+                    </div>
                   </div>
 
                   {/* Product Details */}

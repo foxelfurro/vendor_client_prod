@@ -33,6 +33,10 @@ const Clientas = () => {
   const [editFechaPago, setEditFechaPago] = useState('');
   const [isEditingFecha, setIsEditingFecha] = useState(false);
 
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editNombre, setEditNombre] = useState('');
+  const [editTelefono, setEditTelefono] = useState('');
+
   const fetchClientas = async () => {
     try {
       const { data } = await api.get('/clientas');
@@ -68,6 +72,9 @@ const Clientas = () => {
       setClientaDetalle(data);
       setEditFechaPago(data.clienta.fecha_proximo_pago ? new Date(data.clienta.fecha_proximo_pago).toISOString().split('T')[0] : '');
       setIsEditingFecha(false);
+      setEditNombre(data.clienta.nombre);
+      setEditTelefono(data.clienta.telefono || '');
+      setIsEditingInfo(false);
     } catch (error) {
       console.error('Error al ver detalle', error);
     }
@@ -82,6 +89,18 @@ const Clientas = () => {
       setIsEditingFecha(false);
     } catch (error) {
       console.error('Error al actualizar fecha', error);
+    }
+  };
+
+  const handleUpdateInfo = async () => {
+    if (!selectedClienta) return;
+    try {
+      await api.put(`/clientas/${selectedClienta}`, { nombre: editNombre, telefono: editTelefono });
+      handleViewDetalle(selectedClienta);
+      fetchClientas();
+    } catch (error) {
+      console.error('Error al actualizar info', error);
+      alert('Error al guardar los datos.');
     }
   };
 
@@ -250,13 +269,40 @@ const Clientas = () => {
           {clientaDetalle ? (
              <Card className="bg-[--lumin-surface] border-[--lumin-border] sticky top-6">
                 <CardHeader className="border-b border-[--lumin-border] pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                     <Users size={20} className="text-[#7B4CFF]" />
-                     {clientaDetalle.clienta.nombre}
-                  </CardTitle>
-                  <CardDescription>
-                     Deuda Total: <strong className="text-[--lumin-warn] text-lg">${Number(clientaDetalle.clienta.saldo_pendiente).toLocaleString('es-MX')}</strong>
-                  </CardDescription>
+                  {isEditingInfo ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs text-[--lumin-muted]">Nombre</label>
+                        <Input value={editNombre} onChange={e => setEditNombre(e.target.value)} className="h-9 text-sm dark:[color-scheme:dark]" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-[--lumin-muted]">Teléfono</label>
+                        <Input value={editTelefono} onChange={e => setEditTelefono(e.target.value)} className="h-9 text-sm dark:[color-scheme:dark]" />
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <Button size="sm" onClick={handleUpdateInfo} className="bg-[#7B4CFF] hover:bg-[#6B3CEF] text-white">Guardar</Button>
+                        <Button size="sm" variant="ghost" onClick={() => setIsEditingInfo(false)}>Cancelar</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                             <Users size={20} className="text-[#7B4CFF]" />
+                             {clientaDetalle.clienta.nombre}
+                          </CardTitle>
+                          <p className="text-sm text-[--lumin-muted] mt-1">{clientaDetalle.clienta.telefono || 'Sin teléfono'}</p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => setIsEditingInfo(true)} className="h-8 text-xs text-[#7B4CFF] hover:bg-[#7B4CFF]/10">
+                          Editar
+                        </Button>
+                      </div>
+                      <CardDescription className="mt-3">
+                         Deuda Total: <strong className="text-[--lumin-warn] text-lg">${Number(clientaDetalle.clienta.saldo_pendiente).toLocaleString('es-MX')}</strong>
+                      </CardDescription>
+                    </>
+                  )}
                 </CardHeader>
                 <CardContent className="pt-4 space-y-6">
                    {Number(clientaDetalle.clienta.saldo_pendiente) > 0 && (
