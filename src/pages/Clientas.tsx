@@ -347,7 +347,7 @@ const Clientas = () => {
                          {clientaDetalle.historial.map((venta: any) => (
                             <div key={venta.id} className="text-xs bg-[--lumin-hover] p-3 rounded-lg border border-[--lumin-border]">
                                <div className="flex justify-between font-bold mb-1">
-                                  <span>{venta.producto}</span>
+                                  <span>{venta.producto} <span className="text-[--lumin-muted] font-normal ml-1">({venta.sku})</span></span>
                                   <span>${Number(venta.precio_total).toLocaleString()}</span>
                                </div>
                                <div className="flex justify-between text-[--lumin-muted]">
