@@ -3,12 +3,14 @@ import { useSearchParams, Link } from 'react-router-dom';
 import api from '@/lib/api';
 import { Loader2, ShieldCheck, Check, Lock } from 'lucide-react';
 
-const PLANES = [
+type PlanId = 'mini' | 'avanzado' | 'pro';
+
+// El precio que se cobra lo decide el backend a partir del id del plan.
+const PLANES: { id: PlanId; nombre: string; precio: number; beneficios: string[]; color: string; recomendado?: boolean }[] = [
   {
     id: 'mini',
     nombre: 'Plan Mini',
     precio: 99,
-    price_id: 'price_1U5zclJR4YuhIwI0y4J8GX0h',
     beneficios: ['Hasta 50 joyas en inventario', 'Hasta 20 clientas', 'Funciones básicas', 'Sin tienda pública'],
     color: 'bg-slate-800 border-slate-700'
   },
@@ -16,7 +18,6 @@ const PLANES = [
     id: 'avanzado',
     nombre: 'Plan Avanzado',
     precio: 199,
-    price_id: 'price_1U5zdgJR4YuhIwI0WdU4jWFg',
     beneficios: ['Inventario ilimitado', 'Clientas ilimitadas', 'Gráficos de ventas', 'Sin límites de registro'],
     color: 'bg-[#7B4CFF]/10 border-[#7B4CFF]/50',
     recomendado: true
@@ -25,7 +26,6 @@ const PLANES = [
     id: 'pro',
     nombre: 'Plan Pro',
     precio: 299,
-    price_id: 'price_1TaSbSJR4YuhIwI0RLOhH4rO',
     beneficios: ['Tienda Digital Pública', 'Notificaciones Push', 'Soporte prioritario', '7 días de prueba gratis'],
     color: 'bg-amber-900/20 border-amber-500/50'
   }
@@ -37,14 +37,14 @@ const Subscribe = () => {
   const [password, setPassword] = useState('');
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
-  const [planSeleccionado, setPlanSeleccionado] = useState(PLANES[1].price_id);
+  const [planSeleccionado, setPlanSeleccionado] = useState<PlanId>(PLANES[1].id);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setProcesando(true);
     try {
-      const { data } = await api.post('/payments/checkout', { email, password, price_id: planSeleccionado });
+      const { data } = await api.post('/payments/checkout', { email, password, plan: planSeleccionado });
       window.location.href = data.url;
     } catch (err) {
       const error = err as { response?: { data?: { error?: string } } };
@@ -76,8 +76,8 @@ const Subscribe = () => {
           {PLANES.map(plan => (
             <div 
               key={plan.id}
-              onClick={() => setPlanSeleccionado(plan.price_id)}
-              className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 ${planSeleccionado === plan.price_id ? plan.color + ' scale-105 shadow-xl shadow-[#7B4CFF]/10 ring-4 ring-[#7B4CFF]/20 z-10' : 'bg-[--lumin-surface] border-[--lumin-border] hover:border-[#7B4CFF]/30 opacity-70 hover:opacity-100'}`}
+              onClick={() => setPlanSeleccionado(plan.id)}
+              className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 ${planSeleccionado === plan.id ? plan.color + ' scale-105 shadow-xl shadow-[#7B4CFF]/10 ring-4 ring-[#7B4CFF]/20 z-10' : 'bg-[--lumin-surface] border-[--lumin-border] hover:border-[#7B4CFF]/30 opacity-70 hover:opacity-100'}`}
             >
               {plan.recomendado && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#7B4CFF] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full">
@@ -149,7 +149,7 @@ const Subscribe = () => {
                 </>
               ) : (
                 <>
-                  <Lock size={16} className="opacity-70" /> Pagar ${PLANES.find(p => p.price_id === planSeleccionado)?.precio} / mes
+                  <Lock size={16} className="opacity-70" /> Pagar ${PLANES.find(p => p.id === planSeleccionado)?.precio} / mes
                 </>
               )}
             </button>
