@@ -11,7 +11,10 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    // Solo el 401 significa "sesión inválida o expirada". El 403 es "sin permiso"
+    // (p. ej. límite del Plan Mini o función exclusiva de Pro): la página que hizo
+    // la petición muestra el mensaje del backend, así que no se redirige.
+    if (error.response && error.response.status === 401) {
       const currentPath = window.location.pathname;
       
       const publicRoutes = [
